@@ -1,0 +1,118 @@
+name: 'Runhuman QA Test'
+description: 'Run human QA tests on URLs, PRs, and issues with real testers'
+author: 'Runhuman'
+branding:
+  icon: 'check-square'
+  color: 'green'
+
+inputs:
+  # Required - where to test
+  url:
+    description: 'URL to test (must be publicly accessible)'
+    required: true
+
+  # Test context sources (all additive, deduped)
+  description:
+    description: 'Additional test instructions for the tester'
+    required: false
+  pr-numbers:
+    description: 'PR numbers to find linked issues from (JSON array or comma-separated)'
+    required: false
+  issue-numbers:
+    description: 'Issue numbers to test directly (JSON array or comma-separated)'
+    required: false
+
+  # Success callbacks
+  on-success-add-labels:
+    description: 'Labels to add on test success (JSON array)'
+    required: false
+  on-success-remove-labels:
+    description: 'Labels to remove on test success (JSON array)'
+    required: false
+
+  # Failure callbacks
+  on-failure-add-labels:
+    description: 'Labels to add on test failure (JSON array)'
+    required: false
+  on-failure-remove-labels:
+    description: 'Labels to remove on test failure (JSON array)'
+    required: false
+
+  # Not-testable callbacks
+  on-not-testable-add-labels:
+    description: 'Labels to add when issue is not testable (JSON array)'
+    required: false
+  on-not-testable-remove-labels:
+    description: 'Labels to remove when issue is not testable (JSON array)'
+    required: false
+
+  # Timeout callbacks
+  on-timeout-add-labels:
+    description: 'Labels to add on test timeout (JSON array)'
+    required: false
+  on-timeout-remove-labels:
+    description: 'Labels to remove on test timeout (JSON array)'
+    required: false
+
+  # Workflow control
+  fail-on-error:
+    description: 'Fail the workflow on system errors'
+    required: false
+    default: 'true'
+  fail-on-failure:
+    description: 'Fail the workflow if any test fails'
+    required: false
+    default: 'true'
+  fail-on-timeout:
+    description: 'Fail the workflow if tester times out'
+    required: false
+    default: 'false'
+
+  # API configuration
+  api-key:
+    description: 'Runhuman API key (starts with qa_live_)'
+    required: true
+  github-token:
+    description: 'GitHub token for API access'
+    required: false
+    default: ${{ github.token }}
+  api-url:
+    description: 'Runhuman API base URL'
+    required: false
+    default: 'https://runhuman.com'
+
+  # Test configuration
+  target-duration-minutes:
+    description: 'Target test duration in minutes (1-60)'
+    required: false
+    default: '5'
+  screen-size:
+    description: 'Screen size for testing (desktop, laptop, tablet, mobile, or custom JSON)'
+    required: false
+    default: 'desktop'
+
+outputs:
+  status:
+    description: 'Test status (completed, error, timeout, no-issues)'
+  success:
+    description: 'Whether all tests passed (true/false)'
+  tested-issues:
+    description: 'JSON array of tested issue numbers'
+  passed-issues:
+    description: 'JSON array of passed issue numbers'
+  failed-issues:
+    description: 'JSON array of failed issue numbers'
+  not-testable-issues:
+    description: 'JSON array of not-testable issue numbers'
+  timed-out-issues:
+    description: 'JSON array of timed-out issue numbers'
+  results:
+    description: 'Full JSON results object'
+  cost-usd:
+    description: 'Total cost in USD'
+  duration-seconds:
+    description: 'Total duration in seconds'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

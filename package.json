@@ -1,0 +1,39 @@
+{
+  "name": "runhuman-action",
+  "version": "1.0.0",
+  "description": "Unified GitHub Action for Runhuman QA testing",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "lint": "eslint src/**/*.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/volter-ai/runhuman-action.git"
+  },
+  "keywords": [
+    "github-action",
+    "qa",
+    "testing",
+    "runhuman"
+  ],
+  "author": "Runhuman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/volter-ai/runhuman-action/issues"
+  },
+  "homepage": "https://github.com/volter-ai/runhuman-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@vercel/ncc": "^0.38.1",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}

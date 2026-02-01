@@ -32,6 +32,8 @@ export interface ActionInputs {
     apiUrl: string;
     targetDurationMinutes: number;
     screenSize: ScreenSizeConfig;
+    outputSchema?: Record<string, unknown>;
+    canCreateGithubIssues: boolean;
     githubRepo: string;
 }
 /**
@@ -97,6 +99,8 @@ export interface CreateJobRequest {
     githubRepo?: string;
     screenSize?: ScreenSizeConfig;
     metadata?: JobMetadata;
+    canCreateGithubIssues?: boolean;
+    repoName?: string;
 }
 /**
  * Metadata for tracking job source

@@ -90,6 +90,13 @@ inputs:
     description: 'Screen size for testing (desktop, laptop, tablet, mobile, or custom JSON)'
     required: false
     default: 'desktop'
+  output-schema:
+    description: 'JSON schema for extracting structured data from test results (used with description-only tests)'
+    required: false
+  can-create-github-issues:
+    description: 'Allow AI to create GitHub issues from tester findings'
+    required: false
+    default: 'false'
 
 outputs:
   status:

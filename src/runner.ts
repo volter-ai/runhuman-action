@@ -14,7 +14,7 @@ import { isTerminalStatus } from './types';
 
 // Polling configuration
 const POLL_INTERVAL_MS = 10000; // 10 seconds between polls
-const DEFAULT_MAX_WAIT_MS = 600000; // 10 minutes default
+const DEFAULT_MAX_WAIT_MS = 30 * 60 * 1000; // 30 minutes default
 const BUFFER_MS = 5 * 60 * 1000; // 5 minutes buffer for claiming + API latency
 
 /**
@@ -424,11 +424,13 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
       createJob(inputs, {
         url: inputs.url,
         description: inputs.description!,
-        outputSchema: {},
+        outputSchema: inputs.outputSchema || {},
         targetDurationMinutes: inputs.targetDurationMinutes,
         githubRepo: inputs.githubRepo,
         screenSize: inputs.screenSize,
         metadata: buildBaseMetadata(),
+        canCreateGithubIssues: inputs.canCreateGithubIssues,
+        repoName: inputs.canCreateGithubIssues ? inputs.githubRepo : undefined,
       })
     );
 

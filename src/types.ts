@@ -64,6 +64,8 @@ export interface ActionInputs {
   // Test configuration
   targetDurationMinutes: number;
   screenSize: ScreenSizeConfig;
+  outputSchema?: Record<string, unknown>;
+  canCreateGithubIssues: boolean;
 
   // Repository context
   githubRepo: string;
@@ -137,6 +139,8 @@ export interface CreateJobRequest {
   githubRepo?: string;
   screenSize?: ScreenSizeConfig;
   metadata?: JobMetadata;
+  canCreateGithubIssues?: boolean;
+  repoName?: string;
 }
 
 /**

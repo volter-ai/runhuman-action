@@ -150,8 +150,26 @@ export function parseInputs(): ActionInputs {
     // Test configuration
     targetDurationMinutes: parseInt(core.getInput('target-duration-minutes') || '5', 10),
     screenSize: parseScreenSize(core.getInput('screen-size') || 'desktop'),
+    outputSchema: parseOutputSchema(core.getInput('output-schema')),
+    canCreateGithubIssues: core.getBooleanInput('can-create-github-issues'),
 
     // Repository context
     githubRepo,
   };
+}
+
+/**
+ * Parse output-schema JSON input
+ */
+function parseOutputSchema(input: string): Record<string, unknown> | undefined {
+  if (!input || input.trim() === '') {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(input.trim());
+  } catch (e) {
+    core.warning(`Failed to parse output-schema as JSON: ${input}`);
+    return undefined;
+  }
 }

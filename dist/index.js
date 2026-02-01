@@ -30325,9 +30325,26 @@ function parseInputs() {
         // Test configuration
         targetDurationMinutes: parseInt(core.getInput('target-duration-minutes') || '5', 10),
         screenSize: parseScreenSize(core.getInput('screen-size') || 'desktop'),
+        outputSchema: parseOutputSchema(core.getInput('output-schema')),
+        canCreateGithubIssues: core.getBooleanInput('can-create-github-issues'),
         // Repository context
         githubRepo,
     };
+}
+/**
+ * Parse output-schema JSON input
+ */
+function parseOutputSchema(input) {
+    if (!input || input.trim() === '') {
+        return undefined;
+    }
+    try {
+        return JSON.parse(input.trim());
+    }
+    catch (e) {
+        core.warning(`Failed to parse output-schema as JSON: ${input}`);
+        return undefined;
+    }
 }
 
 
@@ -30679,7 +30696,7 @@ const github = __importStar(__nccwpck_require__(5683));
 const types_1 = __nccwpck_require__(4539);
 // Polling configuration
 const POLL_INTERVAL_MS = 10000; // 10 seconds between polls
-const DEFAULT_MAX_WAIT_MS = 600000; // 10 minutes default
+const DEFAULT_MAX_WAIT_MS = 30 * 60 * 1000; // 30 minutes default
 const BUFFER_MS = 5 * 60 * 1000; // 5 minutes buffer for claiming + API latency
 /**
  * Sleep for a given duration
@@ -31004,11 +31021,13 @@ async function runTestWithDescription(inputs) {
         const jobId = await withRetry(() => createJob(inputs, {
             url: inputs.url,
             description: inputs.description,
-            outputSchema: {},
+            outputSchema: inputs.outputSchema || {},
             targetDurationMinutes: inputs.targetDurationMinutes,
             githubRepo: inputs.githubRepo,
             screenSize: inputs.screenSize,
             metadata: buildBaseMetadata(),
+            canCreateGithubIssues: inputs.canCreateGithubIssues,
+            repoName: inputs.canCreateGithubIssues ? inputs.githubRepo : undefined,
         }));
         core.info(`Created job ${jobId}`);
         // Poll for completion

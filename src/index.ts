@@ -3,9 +3,20 @@ import * as github from '@actions/github';
 import { parseInputs } from './inputs';
 import { collectIssues } from './issues';
 import { analyzeIssuesForTestability } from './testability';
-import { runTestForIssue, runTestWithDescription } from './runner';
+import { analyzePrsForTestability } from './pr-analyzer';
+import { runTestForIssue, runTestForPr, runTestWithDescription } from './runner';
 import { applyLabelsForOutcome } from './labels';
-import type { ActionOutputs, IssueTestResult, TestOutcome } from './types';
+import type { ActionOutputs, IssueTestResult, TestOutcome, PullRequest, AnalyzePrResponse } from './types';
+
+interface PrTestResult {
+  prNumber: number;
+  outcome: TestOutcome;
+  explanation?: string;
+  data?: Record<string, unknown>;
+  costUsd?: number;
+  durationSeconds?: number;
+  analysis?: AnalyzePrResponse;
+}
 
 async function run(): Promise<void> {
   try {
@@ -17,12 +28,24 @@ async function run(): Promise<void> {
     const octokit = github.getOctokit(inputs.githubToken);
     const { owner, repo } = github.context.repo;
 
+    // Analyze PRs for testability if PR numbers are provided
+    let testablePrs: Array<{ pr: PullRequest; analysis: AnalyzePrResponse }> = [];
+    let notTestablePrs: Array<{ pr: PullRequest; reason: string }> = [];
+
+    if (inputs.prNumbers.length > 0) {
+      core.info(`Analyzing ${inputs.prNumbers.length} PR(s) for testability using PR analyzer...`);
+      const prResults = await analyzePrsForTestability(inputs, octokit, owner, repo, inputs.prNumbers);
+      testablePrs = prResults.testable;
+      notTestablePrs = prResults.notTestable;
+      core.info(`PR analysis: ${testablePrs.length} testable, ${notTestablePrs.length} not testable`);
+    }
+
     // Collect issues from PRs and explicit issue numbers
     const issues = await collectIssues(octokit, owner, repo, inputs.prNumbers, inputs.issueNumbers);
 
-    // If no issues and no description, output no-issues status
-    if (issues.length === 0 && !inputs.description) {
-      core.info('No issues found and no description provided');
+    // If no issues, no testable PRs, and no description, output no-issues status
+    if (issues.length === 0 && testablePrs.length === 0 && !inputs.description) {
+      core.info('No issues found, no testable PRs, and no description provided');
       setOutputs({
         status: 'no-issues',
         success: true,
@@ -38,9 +61,9 @@ async function run(): Promise<void> {
       return;
     }
 
-    // If no issues but has description, run a single test
-    if (issues.length === 0 && inputs.description) {
-      core.info('No issues found, running test with description only');
+    // If no issues and no testable PRs but has description, run a single test
+    if (issues.length === 0 && testablePrs.length === 0 && inputs.description) {
+      core.info('No issues or testable PRs found, running test with description only');
       const result = await runTestWithDescription(inputs);
 
       const success = result.success;
@@ -76,19 +99,67 @@ async function run(): Promise<void> {
       return;
     }
 
-    // Analyze issues for testability using AI
-    core.info(`Analyzing ${issues.length} issue(s) for testability...`);
-    const { testable, notTestable } = await analyzeIssuesForTestability(inputs, issues);
+    // Analyze issues for testability using AI (only if there are issues)
+    let testable: Array<{ issue: { number: number; title: string; body: string; labels: string[]; state: 'open' | 'closed'; comments?: string[] }; analysis: { isTestable: boolean; reason?: string; testUrl: string | null; testInstructions: string; outputSchema: Record<string, unknown>; confidence: number } }> = [];
+    let notTestable: Array<{ issue: { number: number; title: string; body: string; labels: string[]; state: 'open' | 'closed'; comments?: string[] }; reason: string }> = [];
+
+    if (issues.length > 0) {
+      core.info(`Analyzing ${issues.length} issue(s) for testability...`);
+      const issueResults = await analyzeIssuesForTestability(inputs, issues);
+      testable = issueResults.testable;
+      notTestable = issueResults.notTestable;
+    }
 
     // Track results
     const results: IssueTestResult[] = [];
+    const prResults: PrTestResult[] = [];
     const passedIssues: number[] = [];
     const failedIssues: number[] = [];
     const notTestableIssues: number[] = notTestable.map((nt) => nt.issue.number);
     const timedOutIssues: number[] = [];
+    const passedPrs: number[] = [];
+    const failedPrs: number[] = [];
+    const notTestablePrNumbers: number[] = notTestablePrs.map((nt) => nt.pr.number);
+    const timedOutPrs: number[] = [];
     let totalCost = 0;
     let totalDuration = 0;
     let hasError = false;
+
+    // Run tests for testable PRs first
+    for (const { pr, analysis } of testablePrs) {
+      core.info(`\n--- Testing PR #${pr.number}: ${pr.title} ---`);
+
+      const result = await runTestForPr(inputs, pr, analysis);
+      totalCost += result.costUsd;
+      totalDuration += result.durationSeconds;
+
+      // Determine outcome
+      let outcome: TestOutcome;
+      if (result.status === 'error' || result.status === 'abandoned') {
+        outcome = 'error';
+        hasError = true;
+      } else if (result.status === 'timeout') {
+        outcome = 'timeout';
+        timedOutPrs.push(pr.number);
+      } else if (result.success) {
+        outcome = 'success';
+        passedPrs.push(pr.number);
+      } else {
+        outcome = 'failure';
+        failedPrs.push(pr.number);
+      }
+
+      prResults.push({
+        prNumber: pr.number,
+        outcome,
+        explanation: result.explanation,
+        data: result.data,
+        costUsd: result.costUsd,
+        durationSeconds: result.durationSeconds,
+      });
+
+      core.info(`PR #${pr.number} result: ${outcome}`);
+    }
 
     // Apply not-testable labels
     for (const { issue, reason } of notTestable) {
@@ -142,10 +213,13 @@ async function run(): Promise<void> {
 
     // Determine overall status
     const testedIssues = testable.map((t) => t.issue.number);
-    const allPassed = failedIssues.length === 0 && timedOutIssues.length === 0 && !hasError;
+    const testedPrs = testablePrs.map((t) => t.pr.number);
+    const allIssuesPassed = failedIssues.length === 0 && timedOutIssues.length === 0;
+    const allPrsPassed = failedPrs.length === 0 && timedOutPrs.length === 0;
+    const allPassed = allIssuesPassed && allPrsPassed && !hasError;
 
     const outputs: ActionOutputs = {
-      status: hasError ? 'error' : timedOutIssues.length > 0 ? 'timeout' : 'completed',
+      status: hasError ? 'error' : (timedOutIssues.length > 0 || timedOutPrs.length > 0) ? 'timeout' : 'completed',
       success: allPassed,
       testedIssues,
       passedIssues,
@@ -161,22 +235,32 @@ async function run(): Promise<void> {
 
     // Summary
     core.info('\n=== Test Summary ===');
+    if (inputs.prNumbers.length > 0) {
+      core.info(`Total PRs: ${inputs.prNumbers.length}`);
+      core.info(`PRs tested: ${testedPrs.length}`);
+      core.info(`PRs passed: ${passedPrs.length}`);
+      core.info(`PRs failed: ${failedPrs.length}`);
+      core.info(`PRs not testable: ${notTestablePrNumbers.length}`);
+      core.info(`PRs timed out: ${timedOutPrs.length}`);
+    }
     core.info(`Total issues: ${issues.length}`);
-    core.info(`Tested: ${testedIssues.length}`);
-    core.info(`Passed: ${passedIssues.length}`);
-    core.info(`Failed: ${failedIssues.length}`);
-    core.info(`Not testable: ${notTestableIssues.length}`);
-    core.info(`Timed out: ${timedOutIssues.length}`);
+    core.info(`Issues tested: ${testedIssues.length}`);
+    core.info(`Issues passed: ${passedIssues.length}`);
+    core.info(`Issues failed: ${failedIssues.length}`);
+    core.info(`Issues not testable: ${notTestableIssues.length}`);
+    core.info(`Issues timed out: ${timedOutIssues.length}`);
     core.info(`Total cost: $${totalCost.toFixed(4)}`);
     core.info(`Total duration: ${totalDuration}s`);
 
     // Handle workflow failure
     if (hasError && inputs.failOnError) {
       core.setFailed('One or more tests encountered errors');
-    } else if (timedOutIssues.length > 0 && inputs.failOnTimeout) {
-      core.setFailed(`Tests timed out for issues: ${timedOutIssues.join(', ')}`);
-    } else if (failedIssues.length > 0 && inputs.failOnFailure) {
-      core.setFailed(`Tests failed for issues: ${failedIssues.join(', ')}`);
+    } else if ((timedOutIssues.length > 0 || timedOutPrs.length > 0) && inputs.failOnTimeout) {
+      const timedOutItems = [...timedOutIssues.map(n => `issue #${n}`), ...timedOutPrs.map(n => `PR #${n}`)];
+      core.setFailed(`Tests timed out for: ${timedOutItems.join(', ')}`);
+    } else if ((failedIssues.length > 0 || failedPrs.length > 0) && inputs.failOnFailure) {
+      const failedItems = [...failedIssues.map(n => `issue #${n}`), ...failedPrs.map(n => `PR #${n}`)];
+      core.setFailed(`Tests failed for: ${failedItems.join(', ')}`);
     }
   } catch (error) {
     if (error instanceof Error) {

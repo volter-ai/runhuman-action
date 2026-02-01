@@ -81,6 +81,14 @@ inputs:
     required: false
     default: 'https://runhuman.com'
 
+  # Template configuration
+  template:
+    description: 'Template name to use (resolved from .runhuman/templates/, project, or builtins)'
+    required: false
+  template-file:
+    description: 'Path to local template file (e.g., .runhuman/templates/smoke.md)'
+    required: false
+
   # Test configuration
   target-duration-minutes:
     description: 'Target test duration in minutes (1-60)'

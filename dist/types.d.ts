@@ -9,12 +9,28 @@ export type ScreenSizeConfig = 'desktop' | 'laptop' | 'tablet' | 'mobile' | {
     height: number;
 };
 /**
+ * Template configuration loaded from a local template file
+ */
+export interface TemplateConfig {
+    name?: string;
+    url?: string;
+    description?: string;
+    outputSchema?: Record<string, unknown>;
+    targetDurationMinutes?: number;
+    screenSize?: ScreenSizeConfig;
+    allowDurationExtension?: boolean;
+    maxExtensionMinutes?: number;
+}
+/**
  * Parsed inputs from the action
  */
 export interface ActionInputs {
     url: string;
     apiKey: string;
     githubToken: string;
+    template?: string;
+    templateFile?: string;
+    templateConfig?: TemplateConfig;
     description?: string;
     prNumbers: number[];
     issueNumbers: number[];
@@ -93,7 +109,7 @@ export interface ExtractedResult {
 export interface CreateJobRequest {
     url: string;
     description: string;
-    outputSchema: Record<string, unknown>;
+    outputSchema?: Record<string, unknown>;
     targetDurationMinutes?: number;
     additionalValidationInstructions?: string;
     githubRepo?: string;
@@ -101,6 +117,54 @@ export interface CreateJobRequest {
     metadata?: JobMetadata;
     canCreateGithubIssues?: boolean;
     repoName?: string;
+    /** Template name for server-side resolution */
+    template?: string;
+    /** GitHub token from GitHub Actions (enables GitHub operations without App installation) */
+    githubToken?: string;
+}
+/**
+ * PR commit information for PR analysis
+ */
+export interface PrCommit {
+    sha: string;
+    message: string;
+    author: string;
+    timestamp?: string;
+}
+/**
+ * PR file change information for PR analysis
+ */
+export interface PrFileChange {
+    filename: string;
+    status?: 'added' | 'modified' | 'removed' | 'renamed';
+    additions: number;
+    deletions: number;
+    previousFilename?: string;
+}
+/**
+ * Request to analyze a PR for testability
+ */
+export interface AnalyzePrRequest {
+    commits: PrCommit[];
+    fileChanges: PrFileChange[];
+    diffContent: string;
+    repoContext?: string;
+    githubRepo?: string;
+    testUrl: string;
+    prTitle?: string;
+    prBody?: string;
+}
+/**
+ * Response from the PR analyzer
+ */
+export interface AnalyzePrResponse {
+    isTestable: boolean;
+    reason?: string;
+    summary: string;
+    testInstructions: string;
+    outputSchema: Record<string, unknown>;
+    confidence: number;
+    affectedAreas: string[];
 }
 /**
  * Metadata for tracking job source

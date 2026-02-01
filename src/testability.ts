@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import type { Issue, ActionInputs, AnalyzeIssueRequest, AnalyzeIssueResponse } from './types';
+import { withRetry } from './runner';
 
 /**
  * Call the Runhuman API to analyze a GitHub issue for testability.
@@ -75,6 +76,9 @@ export interface TestabilityResults {
 /**
  * Analyze all issues for testability using the AI analysis endpoint.
  * Returns testable issues with their analysis results.
+ *
+ * Throws an error if analysis fails after retries - we don't silently
+ * skip issues when we can't determine testability.
  */
 export async function analyzeIssuesForTestability(
   inputs: ActionInputs,
@@ -84,26 +88,19 @@ export async function analyzeIssuesForTestability(
   const notTestable: Array<{ issue: Issue; reason: string }> = [];
 
   for (const issue of issues) {
-    try {
-      core.info(`Analyzing issue #${issue.number}...`);
-      const analysis = await analyzeIssue(inputs, issue);
+    core.info(`Analyzing issue #${issue.number}...`);
 
-      if (analysis.isTestable) {
-        core.info(`Issue #${issue.number} is testable (confidence: ${analysis.confidence})`);
-        testable.push({ issue, analysis });
-      } else {
-        const reason = analysis.reason || 'AI determined issue is not testable';
-        core.info(`Issue #${issue.number} is NOT testable: ${reason}`);
-        notTestable.push({ issue, reason });
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      core.warning(`Failed to analyze issue #${issue.number}: ${errorMessage}`);
-      // On analysis error, skip the issue as not testable
-      notTestable.push({
-        issue,
-        reason: `Analysis failed: ${errorMessage}`,
-      });
+    // Wrap with retry for transient errors (503, 429, network errors, etc.)
+    // If this fails after retries, the error propagates and fails the action
+    const analysis = await withRetry(() => analyzeIssue(inputs, issue));
+
+    if (analysis.isTestable) {
+      core.info(`Issue #${issue.number} is testable (confidence: ${analysis.confidence})`);
+      testable.push({ issue, analysis });
+    } else {
+      const reason = analysis.reason || 'AI determined issue is not testable';
+      core.info(`Issue #${issue.number} is NOT testable: ${reason}`);
+      notTestable.push({ issue, reason });
     }
   }
 

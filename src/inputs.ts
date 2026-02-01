@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import type { ActionInputs, ScreenSizeConfig } from './types';
+import type { ActionInputs, ScreenSizeConfig, TemplateConfig } from './types';
+import { loadTemplateFile } from './template-loader';
 
 /**
  * Parse a string that could be either JSON array or comma-separated values
@@ -119,10 +120,35 @@ export function parseInputs(): ActionInputs {
   const { owner, repo } = github.context.repo;
   const githubRepo = `${owner}/${repo}`;
 
+  // Parse template inputs
+  const template = core.getInput('template') || undefined;
+  const templateFile = core.getInput('template-file') || undefined;
+
+  // Load template config from local file if specified
+  let templateConfig: TemplateConfig | undefined;
+  if (templateFile) {
+    try {
+      templateConfig = loadTemplateFile(templateFile);
+      core.info(`Loaded template from file: ${templateFile}`);
+    } catch (error) {
+      throw new Error(`Failed to load template file "${templateFile}": ${error}`);
+    }
+  }
+
+  // Validate: can't use both template and template-file
+  if (template && templateFile) {
+    core.warning('Both "template" and "template-file" specified. Using "template-file" (local takes precedence).');
+  }
+
   return {
     url,
     apiKey,
     githubToken: core.getInput('github-token') || process.env.GITHUB_TOKEN || '',
+
+    // Template configuration
+    template: templateFile ? undefined : template, // Only use server-side template if no local file
+    templateFile,
+    templateConfig,
 
     // Test context sources
     description: core.getInput('description') || undefined,

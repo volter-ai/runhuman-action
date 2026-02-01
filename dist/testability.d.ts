@@ -18,5 +18,8 @@ export interface TestabilityResults {
 /**
  * Analyze all issues for testability using the AI analysis endpoint.
  * Returns testable issues with their analysis results.
+ *
+ * Throws an error if analysis fails after retries - we don't silently
+ * skip issues when we can't determine testability.
  */
 export declare function analyzeIssuesForTestability(inputs: ActionInputs, issues: Issue[]): Promise<TestabilityResults>;

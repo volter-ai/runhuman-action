@@ -4,10 +4,12 @@ import type {
   Issue,
   ActionInputs,
   AnalyzeIssueResponse,
+  AnalyzePrResponse,
   CreateJobRequest,
   CreateJobResponse,
   JobStatusResponse,
   JobMetadata,
+  PullRequest,
   RunhumanJobResult,
 } from './types';
 import { isTerminalStatus } from './types';
@@ -25,9 +27,33 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Retry wrapper for network errors with exponential backoff
+ * Check if an error is transient and should be retried
  */
-async function withRetry<T>(
+function isTransientError(error: Error): boolean {
+  const message = error.message;
+
+  // Network-level errors
+  const isNetworkError =
+    message.includes('ECONNRESET') ||
+    message.includes('ETIMEDOUT') ||
+    message.includes('socket hang up') ||
+    message.includes('fetch failed');
+
+  // Transient HTTP errors (5xx, 429)
+  const isTransientHttpError =
+    message.includes('(503)') ||
+    message.includes('(502)') ||
+    message.includes('(504)') ||
+    message.includes('(500)') ||
+    message.includes('(429)');
+
+  return isNetworkError || isTransientHttpError;
+}
+
+/**
+ * Retry wrapper for transient errors with exponential backoff
+ */
+export async function withRetry<T>(
   fn: () => Promise<T>,
   maxRetries: number = 3,
   baseDelayMs: number = 1000
@@ -39,19 +65,14 @@ async function withRetry<T>(
       return await fn();
     } catch (error) {
       lastError = error as Error;
-      const isNetworkError =
-        lastError.message.includes('ECONNRESET') ||
-        lastError.message.includes('ETIMEDOUT') ||
-        lastError.message.includes('socket hang up') ||
-        lastError.message.includes('fetch failed');
 
-      if (!isNetworkError || attempt === maxRetries) {
+      if (!isTransientError(lastError) || attempt === maxRetries) {
         throw lastError;
       }
 
       const delay = baseDelayMs * Math.pow(2, attempt);
       core.warning(
-        `Network error (attempt ${attempt + 1}/${maxRetries + 1}): ${lastError.message}. Retrying in ${delay}ms...`
+        `Transient error (attempt ${attempt + 1}/${maxRetries + 1}): ${lastError.message}. Retrying in ${delay}ms...`
       );
       await sleep(delay);
     }
@@ -94,8 +115,24 @@ function buildIssueTestMetadata(issue: Issue, githubRepo: string): JobMetadata {
   return metadata;
 }
 
+/**
+ * Build metadata for PR testing
+ */
+function buildPrTestMetadata(pr: PullRequest, githubRepo: string): JobMetadata {
+  const metadata = buildBaseMetadata();
+
+  metadata.githubPR = {
+    repo: githubRepo,
+    prNumber: pr.number,
+    prUrl: `https://github.com/${githubRepo}/pull/${pr.number}`,
+  };
+
+  return metadata;
+}
+
 // Character limits for context formatting
 const ISSUE_BODY_LIMIT = 2000;
+const PR_BODY_LIMIT = 2000;
 
 /**
  * Truncate text to a maximum length
@@ -121,6 +158,26 @@ Issue Description:
 ${body}
 
 When validating the test results, consider whether the tester's findings align with the expectations described in the original issue above. The test should be marked as passing only if the issue appears to be properly resolved or the feature works as described.`;
+}
+
+/**
+ * Format PR context for validation instructions
+ */
+function formatPrContext(pr: PullRequest, analysis: AnalyzePrResponse): string {
+  const body = truncateText(pr.body, PR_BODY_LIMIT);
+
+  return `=== Pull Request Context ===
+Title: ${pr.title}
+
+PR Description:
+${body}
+
+=== AI Analysis Summary ===
+${analysis.summary}
+
+Affected Areas: ${analysis.affectedAreas.join(', ')}
+
+When validating the test results, consider whether the tester's findings align with the expected behavior of the PR changes described above. The test should verify that the changes work as intended.`;
 }
 
 /**
@@ -339,6 +396,7 @@ export async function runTestForIssue(
         githubRepo: inputs.githubRepo,
         screenSize: inputs.screenSize,
         metadata: buildIssueTestMetadata(issue, inputs.githubRepo),
+        githubToken: inputs.githubToken || undefined,
       })
     );
 
@@ -410,29 +468,166 @@ export async function runTestForIssue(
 }
 
 /**
- * Run a QA test with just a description (no issue context)
+ * Run a QA test for a PR with AI-generated analysis
  */
-export async function runTestWithDescription(inputs: ActionInputs): Promise<RunhumanJobResult> {
-  if (!inputs.description) {
-    throw new Error('Description is required when no issues are provided');
+export async function runTestForPr(
+  inputs: ActionInputs,
+  pr: PullRequest,
+  analysis: AnalyzePrResponse
+): Promise<RunhumanJobResult> {
+  const testUrl = inputs.url;
+
+  if (!testUrl) {
+    return {
+      success: false,
+      explanation: 'No test URL available',
+      costUsd: 0,
+      durationSeconds: 0,
+      status: 'error',
+    };
   }
 
-  core.info('Creating QA test job with description only');
+  core.info(`Creating QA test job for PR #${pr.number}`);
+  core.debug(`Test URL: ${testUrl}`);
+  core.debug(`Instructions: ${analysis.testInstructions.substring(0, 200)}...`);
 
   try {
     const jobId = await withRetry(() =>
       createJob(inputs, {
-        url: inputs.url,
-        description: inputs.description!,
-        outputSchema: inputs.outputSchema || {},
+        url: testUrl,
+        description: analysis.testInstructions,
+        outputSchema: analysis.outputSchema,
         targetDurationMinutes: inputs.targetDurationMinutes,
+        additionalValidationInstructions: formatPrContext(pr, analysis),
         githubRepo: inputs.githubRepo,
         screenSize: inputs.screenSize,
-        metadata: buildBaseMetadata(),
-        canCreateGithubIssues: inputs.canCreateGithubIssues,
-        repoName: inputs.canCreateGithubIssues ? inputs.githubRepo : undefined,
+        metadata: buildPrTestMetadata(pr, inputs.githubRepo),
+        githubToken: inputs.githubToken || undefined,
       })
     );
+
+    core.info(`Created job ${jobId} for PR #${pr.number}`);
+
+    // Poll for completion
+    core.info(`Waiting for job ${jobId} to complete...`);
+    const { status: finalStatus, timedOut } = await pollForCompletion(
+      inputs,
+      jobId,
+      inputs.targetDurationMinutes
+    );
+
+    // Map status to result
+    if (timedOut) {
+      return {
+        success: false,
+        explanation: 'Test timed out waiting for tester response',
+        costUsd: finalStatus.costUsd ?? 0,
+        durationSeconds: finalStatus.testDurationSeconds ?? 0,
+        status: 'timeout',
+      };
+    }
+
+    if (finalStatus.status === 'completed' && finalStatus.result) {
+      return {
+        success: finalStatus.result.success,
+        explanation: finalStatus.result.explanation,
+        data: finalStatus.result.data,
+        costUsd: finalStatus.costUsd ?? 0,
+        durationSeconds: finalStatus.testDurationSeconds ?? 0,
+        status: 'completed',
+      };
+    }
+
+    if (finalStatus.status === 'abandoned') {
+      return {
+        success: false,
+        explanation: finalStatus.reason || 'Test was abandoned',
+        costUsd: finalStatus.costUsd ?? 0,
+        durationSeconds: finalStatus.testDurationSeconds ?? 0,
+        status: 'abandoned',
+      };
+    }
+
+    // Error or other terminal state
+    return {
+      success: false,
+      explanation: finalStatus.error || finalStatus.reason || `Job ended with status: ${finalStatus.status}`,
+      costUsd: finalStatus.costUsd ?? 0,
+      durationSeconds: finalStatus.testDurationSeconds ?? 0,
+      status: 'error',
+    };
+  } catch (error) {
+    core.error(`Failed to run test for PR #${pr.number}: ${error}`);
+    return {
+      success: false,
+      explanation: `Error: ${error}`,
+      costUsd: 0,
+      durationSeconds: 0,
+      status: 'error',
+    };
+  }
+}
+
+/**
+ * Build job request merging template config with explicit inputs
+ * Explicit inputs always take precedence over template values
+ */
+function buildJobRequest(inputs: ActionInputs): CreateJobRequest {
+  const template = inputs.templateConfig;
+
+  // Determine effective values (inputs override template)
+  const url = inputs.url || template?.url;
+  const description = inputs.description || template?.description;
+
+  if (!url) {
+    throw new Error('URL is required - provide via url input or template');
+  }
+  if (!description && !inputs.template) {
+    // Allow missing description only if using server-side template resolution
+    throw new Error('Description is required - provide via description input or template');
+  }
+
+  return {
+    url,
+    description: description || '', // May be empty for server-side template
+    outputSchema: inputs.outputSchema || template?.outputSchema,
+    targetDurationMinutes: inputs.targetDurationMinutes ?? template?.targetDurationMinutes,
+    githubRepo: inputs.githubRepo,
+    screenSize: inputs.screenSize || template?.screenSize,
+    metadata: buildBaseMetadata(),
+    canCreateGithubIssues: inputs.canCreateGithubIssues,
+    repoName: inputs.canCreateGithubIssues ? inputs.githubRepo : undefined,
+    // Pass template name for server-side resolution (only if no local template)
+    template: inputs.template,
+    // Pass GitHub token for GitHub operations without App installation
+    githubToken: inputs.githubToken || undefined,
+  };
+}
+
+/**
+ * Run a QA test with just a description (no issue context)
+ */
+export async function runTestWithDescription(inputs: ActionInputs): Promise<RunhumanJobResult> {
+  // Check if we have enough info to create a job
+  const hasDescription = !!inputs.description;
+  const hasTemplate = !!inputs.template;
+  const hasLocalTemplate = !!inputs.templateConfig;
+
+  if (!hasDescription && !hasTemplate && !hasLocalTemplate) {
+    throw new Error('Description is required when no issues are provided. Provide via description input, template, or template-file.');
+  }
+
+  if (hasTemplate) {
+    core.info(`Creating QA test job using template: ${inputs.template}`);
+  } else if (hasLocalTemplate) {
+    core.info(`Creating QA test job using local template: ${inputs.templateFile}`);
+  } else {
+    core.info('Creating QA test job with description only');
+  }
+
+  try {
+    const request = buildJobRequest(inputs);
+    const jobId = await withRetry(() => createJob(inputs, request));
 
     core.info(`Created job ${jobId}`);
 

@@ -120,6 +120,15 @@ Unified GitHub Action for running human QA tests on URLs, PRs, and issues with r
 5. **Apply Labels**: Updates issue labels based on outcomes
 6. **Report Results**: Sets outputs and optionally fails the workflow
 
+## Error Handling
+
+The action includes built-in retry logic for transient errors:
+
+- **Network errors** (ECONNRESET, ETIMEDOUT, etc.) - retried up to 3 times
+- **Server errors** (503, 502, 504, 500, 429) - retried up to 3 times with exponential backoff
+
+If analysis or job creation fails after retries, the action fails rather than silently skipping issues. This ensures issues aren't closed without proper verification.
+
 ## License
 
 MIT

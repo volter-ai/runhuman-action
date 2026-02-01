@@ -1,21 +1,22 @@
-import type { Issue } from './types';
-export interface TestabilityResult {
-    isTestable: boolean;
-    reason: string;
+import type { Issue, ActionInputs, AnalyzeIssueResponse } from './types';
+/**
+ * Call the Runhuman API to analyze a GitHub issue for testability.
+ * Uses AI to determine if the issue can be tested and generates test instructions.
+ */
+export declare function analyzeIssue(inputs: ActionInputs, issue: Issue): Promise<AnalyzeIssueResponse>;
+export interface AnalyzedIssue {
+    issue: Issue;
+    analysis: AnalyzeIssueResponse;
 }
-/**
- * Analyze an issue to determine if it can be tested by a human tester.
- * This uses simple heuristics. For more accurate analysis, the Runhuman API
- * can be used to perform AI-powered testability analysis.
- */
-export declare function analyzeTestability(issue: Issue): TestabilityResult;
-/**
- * Filter issues to only those that are testable.
- */
-export declare function filterTestableIssues(issues: Issue[]): {
-    testable: Issue[];
+export interface TestabilityResults {
+    testable: AnalyzedIssue[];
     notTestable: Array<{
         issue: Issue;
         reason: string;
     }>;
-};
+}
+/**
+ * Analyze all issues for testability using the AI analysis endpoint.
+ * Returns testable issues with their analysis results.
+ */
+export declare function analyzeIssuesForTestability(inputs: ActionInputs, issues: Issue[]): Promise<TestabilityResults>;

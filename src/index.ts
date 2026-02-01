@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { parseInputs } from './inputs';
 import { collectIssues } from './issues';
-import { filterTestableIssues } from './testability';
+import { analyzeIssuesForTestability } from './testability';
 import { runTestForIssue, runTestWithDescription } from './runner';
 import { applyLabelsForOutcome } from './labels';
 import type { ActionOutputs, IssueTestResult, TestOutcome } from './types';
@@ -18,13 +18,7 @@ async function run(): Promise<void> {
     const { owner, repo } = github.context.repo;
 
     // Collect issues from PRs and explicit issue numbers
-    const issues = await collectIssues(
-      octokit,
-      owner,
-      repo,
-      inputs.prNumbers,
-      inputs.issueNumbers
-    );
+    const issues = await collectIssues(octokit, owner, repo, inputs.prNumbers, inputs.issueNumbers);
 
     // If no issues and no description, output no-issues status
     if (issues.length === 0 && !inputs.description) {
@@ -50,8 +44,9 @@ async function run(): Promise<void> {
       const result = await runTestWithDescription(inputs);
 
       const success = result.success;
-      // Map abandoned to error for output status
-      const mappedStatus = result.status === 'abandoned' ? 'error' : result.status;
+      // Map abandoned/not-testable to error for output status
+      const mappedStatus =
+        result.status === 'abandoned' || result.status === 'not-testable' ? 'error' : result.status;
       const outputs: ActionOutputs = {
         status: mappedStatus,
         success,
@@ -81,14 +76,15 @@ async function run(): Promise<void> {
       return;
     }
 
-    // Filter to testable issues
-    const { testable, notTestable } = filterTestableIssues(issues);
+    // Analyze issues for testability using AI
+    core.info(`Analyzing ${issues.length} issue(s) for testability...`);
+    const { testable, notTestable } = await analyzeIssuesForTestability(inputs, issues);
 
     // Track results
     const results: IssueTestResult[] = [];
     const passedIssues: number[] = [];
     const failedIssues: number[] = [];
-    const notTestableIssues: number[] = notTestable.map(nt => nt.issue.number);
+    const notTestableIssues: number[] = notTestable.map((nt) => nt.issue.number);
     const timedOutIssues: number[] = [];
     let totalCost = 0;
     let totalDuration = 0;
@@ -105,16 +101,16 @@ async function run(): Promise<void> {
     }
 
     // Run tests for testable issues
-    for (const issue of testable) {
+    for (const { issue, analysis } of testable) {
       core.info(`\n--- Testing issue #${issue.number}: ${issue.title} ---`);
 
-      const result = await runTestForIssue(inputs, issue);
+      const result = await runTestForIssue(inputs, issue, analysis);
       totalCost += result.costUsd;
       totalDuration += result.durationSeconds;
 
       // Determine outcome
       let outcome: TestOutcome;
-      if (result.status === 'error') {
+      if (result.status === 'error' || result.status === 'abandoned') {
         outcome = 'error';
         hasError = true;
       } else if (result.status === 'timeout') {
@@ -135,6 +131,7 @@ async function run(): Promise<void> {
         data: result.data,
         costUsd: result.costUsd,
         durationSeconds: result.durationSeconds,
+        analysis: result.analysis,
       });
 
       // Apply labels based on outcome
@@ -144,7 +141,7 @@ async function run(): Promise<void> {
     }
 
     // Determine overall status
-    const testedIssues = testable.map(i => i.number);
+    const testedIssues = testable.map((t) => t.issue.number);
     const allPassed = failedIssues.length === 0 && timedOutIssues.length === 0 && !hasError;
 
     const outputs: ActionOutputs = {

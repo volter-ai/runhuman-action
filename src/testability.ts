@@ -1,189 +1,109 @@
 import * as core from '@actions/core';
-import type { Issue } from './types';
+import type { Issue, ActionInputs, AnalyzeIssueRequest, AnalyzeIssueResponse } from './types';
 
 /**
- * Keywords that suggest an issue is NOT testable by a human tester.
+ * Call the Runhuman API to analyze a GitHub issue for testability.
+ * Uses AI to determine if the issue can be tested and generates test instructions.
  */
-const NON_TESTABLE_KEYWORDS = [
-  'refactor',
-  'cleanup',
-  'documentation',
-  'docs',
-  'typo',
-  'readme',
-  'changelog',
-  'ci/cd',
-  'pipeline',
-  'dependency',
-  'dependencies',
-  'upgrade',
-  'bump',
-  'version',
-  'security',
-  'vulnerability',
-  'cve',
-  'backend only',
-  'backend-only',
-  'internal',
-  'infrastructure',
-  'devops',
-  'deployment',
-  'config',
-  'configuration',
-];
+export async function analyzeIssue(
+  inputs: ActionInputs,
+  issue: Issue
+): Promise<AnalyzeIssueResponse> {
+  const endpoint = `${inputs.apiUrl}/api/analyze-issue`;
 
-/**
- * Keywords that suggest an issue IS testable by a human tester.
- */
-const TESTABLE_KEYWORDS = [
-  'ui',
-  'button',
-  'click',
-  'form',
-  'input',
-  'modal',
-  'dialog',
-  'page',
-  'screen',
-  'display',
-  'render',
-  'layout',
-  'style',
-  'css',
-  'responsive',
-  'mobile',
-  'desktop',
-  'user flow',
-  'workflow',
-  'navigation',
-  'redirect',
-  'login',
-  'signup',
-  'checkout',
-  'cart',
-  'error message',
-  'validation',
-  'accessibility',
-  'a11y',
-  'visual',
-  'animation',
-  'hover',
-  'scroll',
-  'drag',
-  'drop',
-];
+  core.debug(`Analyzing issue #${issue.number}: "${issue.title}"`);
+  core.debug(`Using preset test URL: ${inputs.url}`);
 
-/**
- * Labels that indicate an issue should be tested.
- */
-const TESTABLE_LABELS = [
-  'bug',
-  'ui',
-  'ux',
-  'frontend',
-  'visual',
-  'accessibility',
-  'qa',
-  'needs-testing',
-  'stage:qa',
-];
-
-/**
- * Labels that indicate an issue should NOT be tested.
- */
-const NON_TESTABLE_LABELS = [
-  'documentation',
-  'docs',
-  'backend',
-  'infrastructure',
-  'ci',
-  'devops',
-  'refactor',
-  'tech-debt',
-  'internal',
-  'wontfix',
-  'duplicate',
-  'invalid',
-];
-
-export interface TestabilityResult {
-  isTestable: boolean;
-  reason: string;
-}
-
-/**
- * Analyze an issue to determine if it can be tested by a human tester.
- * This uses simple heuristics. For more accurate analysis, the Runhuman API
- * can be used to perform AI-powered testability analysis.
- */
-export function analyzeTestability(issue: Issue): TestabilityResult {
-  const text = `${issue.title} ${issue.body}`.toLowerCase();
-  const labels = issue.labels.map(l => l.toLowerCase());
-
-  // Check labels first (most reliable signal)
-  for (const label of labels) {
-    if (NON_TESTABLE_LABELS.some(ntl => label.includes(ntl))) {
-      return {
-        isTestable: false,
-        reason: `Issue has label suggesting it's not testable: ${label}`,
-      };
-    }
-  }
-
-  for (const label of labels) {
-    if (TESTABLE_LABELS.some(tl => label.includes(tl))) {
-      return {
-        isTestable: true,
-        reason: `Issue has label suggesting it's testable: ${label}`,
-      };
-    }
-  }
-
-  // Check for non-testable keywords
-  for (const keyword of NON_TESTABLE_KEYWORDS) {
-    if (text.includes(keyword)) {
-      return {
-        isTestable: false,
-        reason: `Issue contains keyword suggesting it's not testable: ${keyword}`,
-      };
-    }
-  }
-
-  // Check for testable keywords
-  for (const keyword of TESTABLE_KEYWORDS) {
-    if (text.includes(keyword)) {
-      return {
-        isTestable: true,
-        reason: `Issue contains keyword suggesting it's testable: ${keyword}`,
-      };
-    }
-  }
-
-  // Default: assume testable (better to test than to skip)
-  return {
-    isTestable: true,
-    reason: 'No strong signals found, defaulting to testable',
+  const requestBody: AnalyzeIssueRequest = {
+    issueTitle: issue.title,
+    issueBody: issue.body,
+    issueLabels: issue.labels,
+    presetTestUrl: inputs.url,
+    githubRepo: inputs.githubRepo,
+    issueComments: issue.comments,
   };
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${inputs.apiKey}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'runhuman-action/1.0.0',
+    },
+    body: JSON.stringify(requestBody),
+    signal: AbortSignal.timeout(60000), // 1 minute timeout for analysis
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    let errorMessage: string;
+
+    try {
+      const errorData = JSON.parse(errorText);
+      errorMessage = errorData.error || errorData.message || errorText;
+    } catch {
+      errorMessage = errorText;
+    }
+
+    if (response.status === 401) {
+      throw new Error(
+        'Authentication failed: Invalid API key. ' +
+          'Make sure your RUNHUMAN_API_KEY secret is set correctly.'
+      );
+    }
+
+    throw new Error(`Issue analysis failed (${response.status}): ${errorMessage}`);
+  }
+
+  const data = (await response.json()) as AnalyzeIssueResponse;
+
+  core.debug(`Analysis complete: isTestable=${data.isTestable}, confidence=${data.confidence}`);
+
+  return data;
+}
+
+export interface AnalyzedIssue {
+  issue: Issue;
+  analysis: AnalyzeIssueResponse;
+}
+
+export interface TestabilityResults {
+  testable: AnalyzedIssue[];
+  notTestable: Array<{ issue: Issue; reason: string }>;
 }
 
 /**
- * Filter issues to only those that are testable.
+ * Analyze all issues for testability using the AI analysis endpoint.
+ * Returns testable issues with their analysis results.
  */
-export function filterTestableIssues(issues: Issue[]): {
-  testable: Issue[];
-  notTestable: Array<{ issue: Issue; reason: string }>;
-} {
-  const testable: Issue[] = [];
+export async function analyzeIssuesForTestability(
+  inputs: ActionInputs,
+  issues: Issue[]
+): Promise<TestabilityResults> {
+  const testable: AnalyzedIssue[] = [];
   const notTestable: Array<{ issue: Issue; reason: string }> = [];
 
   for (const issue of issues) {
-    const result = analyzeTestability(issue);
-    if (result.isTestable) {
-      core.info(`Issue #${issue.number} is testable: ${result.reason}`);
-      testable.push(issue);
-    } else {
-      core.info(`Issue #${issue.number} is NOT testable: ${result.reason}`);
-      notTestable.push({ issue, reason: result.reason });
+    try {
+      core.info(`Analyzing issue #${issue.number}...`);
+      const analysis = await analyzeIssue(inputs, issue);
+
+      if (analysis.isTestable) {
+        core.info(`Issue #${issue.number} is testable (confidence: ${analysis.confidence})`);
+        testable.push({ issue, analysis });
+      } else {
+        const reason = analysis.reason || 'AI determined issue is not testable';
+        core.info(`Issue #${issue.number} is NOT testable: ${reason}`);
+        notTestable.push({ issue, reason });
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      core.warning(`Failed to analyze issue #${issue.number}: ${errorMessage}`);
+      // On analysis error, skip the issue as not testable
+      notTestable.push({
+        issue,
+        reason: `Analysis failed: ${errorMessage}`,
+      });
     }
   }
 

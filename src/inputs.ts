@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
-import type { ActionInputs } from './types';
+import * as github from '@actions/github';
+import type { ActionInputs, ScreenSizeConfig } from './types';
 
 /**
  * Parse a string that could be either JSON array or comma-separated values
@@ -17,7 +18,7 @@ export function parseNumberList(input: string): number[] {
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) {
-        return parsed.map(n => {
+        return parsed.map((n) => {
           const num = typeof n === 'string' ? parseInt(n, 10) : n;
           if (isNaN(num)) {
             throw new Error(`Invalid number in array: ${n}`);
@@ -33,9 +34,9 @@ export function parseNumberList(input: string): number[] {
   // Fall back to comma-separated
   return trimmed
     .split(',')
-    .map(s => s.trim())
-    .filter(s => s !== '')
-    .map(s => {
+    .map((s) => s.trim())
+    .filter((s) => s !== '')
+    .map((s) => {
       const num = parseInt(s, 10);
       if (isNaN(num)) {
         throw new Error(`Invalid number: ${s}`);
@@ -60,7 +61,7 @@ export function parseStringList(input: string): string[] {
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) {
-        return parsed.map(s => String(s));
+        return parsed.map((s) => String(s));
       }
     } catch (e) {
       core.warning(`Failed to parse as JSON array, trying comma-separated: ${trimmed}`);
@@ -70,8 +71,34 @@ export function parseStringList(input: string): string[] {
   // Fall back to comma-separated
   return trimmed
     .split(',')
-    .map(s => s.trim())
-    .filter(s => s !== '');
+    .map((s) => s.trim())
+    .filter((s) => s !== '');
+}
+
+/**
+ * Parse screen size input - can be preset name or custom JSON dimensions
+ */
+function parseScreenSize(input: string): ScreenSizeConfig {
+  const trimmed = input.trim();
+
+  // Check for preset names
+  if (['desktop', 'laptop', 'tablet', 'mobile'].includes(trimmed)) {
+    return trimmed as 'desktop' | 'laptop' | 'tablet' | 'mobile';
+  }
+
+  // Try to parse as custom JSON dimensions
+  if (trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (typeof parsed.width === 'number' && typeof parsed.height === 'number') {
+        return { width: parsed.width, height: parsed.height };
+      }
+    } catch (e) {
+      core.warning(`Failed to parse screen-size as JSON, using default 'desktop'`);
+    }
+  }
+
+  return 'desktop';
 }
 
 /**
@@ -88,9 +115,14 @@ export function parseInputs(): ActionInputs {
     throw new Error('api-key is required');
   }
 
+  // Get github repo from context
+  const { owner, repo } = github.context.repo;
+  const githubRepo = `${owner}/${repo}`;
+
   return {
     url,
     apiKey,
+    githubToken: core.getInput('github-token') || process.env.GITHUB_TOKEN || '',
 
     // Test context sources
     description: core.getInput('description') || undefined,
@@ -113,11 +145,13 @@ export function parseInputs(): ActionInputs {
     failOnTimeout: core.getBooleanInput('fail-on-timeout'),
 
     // API configuration
-    githubToken: core.getInput('github-token') || process.env.GITHUB_TOKEN || '',
     apiUrl: core.getInput('api-url') || 'https://runhuman.com',
 
     // Test configuration
     targetDurationMinutes: parseInt(core.getInput('target-duration-minutes') || '5', 10),
-    screenSize: core.getInput('screen-size') || 'desktop',
+    screenSize: parseScreenSize(core.getInput('screen-size') || 'desktop'),
+
+    // Repository context
+    githubRepo,
   };
 }

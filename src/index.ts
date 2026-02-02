@@ -4,7 +4,8 @@ import { parseInputs } from './inputs';
 import { collectIssues } from './issues';
 import { analyzeIssuesForTestability } from './testability';
 import { analyzePrsForTestability } from './pr-analyzer';
-import { runTestForIssue, runTestForPr, runTestWithDescription } from './runner';
+import { runConsolidatedTest, runTestWithDescription } from './runner';
+import type { AnalyzedPr, AnalyzedIssue } from './runner';
 import { applyLabelsForOutcome } from './labels';
 import type { ActionOutputs, IssueTestResult, TestOutcome, PullRequest, AnalyzePrResponse } from './types';
 
@@ -125,43 +126,7 @@ async function run(): Promise<void> {
     let totalDuration = 0;
     let hasError = false;
 
-    // Run tests for testable PRs first
-    for (const { pr, analysis } of testablePrs) {
-      core.info(`\n--- Testing PR #${pr.number}: ${pr.title} ---`);
-
-      const result = await runTestForPr(inputs, pr, analysis);
-      totalCost += result.costUsd;
-      totalDuration += result.durationSeconds;
-
-      // Determine outcome
-      let outcome: TestOutcome;
-      if (result.status === 'error' || result.status === 'abandoned') {
-        outcome = 'error';
-        hasError = true;
-      } else if (result.status === 'timeout') {
-        outcome = 'timeout';
-        timedOutPrs.push(pr.number);
-      } else if (result.success) {
-        outcome = 'success';
-        passedPrs.push(pr.number);
-      } else {
-        outcome = 'failure';
-        failedPrs.push(pr.number);
-      }
-
-      prResults.push({
-        prNumber: pr.number,
-        outcome,
-        explanation: result.explanation,
-        data: result.data,
-        costUsd: result.costUsd,
-        durationSeconds: result.durationSeconds,
-      });
-
-      core.info(`PR #${pr.number} result: ${outcome}`);
-    }
-
-    // Apply not-testable labels
+    // Apply not-testable labels first (these don't get tested)
     for (const { issue, reason } of notTestable) {
       await applyLabelsForOutcome(octokit, owner, repo, issue.number, inputs, 'not-testable');
       results.push({
@@ -171,44 +136,83 @@ async function run(): Promise<void> {
       });
     }
 
-    // Run tests for testable issues
-    for (const { issue, analysis } of testable) {
-      core.info(`\n--- Testing issue #${issue.number}: ${issue.title} ---`);
+    // Convert to the types expected by runConsolidatedTest
+    const analyzedPrs: AnalyzedPr[] = testablePrs.map(({ pr, analysis }) => ({ pr, analysis }));
+    const analyzedIssues: AnalyzedIssue[] = testable.map(({ issue, analysis }) => ({ issue, analysis }));
 
-      const result = await runTestForIssue(inputs, issue, analysis);
-      totalCost += result.costUsd;
-      totalDuration += result.durationSeconds;
+    // Run ONE consolidated test for all testable PRs and issues
+    if (analyzedPrs.length > 0 || analyzedIssues.length > 0) {
+      const itemSummary = [
+        ...(analyzedPrs.length > 0 ? [`${analyzedPrs.length} PR(s)`] : []),
+        ...(analyzedIssues.length > 0 ? [`${analyzedIssues.length} issue(s)`] : []),
+      ].join(' and ');
+      core.info(`\n--- Running consolidated test for ${itemSummary} ---`);
 
-      // Determine outcome
+      const result = await runConsolidatedTest(inputs, analyzedPrs, analyzedIssues);
+      totalCost = result.costUsd;
+      totalDuration = result.durationSeconds;
+
+      // Determine outcome from consolidated result
       let outcome: TestOutcome;
       if (result.status === 'error' || result.status === 'abandoned') {
         outcome = 'error';
         hasError = true;
       } else if (result.status === 'timeout') {
         outcome = 'timeout';
-        timedOutIssues.push(issue.number);
       } else if (result.success) {
         outcome = 'success';
-        passedIssues.push(issue.number);
       } else {
         outcome = 'failure';
-        failedIssues.push(issue.number);
       }
 
-      results.push({
-        issueNumber: issue.number,
-        outcome,
-        explanation: result.explanation,
-        data: result.data,
-        costUsd: result.costUsd,
-        durationSeconds: result.durationSeconds,
-        analysis: result.analysis,
-      });
+      // Apply the same outcome to ALL tested PRs
+      for (const { pr, analysis } of testablePrs) {
+        if (outcome === 'timeout') {
+          timedOutPrs.push(pr.number);
+        } else if (outcome === 'success') {
+          passedPrs.push(pr.number);
+        } else if (outcome === 'failure') {
+          failedPrs.push(pr.number);
+        }
 
-      // Apply labels based on outcome
-      await applyLabelsForOutcome(octokit, owner, repo, issue.number, inputs, outcome);
+        prResults.push({
+          prNumber: pr.number,
+          outcome,
+          explanation: result.explanation,
+          data: result.data,
+          costUsd: result.costUsd / (analyzedPrs.length + analyzedIssues.length),
+          durationSeconds: result.durationSeconds,
+          analysis,
+        });
 
-      core.info(`Issue #${issue.number} result: ${outcome}`);
+        core.info(`PR #${pr.number} result: ${outcome}`);
+      }
+
+      // Apply the same outcome to ALL tested issues
+      for (const { issue, analysis } of testable) {
+        if (outcome === 'timeout') {
+          timedOutIssues.push(issue.number);
+        } else if (outcome === 'success') {
+          passedIssues.push(issue.number);
+        } else if (outcome === 'failure') {
+          failedIssues.push(issue.number);
+        }
+
+        results.push({
+          issueNumber: issue.number,
+          outcome,
+          explanation: result.explanation,
+          data: result.data,
+          costUsd: result.costUsd / (analyzedPrs.length + analyzedIssues.length),
+          durationSeconds: result.durationSeconds,
+          analysis,
+        });
+
+        // Apply labels based on outcome
+        await applyLabelsForOutcome(octokit, owner, repo, issue.number, inputs, outcome);
+
+        core.info(`Issue #${issue.number} result: ${outcome}`);
+      }
     }
 
     // Determine overall status

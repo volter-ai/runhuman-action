@@ -14,6 +14,22 @@ import type {
 } from './types';
 import { isTerminalStatus } from './types';
 
+/**
+ * Analyzed PR with its analysis response
+ */
+export interface AnalyzedPr {
+  pr: PullRequest;
+  analysis: AnalyzePrResponse;
+}
+
+/**
+ * Analyzed Issue with its analysis response
+ */
+export interface AnalyzedIssue {
+  issue: Issue;
+  analysis: AnalyzeIssueResponse;
+}
+
 // Polling configuration
 const POLL_INTERVAL_MS = 10000; // 10 seconds between polls
 const DEFAULT_MAX_WAIT_MS = 30 * 60 * 1000; // 30 minutes default
@@ -678,6 +694,216 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
     };
   } catch (error) {
     core.error(`Failed to run test: ${error}`);
+    return {
+      success: false,
+      explanation: `Error: ${error}`,
+      costUsd: 0,
+      durationSeconds: 0,
+      status: 'error',
+    };
+  }
+}
+
+/**
+ * Build metadata for a consolidated test that covers multiple PRs and/or issues
+ */
+function buildConsolidatedMetadata(
+  prs: AnalyzedPr[],
+  issues: AnalyzedIssue[],
+  githubRepo: string
+): JobMetadata {
+  const metadata = buildBaseMetadata();
+
+  // Add PR references
+  if (prs.length === 1) {
+    metadata.githubPR = {
+      repo: githubRepo,
+      prNumber: prs[0].pr.number,
+      prUrl: `https://github.com/${githubRepo}/pull/${prs[0].pr.number}`,
+    };
+  } else if (prs.length > 1) {
+    // For multiple PRs, store in a custom field
+    (metadata as unknown as Record<string, unknown>).githubPRs = prs.map((p) => ({
+      repo: githubRepo,
+      prNumber: p.pr.number,
+      prUrl: `https://github.com/${githubRepo}/pull/${p.pr.number}`,
+    }));
+  }
+
+  // Add issue references
+  if (issues.length === 1) {
+    metadata.githubIssue = {
+      repo: githubRepo,
+      issueNumber: issues[0].issue.number,
+      issueUrl: `https://github.com/${githubRepo}/issues/${issues[0].issue.number}`,
+    };
+  } else if (issues.length > 1) {
+    // For multiple issues, store in a custom field
+    (metadata as unknown as Record<string, unknown>).githubIssues = issues.map((i) => ({
+      repo: githubRepo,
+      issueNumber: i.issue.number,
+      issueUrl: `https://github.com/${githubRepo}/issues/${i.issue.number}`,
+    }));
+  }
+
+  return metadata;
+}
+
+/**
+ * Build a combined description from all testable PRs and issues
+ */
+function buildConsolidatedDescription(prs: AnalyzedPr[], issues: AnalyzedIssue[]): string {
+  const sections: string[] = [];
+
+  // Add PR test instructions
+  for (const { pr, analysis } of prs) {
+    sections.push(`## PR #${pr.number}: ${pr.title}\n\n${analysis.testInstructions}`);
+  }
+
+  // Add issue test instructions
+  for (const { issue, analysis } of issues) {
+    sections.push(`## Issue #${issue.number}: ${issue.title}\n\n${analysis.testInstructions}`);
+  }
+
+  if (sections.length === 1) {
+    // Only one item, no need for headers
+    return prs.length > 0 ? prs[0].analysis.testInstructions : issues[0].analysis.testInstructions;
+  }
+
+  return sections.join('\n\n---\n\n');
+}
+
+/**
+ * Build combined validation instructions from all PRs and issues
+ */
+function buildConsolidatedValidationInstructions(
+  prs: AnalyzedPr[],
+  issues: AnalyzedIssue[]
+): string {
+  const sections: string[] = [];
+
+  // Add PR contexts
+  for (const { pr, analysis } of prs) {
+    sections.push(formatPrContext(pr, analysis));
+  }
+
+  // Add issue contexts
+  for (const { issue } of issues) {
+    sections.push(formatIssueContext(issue));
+  }
+
+  if (sections.length === 1) {
+    return sections[0];
+  }
+
+  return sections.join('\n\n===\n\n');
+}
+
+/**
+ * Run a single consolidated QA test for all testable PRs and issues.
+ * This creates ONE job that the tester will use to verify all changes.
+ */
+export async function runConsolidatedTest(
+  inputs: ActionInputs,
+  prs: AnalyzedPr[],
+  issues: AnalyzedIssue[]
+): Promise<RunhumanJobResult> {
+  const testUrl = inputs.url;
+
+  if (!testUrl) {
+    return {
+      success: false,
+      explanation: 'No test URL available',
+      costUsd: 0,
+      durationSeconds: 0,
+      status: 'error',
+    };
+  }
+
+  const prNumbers = prs.map((p) => p.pr.number);
+  const issueNumbers = issues.map((i) => i.issue.number);
+  const itemSummary = [
+    ...(prNumbers.length > 0 ? [`PRs: ${prNumbers.map((n) => `#${n}`).join(', ')}`] : []),
+    ...(issueNumbers.length > 0 ? [`Issues: ${issueNumbers.map((n) => `#${n}`).join(', ')}`] : []),
+  ].join('; ');
+
+  core.info(`Creating consolidated QA test job for ${itemSummary}`);
+  core.debug(`Test URL: ${testUrl}`);
+
+  try {
+    const description = buildConsolidatedDescription(prs, issues);
+    const validationInstructions = buildConsolidatedValidationInstructions(prs, issues);
+    const metadata = buildConsolidatedMetadata(prs, issues, inputs.githubRepo);
+
+    // Use the first available output schema, or null if none
+    const outputSchema = prs[0]?.analysis.outputSchema || issues[0]?.analysis.outputSchema || undefined;
+
+    const jobId = await withRetry(() =>
+      createJob(inputs, {
+        url: testUrl,
+        description,
+        outputSchema,
+        targetDurationMinutes: inputs.targetDurationMinutes,
+        additionalValidationInstructions: validationInstructions,
+        githubRepo: inputs.githubRepo,
+        screenSize: inputs.screenSize,
+        metadata,
+        githubToken: inputs.githubToken || undefined,
+      })
+    );
+
+    core.info(`Created consolidated job ${jobId} for ${itemSummary}`);
+
+    // Poll for completion
+    core.info(`Waiting for job ${jobId} to complete...`);
+    const { status: finalStatus, timedOut } = await pollForCompletion(
+      inputs,
+      jobId,
+      inputs.targetDurationMinutes
+    );
+
+    // Map status to result
+    if (timedOut) {
+      return {
+        success: false,
+        explanation: 'Test timed out waiting for tester response',
+        costUsd: finalStatus.costUsd ?? 0,
+        durationSeconds: finalStatus.testDurationSeconds ?? 0,
+        status: 'timeout',
+      };
+    }
+
+    if (finalStatus.status === 'completed' && finalStatus.result) {
+      return {
+        success: finalStatus.result.success,
+        explanation: finalStatus.result.explanation,
+        data: finalStatus.result.data,
+        costUsd: finalStatus.costUsd ?? 0,
+        durationSeconds: finalStatus.testDurationSeconds ?? 0,
+        status: 'completed',
+      };
+    }
+
+    if (finalStatus.status === 'abandoned') {
+      return {
+        success: false,
+        explanation: finalStatus.reason || 'Test was abandoned',
+        costUsd: finalStatus.costUsd ?? 0,
+        durationSeconds: finalStatus.testDurationSeconds ?? 0,
+        status: 'abandoned',
+      };
+    }
+
+    // Error or other terminal state
+    return {
+      success: false,
+      explanation: finalStatus.error || finalStatus.reason || `Job ended with status: ${finalStatus.status}`,
+      costUsd: finalStatus.costUsd ?? 0,
+      durationSeconds: finalStatus.testDurationSeconds ?? 0,
+      status: 'error',
+    };
+  } catch (error) {
+    core.error(`Failed to run consolidated test for ${itemSummary}: ${error}`);
     return {
       success: false,
       explanation: `Error: ${error}`,

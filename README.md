@@ -7,8 +7,14 @@ Unified GitHub Action for running human QA tests on URLs, PRs, and issues with r
 - **Test URLs directly** with explicit instructions
 - **Test GitHub Issues** linked to PRs
 - **Automatic issue discovery** from PR bodies
+- **Automatic project management** - projects are auto-created based on your GitHub repository
 - **Label management** based on test outcomes
 - **Workflow failure control** for CI/CD integration
+- **User-scoped API keys** - one key works across all your projects
+
+## Quick Start
+
+Get your API key from [runhuman.com/settings/api-keys](https://runhuman.com/settings/api-keys) and add it as `RUNHUMAN_API_KEY` in your repository secrets.
 
 ## Usage
 
@@ -22,7 +28,9 @@ Unified GitHub Action for running human QA tests on URLs, PRs, and issues with r
     api-key: ${{ secrets.RUNHUMAN_API_KEY }}
 ```
 
-### Test linked issues from a PR
+**How it works:** The action automatically creates a project for your repository (`owner/repo`) if one doesn't exist, then runs the test against it.
+
+### Test linked issues from a PR (Recommended)
 
 ```yaml
 - uses: volter-ai/runhuman-action@v1
@@ -36,6 +44,12 @@ Unified GitHub Action for running human QA tests on URLs, PRs, and issues with r
     on-failure-add-labels: '["runhuman:qa-failed"]'
     fail-on-failure: true
 ```
+
+This is the recommended approach for PR-based workflows. The action:
+1. Finds all issues linked in the PR body (e.g., "Closes #123")
+2. Analyzes each issue to determine if it's testable by a human
+3. Creates test jobs for testable issues
+4. Updates labels based on test outcomes
 
 ### Test specific issues
 
@@ -61,19 +75,57 @@ Unified GitHub Action for running human QA tests on URLs, PRs, and issues with r
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+### Full Example: PR Workflow with Auto-QA
+
+```yaml
+name: PR Workflow
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Your existing tests
+      - name: Run unit tests
+        run: npm test
+
+      # Deploy to staging
+      - name: Deploy to staging
+        run: ./deploy-staging.sh
+
+      # Run human QA on linked issues
+      - name: QA Test
+        uses: volter-ai/runhuman-action@v1
+        with:
+          url: ${{ vars.STAGING_URL }}
+          pr-numbers: '[${{ github.event.pull_request.number }}]'
+          api-key: ${{ secrets.RUNHUMAN_API_KEY }}
+          target-duration-minutes: 5
+          on-success-add-labels: '["qa:passed"]'
+          on-failure-add-labels: '["qa:failed"]'
+          fail-on-failure: true
+```
+
 ## Inputs
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
 | `url` | Yes | - | URL to test (must be publicly accessible) |
-| `api-key` | Yes | - | Runhuman API key |
+| `api-key` | Yes | - | User-scoped Runhuman API key (get from [Settings → API Keys](https://runhuman.com/settings/api-keys)) |
 | `description` | No | - | Additional test instructions |
 | `pr-numbers` | No | - | PR numbers to find linked issues (JSON array or comma-separated) |
 | `issue-numbers` | No | - | Issue numbers to test directly (JSON array or comma-separated) |
-| `github-token` | No | `${{ github.token }}` | GitHub token for API access |
+| `github-token` | No | `${{ github.token }}` | GitHub token for reading PR/issue data |
 | `api-url` | No | `https://runhuman.com` | Runhuman API base URL |
 | `target-duration-minutes` | No | `5` | Target test duration (1-60 minutes) |
 | `screen-size` | No | `desktop` | Screen size (desktop, laptop, tablet, mobile) |
+| `output-schema` | No | - | JSON schema for structured test results |
+| `can-create-github-issues` | No | `false` | Allow tester to create GitHub issues for bugs found |
 
 ### Label Callbacks
 
@@ -111,12 +163,32 @@ Unified GitHub Action for running human QA tests on URLs, PRs, and issues with r
 | `cost-usd` | Total cost in USD |
 | `duration-seconds` | Total duration in seconds |
 
+## Authentication & Project Management
+
+### User-Scoped API Keys
+
+Runhuman uses **user-scoped API keys** that work across all your projects:
+
+- **Get your key:** Visit [runhuman.com/settings/api-keys](https://runhuman.com/settings/api-keys)
+- **Add to repository:** Store as `RUNHUMAN_API_KEY` in your repository secrets
+- **Use anywhere:** The same key works for all your repositories
+
+### Automatic Project Creation
+
+When you run a test, Runhuman automatically:
+
+1. **Looks up your repository** (`owner/repo` from GitHub context)
+2. **Finds or creates a project** for that repository
+3. **Runs the test** against that project
+
+You don't need to manually create projects or configure project IDs. Everything is automatic based on your GitHub repository.
+
 ## How It Works
 
 1. **Collect Issues**: Finds issues from PRs (via body/title references) and explicit `issue-numbers`
 2. **Deduplicate**: Removes duplicate issues
 3. **Analyze Testability**: Determines which issues can be tested by a human
-4. **Run Tests**: Creates Runhuman jobs for each testable issue
+4. **Run Tests**: Creates Runhuman jobs for each testable issue (auto-creating projects as needed)
 5. **Apply Labels**: Updates issue labels based on outcomes
 6. **Report Results**: Sets outputs and optionally fails the workflow
 

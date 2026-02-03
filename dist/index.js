@@ -35223,41 +35223,7 @@ async function run() {
         let totalCost = 0;
         let totalDuration = 0;
         let hasError = false;
-        // Run tests for testable PRs first
-        for (const { pr, analysis } of testablePrs) {
-            core.info(`\n--- Testing PR #${pr.number}: ${pr.title} ---`);
-            const result = await (0, runner_1.runTestForPr)(inputs, pr, analysis);
-            totalCost += result.costUsd;
-            totalDuration += result.durationSeconds;
-            // Determine outcome
-            let outcome;
-            if (result.status === 'error' || result.status === 'abandoned') {
-                outcome = 'error';
-                hasError = true;
-            }
-            else if (result.status === 'timeout') {
-                outcome = 'timeout';
-                timedOutPrs.push(pr.number);
-            }
-            else if (result.success) {
-                outcome = 'success';
-                passedPrs.push(pr.number);
-            }
-            else {
-                outcome = 'failure';
-                failedPrs.push(pr.number);
-            }
-            prResults.push({
-                prNumber: pr.number,
-                outcome,
-                explanation: result.explanation,
-                data: result.data,
-                costUsd: result.costUsd,
-                durationSeconds: result.durationSeconds,
-            });
-            core.info(`PR #${pr.number} result: ${outcome}`);
-        }
-        // Apply not-testable labels
+        // Apply not-testable labels first (these don't get tested)
         for (const { issue, reason } of notTestable) {
             await (0, labels_1.applyLabelsForOutcome)(octokit, owner, repo, issue.number, inputs, 'not-testable');
             results.push({
@@ -35266,13 +35232,20 @@ async function run() {
                 explanation: reason,
             });
         }
-        // Run tests for testable issues
-        for (const { issue, analysis } of testable) {
-            core.info(`\n--- Testing issue #${issue.number}: ${issue.title} ---`);
-            const result = await (0, runner_1.runTestForIssue)(inputs, issue, analysis);
-            totalCost += result.costUsd;
-            totalDuration += result.durationSeconds;
-            // Determine outcome
+        // Convert to the types expected by runConsolidatedTest
+        const analyzedPrs = testablePrs.map(({ pr, analysis }) => ({ pr, analysis }));
+        const analyzedIssues = testable.map(({ issue, analysis }) => ({ issue, analysis }));
+        // Run ONE consolidated test for all testable PRs and issues
+        if (analyzedPrs.length > 0 || analyzedIssues.length > 0) {
+            const itemSummary = [
+                ...(analyzedPrs.length > 0 ? [`${analyzedPrs.length} PR(s)`] : []),
+                ...(analyzedIssues.length > 0 ? [`${analyzedIssues.length} issue(s)`] : []),
+            ].join(' and ');
+            core.info(`\n--- Running consolidated test for ${itemSummary} ---`);
+            const result = await (0, runner_1.runConsolidatedTest)(inputs, analyzedPrs, analyzedIssues);
+            totalCost = result.costUsd;
+            totalDuration = result.durationSeconds;
+            // Determine outcome from consolidated result
             let outcome;
             if (result.status === 'error' || result.status === 'abandoned') {
                 outcome = 'error';
@@ -35280,28 +35253,59 @@ async function run() {
             }
             else if (result.status === 'timeout') {
                 outcome = 'timeout';
-                timedOutIssues.push(issue.number);
             }
             else if (result.success) {
                 outcome = 'success';
-                passedIssues.push(issue.number);
             }
             else {
                 outcome = 'failure';
-                failedIssues.push(issue.number);
             }
-            results.push({
-                issueNumber: issue.number,
-                outcome,
-                explanation: result.explanation,
-                data: result.data,
-                costUsd: result.costUsd,
-                durationSeconds: result.durationSeconds,
-                analysis: result.analysis,
-            });
-            // Apply labels based on outcome
-            await (0, labels_1.applyLabelsForOutcome)(octokit, owner, repo, issue.number, inputs, outcome);
-            core.info(`Issue #${issue.number} result: ${outcome}`);
+            // Apply the same outcome to ALL tested PRs
+            for (const { pr, analysis } of testablePrs) {
+                if (outcome === 'timeout') {
+                    timedOutPrs.push(pr.number);
+                }
+                else if (outcome === 'success') {
+                    passedPrs.push(pr.number);
+                }
+                else if (outcome === 'failure') {
+                    failedPrs.push(pr.number);
+                }
+                prResults.push({
+                    prNumber: pr.number,
+                    outcome,
+                    explanation: result.explanation,
+                    data: result.data,
+                    costUsd: result.costUsd / (analyzedPrs.length + analyzedIssues.length),
+                    durationSeconds: result.durationSeconds,
+                    analysis,
+                });
+                core.info(`PR #${pr.number} result: ${outcome}`);
+            }
+            // Apply the same outcome to ALL tested issues
+            for (const { issue, analysis } of testable) {
+                if (outcome === 'timeout') {
+                    timedOutIssues.push(issue.number);
+                }
+                else if (outcome === 'success') {
+                    passedIssues.push(issue.number);
+                }
+                else if (outcome === 'failure') {
+                    failedIssues.push(issue.number);
+                }
+                results.push({
+                    issueNumber: issue.number,
+                    outcome,
+                    explanation: result.explanation,
+                    data: result.data,
+                    costUsd: result.costUsd / (analyzedPrs.length + analyzedIssues.length),
+                    durationSeconds: result.durationSeconds,
+                    analysis,
+                });
+                // Apply labels based on outcome
+                await (0, labels_1.applyLabelsForOutcome)(octokit, owner, repo, issue.number, inputs, outcome);
+                core.info(`Issue #${issue.number} result: ${outcome}`);
+            }
         }
         // Determine overall status
         const testedIssues = testable.map((t) => t.issue.number);
@@ -36148,6 +36152,7 @@ exports.withRetry = withRetry;
 exports.runTestForIssue = runTestForIssue;
 exports.runTestForPr = runTestForPr;
 exports.runTestWithDescription = runTestWithDescription;
+exports.runConsolidatedTest = runConsolidatedTest;
 const core = __importStar(__nccwpck_require__(7184));
 const github = __importStar(__nccwpck_require__(5683));
 const types_1 = __nccwpck_require__(4539);
@@ -36331,11 +36336,10 @@ async function createJob(inputs, request) {
     return data.jobId;
 }
 /**
- * Get the status of a job (note: singular /api/job/{id})
+ * Get the status of a job
  */
 async function getJobStatus(inputs, jobId) {
-    // IMPORTANT: /api/job/{id} (singular), not /api/jobs/{id}
-    const endpoint = `${inputs.apiUrl}/api/job/${jobId}`;
+    const endpoint = `${inputs.apiUrl}/api/jobs/${jobId}/status`;
     let response;
     try {
         response = await fetch(endpoint, {
@@ -36690,6 +36694,175 @@ async function runTestWithDescription(inputs) {
     }
     catch (error) {
         core.error(`Failed to run test: ${error}`);
+        return {
+            success: false,
+            explanation: `Error: ${error}`,
+            costUsd: 0,
+            durationSeconds: 0,
+            status: 'error',
+        };
+    }
+}
+/**
+ * Build metadata for a consolidated test that covers multiple PRs and/or issues
+ */
+function buildConsolidatedMetadata(prs, issues, githubRepo) {
+    const metadata = buildBaseMetadata();
+    // Add PR references
+    if (prs.length === 1) {
+        metadata.githubPR = {
+            repo: githubRepo,
+            prNumber: prs[0].pr.number,
+            prUrl: `https://github.com/${githubRepo}/pull/${prs[0].pr.number}`,
+        };
+    }
+    else if (prs.length > 1) {
+        // For multiple PRs, store in a custom field
+        metadata.githubPRs = prs.map((p) => ({
+            repo: githubRepo,
+            prNumber: p.pr.number,
+            prUrl: `https://github.com/${githubRepo}/pull/${p.pr.number}`,
+        }));
+    }
+    // Add issue references
+    if (issues.length === 1) {
+        metadata.githubIssue = {
+            repo: githubRepo,
+            issueNumber: issues[0].issue.number,
+            issueUrl: `https://github.com/${githubRepo}/issues/${issues[0].issue.number}`,
+        };
+    }
+    else if (issues.length > 1) {
+        // For multiple issues, store in a custom field
+        metadata.githubIssues = issues.map((i) => ({
+            repo: githubRepo,
+            issueNumber: i.issue.number,
+            issueUrl: `https://github.com/${githubRepo}/issues/${i.issue.number}`,
+        }));
+    }
+    return metadata;
+}
+/**
+ * Build a combined description from all testable PRs and issues
+ */
+function buildConsolidatedDescription(prs, issues) {
+    const sections = [];
+    // Add PR test instructions
+    for (const { pr, analysis } of prs) {
+        sections.push(`## PR #${pr.number}: ${pr.title}\n\n${analysis.testInstructions}`);
+    }
+    // Add issue test instructions
+    for (const { issue, analysis } of issues) {
+        sections.push(`## Issue #${issue.number}: ${issue.title}\n\n${analysis.testInstructions}`);
+    }
+    if (sections.length === 1) {
+        // Only one item, no need for headers
+        return prs.length > 0 ? prs[0].analysis.testInstructions : issues[0].analysis.testInstructions;
+    }
+    return sections.join('\n\n---\n\n');
+}
+/**
+ * Build combined validation instructions from all PRs and issues
+ */
+function buildConsolidatedValidationInstructions(prs, issues) {
+    const sections = [];
+    // Add PR contexts
+    for (const { pr, analysis } of prs) {
+        sections.push(formatPrContext(pr, analysis));
+    }
+    // Add issue contexts
+    for (const { issue } of issues) {
+        sections.push(formatIssueContext(issue));
+    }
+    if (sections.length === 1) {
+        return sections[0];
+    }
+    return sections.join('\n\n===\n\n');
+}
+/**
+ * Run a single consolidated QA test for all testable PRs and issues.
+ * This creates ONE job that the tester will use to verify all changes.
+ */
+async function runConsolidatedTest(inputs, prs, issues) {
+    const testUrl = inputs.url;
+    if (!testUrl) {
+        return {
+            success: false,
+            explanation: 'No test URL available',
+            costUsd: 0,
+            durationSeconds: 0,
+            status: 'error',
+        };
+    }
+    const prNumbers = prs.map((p) => p.pr.number);
+    const issueNumbers = issues.map((i) => i.issue.number);
+    const itemSummary = [
+        ...(prNumbers.length > 0 ? [`PRs: ${prNumbers.map((n) => `#${n}`).join(', ')}`] : []),
+        ...(issueNumbers.length > 0 ? [`Issues: ${issueNumbers.map((n) => `#${n}`).join(', ')}`] : []),
+    ].join('; ');
+    core.info(`Creating consolidated QA test job for ${itemSummary}`);
+    core.debug(`Test URL: ${testUrl}`);
+    try {
+        const description = buildConsolidatedDescription(prs, issues);
+        const validationInstructions = buildConsolidatedValidationInstructions(prs, issues);
+        const metadata = buildConsolidatedMetadata(prs, issues, inputs.githubRepo);
+        // Use the first available output schema, or null if none
+        const outputSchema = prs[0]?.analysis.outputSchema || issues[0]?.analysis.outputSchema || undefined;
+        const jobId = await withRetry(() => createJob(inputs, {
+            url: testUrl,
+            description,
+            outputSchema,
+            targetDurationMinutes: inputs.targetDurationMinutes,
+            additionalValidationInstructions: validationInstructions,
+            githubRepo: inputs.githubRepo,
+            screenSize: inputs.screenSize,
+            metadata,
+            githubToken: inputs.githubToken || undefined,
+        }));
+        core.info(`Created consolidated job ${jobId} for ${itemSummary}`);
+        // Poll for completion
+        core.info(`Waiting for job ${jobId} to complete...`);
+        const { status: finalStatus, timedOut } = await pollForCompletion(inputs, jobId, inputs.targetDurationMinutes);
+        // Map status to result
+        if (timedOut) {
+            return {
+                success: false,
+                explanation: 'Test timed out waiting for tester response',
+                costUsd: finalStatus.costUsd ?? 0,
+                durationSeconds: finalStatus.testDurationSeconds ?? 0,
+                status: 'timeout',
+            };
+        }
+        if (finalStatus.status === 'completed' && finalStatus.result) {
+            return {
+                success: finalStatus.result.success,
+                explanation: finalStatus.result.explanation,
+                data: finalStatus.result.data,
+                costUsd: finalStatus.costUsd ?? 0,
+                durationSeconds: finalStatus.testDurationSeconds ?? 0,
+                status: 'completed',
+            };
+        }
+        if (finalStatus.status === 'abandoned') {
+            return {
+                success: false,
+                explanation: finalStatus.reason || 'Test was abandoned',
+                costUsd: finalStatus.costUsd ?? 0,
+                durationSeconds: finalStatus.testDurationSeconds ?? 0,
+                status: 'abandoned',
+            };
+        }
+        // Error or other terminal state
+        return {
+            success: false,
+            explanation: finalStatus.error || finalStatus.reason || `Job ended with status: ${finalStatus.status}`,
+            costUsd: finalStatus.costUsd ?? 0,
+            durationSeconds: finalStatus.testDurationSeconds ?? 0,
+            status: 'error',
+        };
+    }
+    catch (error) {
+        core.error(`Failed to run consolidated test for ${itemSummary}: ${error}`);
         return {
             success: false,
             explanation: `Error: ${error}`,
@@ -39483,10 +39656,10 @@ const apiRoutes = {
     // ============================================
     /** List jobs (GET) or create job (POST) */
     jobs: defineRoute('/jobs'),
-    /** Get/delete specific job */
+    /** Get/update/delete specific job */
     job: defineRoute('/jobs/:jobId'),
-    /** Get job status (clean response for polling) */
-    jobStatus: defineRoute('/job/:jobId'),
+    /** Get job status (for polling) */
+    jobStatus: defineRoute('/jobs/:jobId/status'),
     /** Synchronous job execution */
     run: defineRoute('/run'),
     /** Get public job (no auth required, token-secured) */
@@ -39593,8 +39766,8 @@ const apiRoutes = {
     templates: defineRoute('/templates'),
     /** Issue analyzer */
     issueAnalyzer: defineRoute('/issue-analyzer'),
-    /** Merge analyzer */
-    mergeAnalyzer: defineRoute('/merge-analyzer'),
+    /** PR analyzer */
+    prAnalyzer: defineRoute('/pr-analyzer'),
     /** Logs endpoint */
     logs: defineRoute('/logs'),
     // ============================================

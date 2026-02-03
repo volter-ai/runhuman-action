@@ -1,5 +1,19 @@
 import type { Issue, ActionInputs, AnalyzeIssueResponse, AnalyzePrResponse, PullRequest, RunhumanJobResult } from './types';
 /**
+ * Analyzed PR with its analysis response
+ */
+export interface AnalyzedPr {
+    pr: PullRequest;
+    analysis: AnalyzePrResponse;
+}
+/**
+ * Analyzed Issue with its analysis response
+ */
+export interface AnalyzedIssue {
+    issue: Issue;
+    analysis: AnalyzeIssueResponse;
+}
+/**
  * Retry wrapper for transient errors with exponential backoff
  */
 export declare function withRetry<T>(fn: () => Promise<T>, maxRetries?: number, baseDelayMs?: number): Promise<T>;
@@ -15,3 +29,8 @@ export declare function runTestForPr(inputs: ActionInputs, pr: PullRequest, anal
  * Run a QA test with just a description (no issue context)
  */
 export declare function runTestWithDescription(inputs: ActionInputs): Promise<RunhumanJobResult>;
+/**
+ * Run a single consolidated QA test for all testable PRs and issues.
+ * This creates ONE job that the tester will use to verify all changes.
+ */
+export declare function runConsolidatedTest(inputs: ActionInputs, prs: AnalyzedPr[], issues: AnalyzedIssue[]): Promise<RunhumanJobResult>;

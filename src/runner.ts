@@ -252,11 +252,10 @@ async function createJob(inputs: ActionInputs, request: CreateJobRequest): Promi
 }
 
 /**
- * Get the status of a job (note: singular /api/job/{id})
+ * Get the status of a job
  */
 async function getJobStatus(inputs: ActionInputs, jobId: string): Promise<JobStatusResponse> {
-  // IMPORTANT: /api/job/{id} (singular), not /api/jobs/{id}
-  const endpoint = `${inputs.apiUrl}/api/job/${jobId}`;
+  const endpoint = `${inputs.apiUrl}/api/jobs/${jobId}/status`;
 
   let response: Response;
   try {

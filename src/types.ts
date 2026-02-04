@@ -30,20 +30,6 @@ export type ScreenSizeConfig =
   | { width: number; height: number };
 
 /**
- * Template configuration loaded from a local template file
- */
-export interface TemplateConfig {
-  name?: string;
-  url?: string;
-  description?: string;
-  outputSchema?: Record<string, unknown>;
-  targetDurationMinutes?: number;
-  screenSize?: ScreenSizeConfig;
-  allowDurationExtension?: boolean;
-  maxExtensionMinutes?: number;
-}
-
-/**
  * Parsed inputs from the action
  */
 export interface ActionInputs {
@@ -55,7 +41,7 @@ export interface ActionInputs {
   // Template configuration
   template?: string;          // Template name for server-side resolution
   templateFile?: string;      // Local template file path
-  templateConfig?: TemplateConfig; // Parsed template config (if template-file was provided)
+  templateContent?: string;   // Raw template content (markdown with frontmatter) from template-file
 
   // Test context sources
   description?: string;
@@ -150,8 +136,8 @@ export interface ExtractedResult {
  * Request to create a test job
  */
 export interface CreateJobRequest {
-  url: string;
-  description: string;
+  url?: string;
+  description?: string;
   outputSchema?: Record<string, unknown>;
   targetDurationMinutes?: number;
   additionalValidationInstructions?: string;
@@ -162,6 +148,8 @@ export interface CreateJobRequest {
   repoName?: string;
   /** Template name for server-side resolution */
   template?: string;
+  /** Raw template content (markdown with frontmatter) for server-side parsing */
+  templateContent?: string;
   /** GitHub token from GitHub Actions (enables GitHub operations without App installation) */
   githubToken?: string;
 }

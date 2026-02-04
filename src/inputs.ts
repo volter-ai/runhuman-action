@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import type { ActionInputs, ScreenSizeConfig, TemplateConfig } from './types';
-import { loadTemplateFile } from './template-loader';
+import * as fs from 'fs';
+import type { ActionInputs, ScreenSizeConfig } from './types';
 
 /**
  * Parse a string that could be either JSON array or comma-separated values
@@ -124,12 +124,15 @@ export function parseInputs(): ActionInputs {
   const template = core.getInput('template') || undefined;
   const templateFile = core.getInput('template-file') || undefined;
 
-  // Load template config from local file if specified
-  let templateConfig: TemplateConfig | undefined;
+  // Load template content from local file if specified (raw content, not parsed)
+  let templateContent: string | undefined;
   if (templateFile) {
     try {
-      templateConfig = loadTemplateFile(templateFile);
-      core.info(`Loaded template from file: ${templateFile}`);
+      if (!fs.existsSync(templateFile)) {
+        throw new Error(`Template file not found: ${templateFile}`);
+      }
+      templateContent = fs.readFileSync(templateFile, 'utf-8');
+      core.info(`Loaded template content from file: ${templateFile}`);
     } catch (error) {
       throw new Error(`Failed to load template file "${templateFile}": ${error}`);
     }
@@ -148,7 +151,7 @@ export function parseInputs(): ActionInputs {
     // Template configuration
     template: templateFile ? undefined : template, // Only use server-side template if no local file
     templateFile,
-    templateConfig,
+    templateContent,
 
     // Test context sources
     description: core.getInput('description') || undefined,

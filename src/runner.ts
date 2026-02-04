@@ -584,36 +584,33 @@ export async function runTestForPr(
 }
 
 /**
- * Build job request merging template config with explicit inputs
- * Explicit inputs always take precedence over template values
+ * Build job request from action inputs
+ * Template content or name is sent to API for server-side parsing and merging
  */
 function buildJobRequest(inputs: ActionInputs): CreateJobRequest {
-  const template = inputs.templateConfig;
-
-  // Determine effective values (inputs override template)
-  const url = inputs.url || template?.url;
-  const description = inputs.description || template?.description;
-
-  if (!url) {
+  // Validate required fields (unless using template)
+  const hasTemplate = !!inputs.template || !!inputs.templateContent;
+  if (!inputs.url && !hasTemplate) {
     throw new Error('URL is required - provide via url input or template');
   }
-  if (!description && !inputs.template) {
-    // Allow missing description only if using server-side template resolution
+  if (!inputs.description && !hasTemplate) {
     throw new Error('Description is required - provide via description input or template');
   }
 
   return {
-    url,
-    description: description || '', // May be empty for server-side template
-    outputSchema: inputs.outputSchema || template?.outputSchema,
-    targetDurationMinutes: inputs.targetDurationMinutes ?? template?.targetDurationMinutes,
+    url: inputs.url,
+    description: inputs.description,
+    outputSchema: inputs.outputSchema,
+    targetDurationMinutes: inputs.targetDurationMinutes,
     githubRepo: inputs.githubRepo,
-    screenSize: inputs.screenSize || template?.screenSize,
+    screenSize: inputs.screenSize,
     metadata: buildBaseMetadata(),
     canCreateGithubIssues: inputs.canCreateGithubIssues,
     repoName: inputs.canCreateGithubIssues ? inputs.githubRepo : undefined,
-    // Pass template name for server-side resolution (only if no local template)
+    // Pass template name for server-side resolution
     template: inputs.template,
+    // Pass raw template content for server-side parsing
+    templateContent: inputs.templateContent,
     // Pass GitHub token for GitHub operations without App installation
     githubToken: inputs.githubToken || undefined,
   };
@@ -626,15 +623,15 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
   // Check if we have enough info to create a job
   const hasDescription = !!inputs.description;
   const hasTemplate = !!inputs.template;
-  const hasLocalTemplate = !!inputs.templateConfig;
+  const hasTemplateContent = !!inputs.templateContent;
 
-  if (!hasDescription && !hasTemplate && !hasLocalTemplate) {
+  if (!hasDescription && !hasTemplate && !hasTemplateContent) {
     throw new Error('Description is required when no issues are provided. Provide via description input, template, or template-file.');
   }
 
   if (hasTemplate) {
     core.info(`Creating QA test job using template: ${inputs.template}`);
-  } else if (hasLocalTemplate) {
+  } else if (hasTemplateContent) {
     core.info(`Creating QA test job using local template: ${inputs.templateFile}`);
   } else {
     core.info('Creating QA test job with description only');

@@ -174,7 +174,7 @@ export function parseInputs(): ActionInputs {
     apiUrl: core.getInput('api-url') || 'https://runhuman.com',
 
     // Test configuration
-    targetDurationMinutes: parseInt(core.getInput('target-duration-minutes') || '5', 10),
+    targetDurationMinutes: parseInt(core.getInput('target-duration-minutes') || '30', 10),
     screenSize: parseScreenSize(core.getInput('screen-size') || 'desktop'),
     outputSchema: parseOutputSchema(core.getInput('output-schema')),
     canCreateGithubIssues: core.getBooleanInput('can-create-github-issues'),

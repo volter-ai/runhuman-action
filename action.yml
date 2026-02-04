@@ -76,10 +76,6 @@ inputs:
     description: 'GitHub token for API access'
     required: false
     default: ${{ github.token }}
-  api-url:
-    description: 'Runhuman API base URL'
-    required: false
-    default: 'https://runhuman.com'
 
   # Template configuration
   template:

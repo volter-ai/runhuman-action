@@ -58,6 +58,8 @@ async function run(): Promise<void> {
         results: [],
         costUsd: 0,
         durationSeconds: 0,
+        jobIds: [],
+        jobUrls: [],
       });
       return;
     }
@@ -66,6 +68,14 @@ async function run(): Promise<void> {
     if (issues.length === 0 && testablePrs.length === 0 && inputs.description) {
       core.info('No issues or testable PRs found, running test with description only');
       const result = await runTestWithDescription(inputs);
+
+      const jobIds: string[] = [];
+      const jobUrls: (string | undefined)[] = [];
+
+      if (result.jobId) {
+        jobIds.push(result.jobId);
+        jobUrls.push(result.jobUrl);
+      }
 
       const success = result.success;
       // Map abandoned/not-testable to error for output status
@@ -82,6 +92,8 @@ async function run(): Promise<void> {
         results: [],
         costUsd: result.costUsd,
         durationSeconds: result.durationSeconds,
+        jobIds,
+        jobUrls,
       };
 
       setOutputs(outputs);
@@ -125,6 +137,8 @@ async function run(): Promise<void> {
     let totalCost = 0;
     let totalDuration = 0;
     let hasError = false;
+    const jobIds: string[] = [];
+    const jobUrls: (string | undefined)[] = [];
 
     // Apply not-testable labels first (these don't get tested)
     for (const { issue, reason } of notTestable) {
@@ -151,6 +165,11 @@ async function run(): Promise<void> {
       const result = await runConsolidatedTest(inputs, analyzedPrs, analyzedIssues);
       totalCost = result.costUsd;
       totalDuration = result.durationSeconds;
+
+      if (result.jobId) {
+        jobIds.push(result.jobId);
+        jobUrls.push(result.jobUrl);
+      }
 
       // Determine outcome from consolidated result
       let outcome: TestOutcome;
@@ -233,6 +252,8 @@ async function run(): Promise<void> {
       results,
       costUsd: totalCost,
       durationSeconds: totalDuration,
+      jobIds,
+      jobUrls,
     };
 
     setOutputs(outputs);
@@ -286,6 +307,8 @@ function setOutputs(outputs: ActionOutputs): void {
   core.setOutput('results', JSON.stringify(outputs.results));
   core.setOutput('cost-usd', String(outputs.costUsd));
   core.setOutput('duration-seconds', String(outputs.durationSeconds));
+  core.setOutput('job-ids', JSON.stringify(outputs.jobIds));
+  core.setOutput('job-urls', JSON.stringify(outputs.jobUrls));
 }
 
 run();

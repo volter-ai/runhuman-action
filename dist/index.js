@@ -30741,6 +30741,8 @@ async function run() {
                 results: [],
                 costUsd: 0,
                 durationSeconds: 0,
+                jobIds: [],
+                jobUrls: [],
             });
             return;
         }
@@ -30748,6 +30750,12 @@ async function run() {
         if (issues.length === 0 && testablePrs.length === 0 && inputs.description) {
             core.info('No issues or testable PRs found, running test with description only');
             const result = await (0, runner_1.runTestWithDescription)(inputs);
+            const jobIds = [];
+            const jobUrls = [];
+            if (result.jobId) {
+                jobIds.push(result.jobId);
+                jobUrls.push(result.jobUrl);
+            }
             const success = result.success;
             // Map abandoned/not-testable to error for output status
             const mappedStatus = result.status === 'abandoned' || result.status === 'not-testable' ? 'error' : result.status;
@@ -30762,6 +30770,8 @@ async function run() {
                 results: [],
                 costUsd: result.costUsd,
                 durationSeconds: result.durationSeconds,
+                jobIds,
+                jobUrls,
             };
             setOutputs(outputs);
             // Handle workflow failure
@@ -30801,6 +30811,8 @@ async function run() {
         let totalCost = 0;
         let totalDuration = 0;
         let hasError = false;
+        const jobIds = [];
+        const jobUrls = [];
         // Apply not-testable labels first (these don't get tested)
         for (const { issue, reason } of notTestable) {
             await (0, labels_1.applyLabelsForOutcome)(octokit, owner, repo, issue.number, inputs, 'not-testable');
@@ -30823,6 +30835,10 @@ async function run() {
             const result = await (0, runner_1.runConsolidatedTest)(inputs, analyzedPrs, analyzedIssues);
             totalCost = result.costUsd;
             totalDuration = result.durationSeconds;
+            if (result.jobId) {
+                jobIds.push(result.jobId);
+                jobUrls.push(result.jobUrl);
+            }
             // Determine outcome from consolidated result
             let outcome;
             if (result.status === 'error' || result.status === 'abandoned') {
@@ -30902,6 +30918,8 @@ async function run() {
             results,
             costUsd: totalCost,
             durationSeconds: totalDuration,
+            jobIds,
+            jobUrls,
         };
         setOutputs(outputs);
         // Summary
@@ -30955,6 +30973,8 @@ function setOutputs(outputs) {
     core.setOutput('results', JSON.stringify(outputs.results));
     core.setOutput('cost-usd', String(outputs.costUsd));
     core.setOutput('duration-seconds', String(outputs.durationSeconds));
+    core.setOutput('job-ids', JSON.stringify(outputs.jobIds));
+    core.setOutput('job-urls', JSON.stringify(outputs.jobUrls));
 }
 run();
 
@@ -32043,6 +32063,7 @@ async function runTestForIssue(inputs, issue, analysis) {
         // Poll for completion
         core.info(`Waiting for job ${jobId} to complete...`);
         const { status: finalStatus, timedOut } = await pollForCompletion(inputs, jobId, inputs.targetDurationMinutes);
+        const jobUrl = finalStatus.jobUrl;
         // Map status to result
         if (timedOut) {
             return {
@@ -32052,6 +32073,8 @@ async function runTestForIssue(inputs, issue, analysis) {
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'timeout',
                 analysis,
+                jobId,
+                jobUrl,
             };
         }
         if (finalStatus.status === 'completed' && finalStatus.result) {
@@ -32063,6 +32086,8 @@ async function runTestForIssue(inputs, issue, analysis) {
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'completed',
                 analysis,
+                jobId,
+                jobUrl,
             };
         }
         if (finalStatus.status === 'abandoned') {
@@ -32073,6 +32098,8 @@ async function runTestForIssue(inputs, issue, analysis) {
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'abandoned',
                 analysis,
+                jobId,
+                jobUrl,
             };
         }
         // Error or other terminal state
@@ -32083,6 +32110,8 @@ async function runTestForIssue(inputs, issue, analysis) {
             durationSeconds: finalStatus.testDurationSeconds ?? 0,
             status: 'error',
             analysis,
+            jobId,
+            jobUrl,
         };
     }
     catch (error) {
@@ -32130,6 +32159,7 @@ async function runTestForPr(inputs, pr, analysis) {
         // Poll for completion
         core.info(`Waiting for job ${jobId} to complete...`);
         const { status: finalStatus, timedOut } = await pollForCompletion(inputs, jobId, inputs.targetDurationMinutes);
+        const jobUrl = finalStatus.jobUrl;
         // Map status to result
         if (timedOut) {
             return {
@@ -32138,6 +32168,8 @@ async function runTestForPr(inputs, pr, analysis) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'timeout',
+                jobId,
+                jobUrl,
             };
         }
         if (finalStatus.status === 'completed' && finalStatus.result) {
@@ -32148,6 +32180,8 @@ async function runTestForPr(inputs, pr, analysis) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'completed',
+                jobId,
+                jobUrl,
             };
         }
         if (finalStatus.status === 'abandoned') {
@@ -32157,6 +32191,8 @@ async function runTestForPr(inputs, pr, analysis) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'abandoned',
+                jobId,
+                jobUrl,
             };
         }
         // Error or other terminal state
@@ -32166,6 +32202,8 @@ async function runTestForPr(inputs, pr, analysis) {
             costUsd: finalStatus.costUsd ?? 0,
             durationSeconds: finalStatus.testDurationSeconds ?? 0,
             status: 'error',
+            jobId,
+            jobUrl,
         };
     }
     catch (error) {
@@ -32236,6 +32274,7 @@ async function runTestWithDescription(inputs) {
         core.info(`Created job ${jobId}`);
         // Poll for completion
         const { status: finalStatus, timedOut } = await pollForCompletion(inputs, jobId, inputs.targetDurationMinutes);
+        const jobUrl = finalStatus.jobUrl;
         if (timedOut) {
             return {
                 success: false,
@@ -32243,6 +32282,8 @@ async function runTestWithDescription(inputs) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'timeout',
+                jobId,
+                jobUrl,
             };
         }
         if (finalStatus.status === 'completed' && finalStatus.result) {
@@ -32253,6 +32294,8 @@ async function runTestWithDescription(inputs) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'completed',
+                jobId,
+                jobUrl,
             };
         }
         if (finalStatus.status === 'abandoned') {
@@ -32262,6 +32305,8 @@ async function runTestWithDescription(inputs) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'abandoned',
+                jobId,
+                jobUrl,
             };
         }
         return {
@@ -32270,6 +32315,8 @@ async function runTestWithDescription(inputs) {
             costUsd: finalStatus.costUsd ?? 0,
             durationSeconds: finalStatus.testDurationSeconds ?? 0,
             status: 'error',
+            jobId,
+            jobUrl,
         };
     }
     catch (error) {
@@ -32403,6 +32450,7 @@ async function runConsolidatedTest(inputs, prs, issues) {
         // Poll for completion
         core.info(`Waiting for job ${jobId} to complete...`);
         const { status: finalStatus, timedOut } = await pollForCompletion(inputs, jobId, inputs.targetDurationMinutes);
+        const jobUrl = finalStatus.jobUrl;
         // Map status to result
         if (timedOut) {
             return {
@@ -32411,6 +32459,8 @@ async function runConsolidatedTest(inputs, prs, issues) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'timeout',
+                jobId,
+                jobUrl,
             };
         }
         if (finalStatus.status === 'completed' && finalStatus.result) {
@@ -32421,6 +32471,8 @@ async function runConsolidatedTest(inputs, prs, issues) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'completed',
+                jobId,
+                jobUrl,
             };
         }
         if (finalStatus.status === 'abandoned') {
@@ -32430,6 +32482,8 @@ async function runConsolidatedTest(inputs, prs, issues) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'abandoned',
+                jobId,
+                jobUrl,
             };
         }
         // Error or other terminal state
@@ -32439,6 +32493,8 @@ async function runConsolidatedTest(inputs, prs, issues) {
             costUsd: finalStatus.costUsd ?? 0,
             durationSeconds: finalStatus.testDurationSeconds ?? 0,
             status: 'error',
+            jobId,
+            jobUrl,
         };
     }
     catch (error) {

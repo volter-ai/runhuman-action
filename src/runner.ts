@@ -425,6 +425,8 @@ export async function runTestForIssue(
       inputs.targetDurationMinutes
     );
 
+    const jobUrl = finalStatus.jobUrl;
+
     // Map status to result
     if (timedOut) {
       return {
@@ -434,6 +436,8 @@ export async function runTestForIssue(
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'timeout',
         analysis,
+        jobId,
+        jobUrl,
       };
     }
 
@@ -446,6 +450,8 @@ export async function runTestForIssue(
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'completed',
         analysis,
+        jobId,
+        jobUrl,
       };
     }
 
@@ -457,6 +463,8 @@ export async function runTestForIssue(
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'abandoned',
         analysis,
+        jobId,
+        jobUrl,
       };
     }
 
@@ -468,6 +476,8 @@ export async function runTestForIssue(
       durationSeconds: finalStatus.testDurationSeconds ?? 0,
       status: 'error',
       analysis,
+      jobId,
+      jobUrl,
     };
   } catch (error) {
     core.error(`Failed to run test for issue #${issue.number}: ${error}`);
@@ -531,6 +541,8 @@ export async function runTestForPr(
       inputs.targetDurationMinutes
     );
 
+    const jobUrl = finalStatus.jobUrl;
+
     // Map status to result
     if (timedOut) {
       return {
@@ -539,6 +551,8 @@ export async function runTestForPr(
         costUsd: finalStatus.costUsd ?? 0,
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'timeout',
+        jobId,
+        jobUrl,
       };
     }
 
@@ -550,6 +564,8 @@ export async function runTestForPr(
         costUsd: finalStatus.costUsd ?? 0,
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'completed',
+        jobId,
+        jobUrl,
       };
     }
 
@@ -560,6 +576,8 @@ export async function runTestForPr(
         costUsd: finalStatus.costUsd ?? 0,
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'abandoned',
+        jobId,
+        jobUrl,
       };
     }
 
@@ -570,6 +588,8 @@ export async function runTestForPr(
       costUsd: finalStatus.costUsd ?? 0,
       durationSeconds: finalStatus.testDurationSeconds ?? 0,
       status: 'error',
+      jobId,
+      jobUrl,
     };
   } catch (error) {
     core.error(`Failed to run test for PR #${pr.number}: ${error}`);
@@ -650,6 +670,8 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
       inputs.targetDurationMinutes
     );
 
+    const jobUrl = finalStatus.jobUrl;
+
     if (timedOut) {
       return {
         success: false,
@@ -657,6 +679,8 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
         costUsd: finalStatus.costUsd ?? 0,
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'timeout',
+        jobId,
+        jobUrl,
       };
     }
 
@@ -668,6 +692,8 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
         costUsd: finalStatus.costUsd ?? 0,
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'completed',
+        jobId,
+        jobUrl,
       };
     }
 
@@ -678,6 +704,8 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
         costUsd: finalStatus.costUsd ?? 0,
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'abandoned',
+        jobId,
+        jobUrl,
       };
     }
 
@@ -687,6 +715,8 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
       costUsd: finalStatus.costUsd ?? 0,
       durationSeconds: finalStatus.testDurationSeconds ?? 0,
       status: 'error',
+      jobId,
+      jobUrl,
     };
   } catch (error) {
     core.error(`Failed to run test: ${error}`);
@@ -858,6 +888,8 @@ export async function runConsolidatedTest(
       inputs.targetDurationMinutes
     );
 
+    const jobUrl = finalStatus.jobUrl;
+
     // Map status to result
     if (timedOut) {
       return {
@@ -866,6 +898,8 @@ export async function runConsolidatedTest(
         costUsd: finalStatus.costUsd ?? 0,
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'timeout',
+        jobId,
+        jobUrl,
       };
     }
 
@@ -877,6 +911,8 @@ export async function runConsolidatedTest(
         costUsd: finalStatus.costUsd ?? 0,
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'completed',
+        jobId,
+        jobUrl,
       };
     }
 
@@ -887,6 +923,8 @@ export async function runConsolidatedTest(
         costUsd: finalStatus.costUsd ?? 0,
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'abandoned',
+        jobId,
+        jobUrl,
       };
     }
 
@@ -897,6 +935,8 @@ export async function runConsolidatedTest(
       costUsd: finalStatus.costUsd ?? 0,
       durationSeconds: finalStatus.testDurationSeconds ?? 0,
       status: 'error',
+      jobId,
+      jobUrl,
     };
   } catch (error) {
     core.error(`Failed to run consolidated test for ${itemSummary}: ${error}`);

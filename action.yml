@@ -123,6 +123,10 @@ outputs:
     description: 'Total cost in USD'
   duration-seconds:
     description: 'Total duration in seconds'
+  job-ids:
+    description: 'JSON array of job IDs created (empty array if no jobs)'
+  job-urls:
+    description: 'JSON array of job URLs (empty array if no jobs, may contain undefined for missing URLs)'
 
 runs:
   using: 'node20'

@@ -218,6 +218,8 @@ export interface RunhumanJobResult {
     durationSeconds: number;
     status: 'completed' | 'timeout' | 'error' | 'abandoned' | 'not-testable';
     analysis?: AnalyzeIssueResponse;
+    jobId?: string;
+    jobUrl?: string;
 }
 export type TestOutcome = 'success' | 'failure' | 'not-testable' | 'timeout' | 'error';
 export interface IssueTestResult {
@@ -240,4 +242,6 @@ export interface ActionOutputs {
     results: IssueTestResult[];
     costUsd: number;
     durationSeconds: number;
+    jobIds: string[];
+    jobUrls: (string | undefined)[];
 }

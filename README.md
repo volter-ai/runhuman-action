@@ -162,6 +162,43 @@ jobs:
 | `results` | Full JSON results object |
 | `cost-usd` | Total cost in USD |
 | `duration-seconds` | Total duration in seconds |
+| `job-ids` | JSON array of Runhuman job IDs (empty if no jobs created) |
+| `job-urls` | JSON array of job detail page URLs (empty if no jobs created) |
+
+### Using Job URLs in PR Comments
+
+You can use the `job-ids` and `job-urls` outputs to link directly to test results:
+
+```yaml
+- name: Run QA Test
+  id: qa-test
+  uses: volter-ai/runhuman-action@v1
+  with:
+    url: https://staging.example.com
+    pr-numbers: '[${{ github.event.pull_request.number }}]'
+    api-key: ${{ secrets.RUNHUMAN_API_KEY }}
+
+- name: Comment on PR with test link
+  if: always()
+  uses: actions/github-script@v7
+  with:
+    script: |
+      const jobUrls = JSON.parse('${{ steps.qa-test.outputs.job-urls }}');
+      const success = '${{ steps.qa-test.outputs.success }}' === 'true';
+
+      if (jobUrls.length > 0) {
+        const url = jobUrls[0];
+        const emoji = success ? '✅' : '❌';
+        const status = success ? 'Passed' : 'Failed';
+
+        await github.rest.issues.createComment({
+          issue_number: context.issue.number,
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          body: `${emoji} QA Test ${status} - [View Results](${url})`
+        });
+      }
+```
 
 ## Authentication & Project Management
 

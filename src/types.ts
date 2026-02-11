@@ -127,11 +127,28 @@ export interface AnalyzeIssueResponse {
 
 /**
  * Extracted test result
+ * Schema-defined fields (including 'success') are in `data`
  */
 export interface ExtractedResult {
-  success: boolean;
   explanation: string;
   data: Record<string, unknown>;
+}
+
+/**
+ * Extract the success value from an ExtractedResult
+ * Success must be in data.success (schema-defined field)
+ * Throws if success is not found or not a boolean
+ */
+export function extractSuccessFromResult(result: ExtractedResult): boolean {
+  if (typeof result.data?.success === 'boolean') {
+    return result.data.success;
+  }
+
+  throw new Error(
+    `Cannot determine test success: 'success' field not found in result.data. ` +
+    `Ensure your output schema includes a 'success' field of type boolean. ` +
+    `Got data keys: [${Object.keys(result.data || {}).join(', ')}], values: ${JSON.stringify(result.data)}`
+  );
 }
 
 /**

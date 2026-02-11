@@ -5,6 +5,7 @@
 // Job status types (from @runhuman/shared)
 export type JobStatus =
   | 'pending'
+  | 'preparing' // Job is being analyzed (server-side)
   | 'waiting'
   | 'working'
   | 'creating_issues'
@@ -12,13 +13,14 @@ export type JobStatus =
   | 'incomplete'
   | 'abandoned'
   | 'rejected'
+  | 'untestable' // Job determined to be not testable
   | 'error';
 
-export type TerminalJobStatus = 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'error';
+export type TerminalJobStatus = 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'error' | 'untestable';
 
 // Helper to check terminal status
 export function isTerminalStatus(status: JobStatus): status is TerminalJobStatus {
-  return ['completed', 'incomplete', 'abandoned', 'rejected', 'error'].includes(status);
+  return ['completed', 'incomplete', 'abandoned', 'rejected', 'error', 'untestable'].includes(status);
 }
 
 // Screen size configuration
@@ -152,6 +154,10 @@ export interface CreateJobRequest {
   templateContent?: string;
   /** GitHub token from GitHub Actions (enables GitHub operations without App installation) */
   githubToken?: string;
+  /** PR numbers to test (triggers server-side analysis) */
+  prNumbers?: number[];
+  /** Issue numbers to test (triggers server-side analysis) */
+  issueNumbers?: number[];
 }
 
 /**
@@ -268,6 +274,8 @@ export interface RunhumanJobResult {
   durationSeconds: number;
   status: 'completed' | 'timeout' | 'error' | 'abandoned' | 'not-testable';
   analysis?: AnalyzeIssueResponse;
+  jobId?: string;
+  jobUrl?: string;
 }
 
 export type TestOutcome = 'success' | 'failure' | 'not-testable' | 'timeout' | 'error';
@@ -293,4 +301,6 @@ export interface ActionOutputs {
   results: IssueTestResult[];
   costUsd: number;
   durationSeconds: number;
+  jobIds: string[];
+  jobUrls: (string | undefined)[];
 }

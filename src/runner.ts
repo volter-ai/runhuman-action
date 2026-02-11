@@ -909,3 +909,160 @@ export async function runConsolidatedTest(
     };
   }
 }
+
+/**
+ * Run a QA test job by passing PR/issue IDs directly to the server.
+ * The server handles all GitHub data fetching and test plan generation.
+ * This is the thin-client pattern - the action just passes IDs and polls for results.
+ */
+export async function runJobWithIds(
+  inputs: ActionInputs,
+  prNumbers: number[],
+  issueNumbers: number[]
+): Promise<{
+  result: RunhumanJobResult;
+  jobId: string;
+  jobUrl?: string;
+}> {
+  const testUrl = inputs.url;
+
+  if (!testUrl) {
+    return {
+      result: {
+        success: false,
+        explanation: 'No test URL available',
+        costUsd: 0,
+        durationSeconds: 0,
+        status: 'error',
+      },
+      jobId: '',
+    };
+  }
+
+  const prSummary = prNumbers.length > 0 ? 'PRs: ' + prNumbers.map((n) => '#' + n).join(', ') : '';
+  const issueSummary = issueNumbers.length > 0 ? 'Issues: ' + issueNumbers.map((n) => '#' + n).join(', ') : '';
+  const itemSummary = [prSummary, issueSummary].filter(Boolean).join('; ');
+
+  core.info('Creating QA test job for ' + itemSummary + ' (server-side analysis)');
+  core.debug('Test URL: ' + testUrl);
+
+  try {
+    const jobId = await withRetry(() =>
+      createJob(inputs, {
+        url: testUrl,
+        prNumbers: prNumbers.length > 0 ? prNumbers : undefined,
+        issueNumbers: issueNumbers.length > 0 ? issueNumbers : undefined,
+        outputSchema: inputs.outputSchema,
+        targetDurationMinutes: inputs.targetDurationMinutes,
+        githubRepo: inputs.githubRepo,
+        screenSize: inputs.screenSize,
+        metadata: buildBaseMetadata(),
+        githubToken: inputs.githubToken || undefined,
+        canCreateGithubIssues: inputs.canCreateGithubIssues,
+        repoName: inputs.canCreateGithubIssues ? inputs.githubRepo : undefined,
+        description: inputs.description,
+      })
+    );
+
+    core.info('Created job ' + jobId + ' for ' + itemSummary);
+    core.info('Waiting for job ' + jobId + ' to complete...');
+    const { status: finalStatus, timedOut } = await pollForCompletion(
+      inputs,
+      jobId,
+      inputs.targetDurationMinutes
+    );
+
+    const jobUrl = finalStatus.jobUrl;
+
+    if (finalStatus.status === 'untestable') {
+      return {
+        result: {
+          success: false,
+          explanation: finalStatus.error || 'Job determined to be not testable',
+          costUsd: finalStatus.costUsd ?? 0,
+          durationSeconds: finalStatus.testDurationSeconds ?? 0,
+          status: 'not-testable',
+          jobId,
+          jobUrl,
+        },
+        jobId,
+        jobUrl,
+      };
+    }
+
+    if (timedOut) {
+      return {
+        result: {
+          success: false,
+          explanation: 'Test timed out waiting for tester response',
+          costUsd: finalStatus.costUsd ?? 0,
+          durationSeconds: finalStatus.testDurationSeconds ?? 0,
+          status: 'timeout',
+          jobId,
+          jobUrl,
+        },
+        jobId,
+        jobUrl,
+      };
+    }
+
+    if (finalStatus.status === 'completed' && finalStatus.result) {
+      return {
+        result: {
+          success: finalStatus.result.success,
+          explanation: finalStatus.result.explanation,
+          data: finalStatus.result.data,
+          costUsd: finalStatus.costUsd ?? 0,
+          durationSeconds: finalStatus.testDurationSeconds ?? 0,
+          status: 'completed',
+          jobId,
+          jobUrl,
+        },
+        jobId,
+        jobUrl,
+      };
+    }
+
+    if (finalStatus.status === 'abandoned') {
+      return {
+        result: {
+          success: false,
+          explanation: finalStatus.reason || 'Test was abandoned',
+          costUsd: finalStatus.costUsd ?? 0,
+          durationSeconds: finalStatus.testDurationSeconds ?? 0,
+          status: 'abandoned',
+          jobId,
+          jobUrl,
+        },
+        jobId,
+        jobUrl,
+      };
+    }
+
+    return {
+      result: {
+        success: false,
+        explanation: finalStatus.error || finalStatus.reason || 'Job ended with status: ' + finalStatus.status,
+        costUsd: finalStatus.costUsd ?? 0,
+        durationSeconds: finalStatus.testDurationSeconds ?? 0,
+        status: 'error',
+        jobId,
+        jobUrl,
+      },
+      jobId,
+      jobUrl,
+    };
+  } catch (error) {
+    core.error('Failed to run test for ' + itemSummary + ': ' + error);
+    return {
+      result: {
+        success: false,
+        explanation: 'Error: ' + error,
+        costUsd: 0,
+        durationSeconds: 0,
+        status: 'error',
+      },
+      jobId: '',
+    };
+  }
+}

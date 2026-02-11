@@ -30350,8 +30350,8 @@ function parseInputs() {
         failOnError: core.getBooleanInput('fail-on-error'),
         failOnFailure: core.getBooleanInput('fail-on-failure'),
         failOnTimeout: core.getBooleanInput('fail-on-timeout'),
-        // API configuration (defaults to same as test URL)
-        apiUrl: core.getInput('api-url') || url,
+        // API configuration - always use production
+        apiUrl: 'https://qa-experiment.fly.dev',
         // Test configuration
         targetDurationMinutes: parseInt(core.getInput('target-duration-minutes') || '30', 10),
         screenSize: parseScreenSize(core.getInput('screen-size') || 'desktop'),

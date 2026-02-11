@@ -1,8 +1,8 @@
 /**
  * Types for the unified Runhuman GitHub Action
  */
-export type JobStatus = 'pending' | 'waiting' | 'working' | 'creating_issues' | 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'error';
-export type TerminalJobStatus = 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'error';
+export type JobStatus = 'pending' | 'preparing' | 'waiting' | 'working' | 'creating_issues' | 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'untestable' | 'error';
+export type TerminalJobStatus = 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'error' | 'untestable';
 export declare function isTerminalStatus(status: JobStatus): status is TerminalJobStatus;
 export type ScreenSizeConfig = 'desktop' | 'laptop' | 'tablet' | 'mobile' | {
     width: number;
@@ -110,6 +110,10 @@ export interface CreateJobRequest {
     templateContent?: string;
     /** GitHub token from GitHub Actions (enables GitHub operations without App installation) */
     githubToken?: string;
+    /** PR numbers to test (triggers server-side analysis) */
+    prNumbers?: number[];
+    /** Issue numbers to test (triggers server-side analysis) */
+    issueNumbers?: number[];
 }
 /**
  * PR commit information for PR analysis
@@ -218,6 +222,8 @@ export interface RunhumanJobResult {
     durationSeconds: number;
     status: 'completed' | 'timeout' | 'error' | 'abandoned' | 'not-testable';
     analysis?: AnalyzeIssueResponse;
+    jobId?: string;
+    jobUrl?: string;
 }
 export type TestOutcome = 'success' | 'failure' | 'not-testable' | 'timeout' | 'error';
 export interface IssueTestResult {
@@ -240,4 +246,6 @@ export interface ActionOutputs {
     results: IssueTestResult[];
     costUsd: number;
     durationSeconds: number;
+    jobIds: string[];
+    jobUrls: (string | undefined)[];
 }

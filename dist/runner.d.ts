@@ -34,3 +34,13 @@ export declare function runTestWithDescription(inputs: ActionInputs): Promise<Ru
  * This creates ONE job that the tester will use to verify all changes.
  */
 export declare function runConsolidatedTest(inputs: ActionInputs, prs: AnalyzedPr[], issues: AnalyzedIssue[]): Promise<RunhumanJobResult>;
+/**
+ * Run a QA test job by passing PR/issue IDs directly to the server.
+ * The server handles all GitHub data fetching and test plan generation.
+ * This is the thin-client pattern - the action just passes IDs and polls for results.
+ */
+export declare function runJobWithIds(inputs: ActionInputs, prNumbers: number[], issueNumbers: number[]): Promise<{
+    result: RunhumanJobResult;
+    jobId: string;
+    jobUrl?: string;
+}>;

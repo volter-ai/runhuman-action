@@ -12,7 +12,7 @@ import type {
   PullRequest,
   RunhumanJobResult,
 } from './types';
-import { isTerminalStatus } from './types';
+import { isTerminalStatus, extractSuccessFromResult } from './types';
 
 /**
  * Analyzed PR with its analysis response
@@ -439,7 +439,7 @@ export async function runTestForIssue(
 
     if (finalStatus.status === 'completed' && finalStatus.result) {
       return {
-        success: finalStatus.result.success,
+        success: extractSuccessFromResult(finalStatus.result),
         explanation: finalStatus.result.explanation,
         data: finalStatus.result.data,
         costUsd: finalStatus.costUsd ?? 0,
@@ -544,7 +544,7 @@ export async function runTestForPr(
 
     if (finalStatus.status === 'completed' && finalStatus.result) {
       return {
-        success: finalStatus.result.success,
+        success: extractSuccessFromResult(finalStatus.result),
         explanation: finalStatus.result.explanation,
         data: finalStatus.result.data,
         costUsd: finalStatus.costUsd ?? 0,
@@ -662,7 +662,7 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
 
     if (finalStatus.status === 'completed' && finalStatus.result) {
       return {
-        success: finalStatus.result.success,
+        success: extractSuccessFromResult(finalStatus.result),
         explanation: finalStatus.result.explanation,
         data: finalStatus.result.data,
         costUsd: finalStatus.costUsd ?? 0,
@@ -871,7 +871,7 @@ export async function runConsolidatedTest(
 
     if (finalStatus.status === 'completed' && finalStatus.result) {
       return {
-        success: finalStatus.result.success,
+        success: extractSuccessFromResult(finalStatus.result),
         explanation: finalStatus.result.explanation,
         data: finalStatus.result.data,
         costUsd: finalStatus.costUsd ?? 0,
@@ -1009,7 +1009,7 @@ export async function runJobWithIds(
     if (finalStatus.status === 'completed' && finalStatus.result) {
       return {
         result: {
-          success: finalStatus.result.success,
+          success: extractSuccessFromResult(finalStatus.result),
           explanation: finalStatus.result.explanation,
           data: finalStatus.result.data,
           costUsd: finalStatus.costUsd ?? 0,

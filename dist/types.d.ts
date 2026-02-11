@@ -84,12 +84,18 @@ export interface AnalyzeIssueResponse {
 }
 /**
  * Extracted test result
+ * Schema-defined fields (including 'success') are in `data`
  */
 export interface ExtractedResult {
-    success: boolean;
     explanation: string;
     data: Record<string, unknown>;
 }
+/**
+ * Extract the success value from an ExtractedResult
+ * Success must be in data.success (schema-defined field)
+ * Throws if success is not found or not a boolean
+ */
+export declare function extractSuccessFromResult(result: ExtractedResult): boolean;
 /**
  * Request to create a test job
  */

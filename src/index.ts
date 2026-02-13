@@ -44,11 +44,15 @@ async function run(): Promise<void> {
         await applyLabelsForOutcome(octokit, owner, repo, issueNumber, inputs, outcome);
       }
 
+      // Build problem description for failures
+      const problemDescription = outcome !== 'success' ? result.explanation : undefined;
+
       // Build results array
       const results: IssueTestResult[] = allIssueNumbers.map((issueNumber) => ({
         issueNumber,
         outcome,
         explanation: result.explanation,
+        problemDescription,
         data: result.data,
         costUsd: result.costUsd / Math.max(allIssueNumbers.length, 1),
         durationSeconds: result.durationSeconds,
@@ -63,6 +67,7 @@ async function run(): Promise<void> {
       const outputs: ActionOutputs = {
         status: result.status === 'not-testable' ? 'completed' : (result.status === 'timeout' ? 'timeout' : (result.status === 'error' ? 'error' : 'completed')),
         success: result.success,
+        problemDescription,
         testedIssues: allIssueNumbers,
         passedIssues,
         failedIssues,
@@ -124,9 +129,11 @@ async function run(): Promise<void> {
     const success = result.success;
     const mappedStatus =
       result.status === 'abandoned' || result.status === 'not-testable' ? 'error' : result.status;
+    const descProblemDescription = !success ? result.explanation : undefined;
     const outputs: ActionOutputs = {
       status: mappedStatus,
       success,
+      problemDescription: descProblemDescription,
       testedIssues: [],
       passedIssues: [],
       failedIssues: [],
@@ -197,6 +204,7 @@ async function collectIssueNumbers(
 function setOutputs(outputs: ActionOutputs): void {
   core.setOutput('status', outputs.status);
   core.setOutput('success', String(outputs.success));
+  core.setOutput('problem-description', outputs.problemDescription || '');
   core.setOutput('tested-issues', JSON.stringify(outputs.testedIssues));
   core.setOutput('passed-issues', JSON.stringify(outputs.passedIssues));
   core.setOutput('failed-issues', JSON.stringify(outputs.failedIssues));

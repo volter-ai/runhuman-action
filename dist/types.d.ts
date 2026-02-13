@@ -236,6 +236,8 @@ export interface IssueTestResult {
     issueNumber: number;
     outcome: TestOutcome;
     explanation?: string;
+    /** Detailed description of the problem that was faced (only populated when outcome is not 'success') */
+    problemDescription?: string;
     data?: Record<string, unknown>;
     costUsd?: number;
     durationSeconds?: number;
@@ -244,6 +246,8 @@ export interface IssueTestResult {
 export interface ActionOutputs {
     status: 'completed' | 'error' | 'timeout' | 'no-issues';
     success: boolean;
+    /** Detailed description of the problem that was faced (only populated when success is false) */
+    problemDescription?: string;
     testedIssues: number[];
     passedIssues: number[];
     failedIssues: number[];

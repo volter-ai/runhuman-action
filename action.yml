@@ -107,6 +107,8 @@ outputs:
     description: 'Test status (completed, error, timeout, no-issues)'
   success:
     description: 'Whether all tests passed (true/false)'
+  problem-description:
+    description: 'Detailed description of the problem that was faced (only populated when success is false)'
   tested-issues:
     description: 'JSON array of tested issue numbers'
   passed-issues:

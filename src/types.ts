@@ -135,20 +135,20 @@ export interface ExtractedResult {
 }
 
 /**
- * Extract the success value from an ExtractedResult
- * Success must be in data.success (schema-defined field)
- * Throws if success is not found or not a boolean
+ * Extract the success value from an ExtractedResult.
+ * If the user's output schema includes a boolean 'success' field, its value is used.
+ * Otherwise, defaults to true (completed test = passed).
+ *
+ * This means `fail-on-failure` only triggers when the user explicitly defines a
+ * `success` boolean in their output schema and the tester marks it as false.
+ * Without a `success` field, completed tests are always considered successful.
  */
 export function extractSuccessFromResult(result: ExtractedResult): boolean {
   if (typeof result.data?.success === 'boolean') {
     return result.data.success;
   }
 
-  throw new Error(
-    `Cannot determine test success: 'success' field not found in result.data. ` +
-    `Ensure your output schema includes a 'success' field of type boolean. ` +
-    `Got data keys: [${Object.keys(result.data || {}).join(', ')}], values: ${JSON.stringify(result.data)}`
-  );
+  return true;
 }
 
 /**

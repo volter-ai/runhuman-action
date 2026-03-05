@@ -60,7 +60,7 @@ inputs:
     required: false
     default: 'true'
   fail-on-failure:
-    description: 'Fail the workflow if any test fails'
+    description: 'Fail the workflow if any test fails. Requires a boolean "success" field in the output schema — without one, completed tests always count as passed.'
     required: false
     default: 'true'
   fail-on-timeout:

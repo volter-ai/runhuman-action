@@ -8,7 +8,6 @@ export type JobStatus =
   | 'preparing' // Job is being analyzed (server-side)
   | 'waiting'
   | 'working'
-  | 'creating_issues'
   | 'completed'
   | 'incomplete'
   | 'abandoned'
@@ -72,7 +71,6 @@ export interface ActionInputs {
   targetDurationMinutes: number;
   screenSize: ScreenSizeConfig;
   outputSchema?: Record<string, unknown>;
-  canCreateGithubIssues: boolean;
 
   // Repository context
   githubRepo: string;
@@ -163,8 +161,6 @@ export interface CreateJobRequest {
   githubRepo?: string;
   screenSize?: ScreenSizeConfig;
   metadata?: JobMetadata;
-  canCreateGithubIssues?: boolean;
-  repoName?: string;
   /** Template name for server-side resolution */
   template?: string;
   /** Raw template content (markdown with frontmatter) for server-side parsing */

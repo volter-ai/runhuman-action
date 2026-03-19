@@ -125,7 +125,6 @@ jobs:
 | `target-duration-minutes` | No | `5` | Target test duration (1-60 minutes) |
 | `screen-size` | No | `desktop` | Screen size (desktop, laptop, tablet, mobile) |
 | `output-schema` | No | - | JSON schema for structured test results |
-| `can-create-github-issues` | No | `false` | Allow tester to create GitHub issues for bugs found |
 
 ### Label Callbacks
 

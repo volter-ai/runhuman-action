@@ -97,11 +97,6 @@ inputs:
   output-schema:
     description: 'JSON schema for extracting structured data from test results (used with description-only tests)'
     required: false
-  can-create-github-issues:
-    description: 'Allow AI to create GitHub issues from tester findings'
-    required: false
-    default: 'false'
-
 outputs:
   status:
     description: 'Test status (completed, error, timeout, no-issues)'

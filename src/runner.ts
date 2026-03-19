@@ -605,8 +605,6 @@ function buildJobRequest(inputs: ActionInputs): CreateJobRequest {
     githubRepo: inputs.githubRepo,
     screenSize: inputs.screenSize,
     metadata: buildBaseMetadata(),
-    canCreateGithubIssues: inputs.canCreateGithubIssues,
-    repoName: inputs.canCreateGithubIssues ? inputs.githubRepo : undefined,
     // Pass template name for server-side resolution
     template: inputs.template,
     // Pass raw template content for server-side parsing
@@ -958,8 +956,6 @@ export async function runJobWithIds(
         screenSize: inputs.screenSize,
         metadata: buildBaseMetadata(),
         githubToken: inputs.githubToken || undefined,
-        canCreateGithubIssues: inputs.canCreateGithubIssues,
-        repoName: inputs.canCreateGithubIssues ? inputs.githubRepo : undefined,
         description: inputs.description,
       })
     );

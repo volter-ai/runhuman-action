@@ -1,7 +1,7 @@
 /**
  * Types for the unified Runhuman GitHub Action
  */
-export type JobStatus = 'pending' | 'preparing' | 'waiting' | 'working' | 'creating_issues' | 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'untestable' | 'error';
+export type JobStatus = 'pending' | 'preparing' | 'waiting' | 'working' | 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'untestable' | 'error';
 export type TerminalJobStatus = 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'error' | 'untestable';
 export declare function isTerminalStatus(status: JobStatus): status is TerminalJobStatus;
 export type ScreenSizeConfig = 'desktop' | 'laptop' | 'tablet' | 'mobile' | {
@@ -36,7 +36,6 @@ export interface ActionInputs {
     targetDurationMinutes: number;
     screenSize: ScreenSizeConfig;
     outputSchema?: Record<string, unknown>;
-    canCreateGithubIssues: boolean;
     githubRepo: string;
 }
 /**
@@ -112,8 +111,6 @@ export interface CreateJobRequest {
     githubRepo?: string;
     screenSize?: ScreenSizeConfig;
     metadata?: JobMetadata;
-    canCreateGithubIssues?: boolean;
-    repoName?: string;
     /** Template name for server-side resolution */
     template?: string;
     /** Raw template content (markdown with frontmatter) for server-side parsing */

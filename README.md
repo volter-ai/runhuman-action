@@ -161,6 +161,34 @@ jobs:
 | `results` | Full JSON results object |
 | `cost-usd` | Total cost in USD |
 | `duration-seconds` | Total duration in seconds |
+| `job-ids` | JSON array of Runhuman job IDs |
+| `job-urls` | JSON array of job URLs for viewing results |
+| `extracted-issues` | JSON array of AI-extracted issues with severity, reproduction steps, and related issue detection |
+
+### Extracted Issues Schema
+
+Each item in the `extracted-issues` JSON array has this structure:
+
+```typescript
+{
+  title: string;                    // Short issue title
+  description: string;              // Detailed description
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  reproductionSteps: string[];      // Steps to reproduce
+  suggestedLabels: string[];        // Suggested GitHub labels
+  relatedIssues?: Array<{
+    issueNumber: number;            // GitHub issue number
+    title: string;                  // Issue title
+    state: 'open' | 'closed';      // Current state
+    relation: 'duplicate' | 'related';
+    confidence: number;             // 0.0–1.0
+    reason: string;                 // Why it's related
+  }>;
+}
+```
+
+- **`duplicate`** (confidence > 70%): The finding matches an existing issue — comment on it instead of creating a new one.
+- **`related`** (confidence 30–70%): Similar but distinct — mention when creating a new issue.
 
 ## Authentication & Project Management
 
@@ -188,8 +216,9 @@ You don't need to manually create projects or configure project IDs. Everything 
 2. **Deduplicate**: Removes duplicate issues
 3. **Analyze Testability**: Determines which issues can be tested by a human
 4. **Run Tests**: Creates Runhuman jobs for each testable issue (auto-creating projects as needed)
-5. **Apply Labels**: Updates issue labels based on outcomes
-6. **Report Results**: Sets outputs and optionally fails the workflow
+5. **Extract Issues**: AI extracts structured issues from tester findings with related issue detection
+6. **Apply Labels**: Updates issue labels based on outcomes
+7. **Report Results**: Sets outputs (including `extracted-issues`) and optionally fails the workflow
 
 ## Error Handling
 

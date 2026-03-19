@@ -30027,6 +30027,7 @@ async function run() {
                 durationSeconds: result.durationSeconds,
                 jobIds: jobId ? [jobId] : [],
                 jobUrls: jobUrl ? [jobUrl] : [],
+                extractedIssues: result.extractedIssues ?? [],
             };
             setOutputs(outputs);
             // Summary
@@ -30064,6 +30065,7 @@ async function run() {
                 durationSeconds: 0,
                 jobIds: [],
                 jobUrls: [],
+                extractedIssues: [],
             });
             return;
         }
@@ -30085,6 +30087,7 @@ async function run() {
             durationSeconds: result.durationSeconds,
             jobIds: result.jobId ? [result.jobId] : [],
             jobUrls: result.jobUrl ? [result.jobUrl] : [],
+            extractedIssues: result.extractedIssues ?? [],
         };
         setOutputs(outputs);
         if (!success) {
@@ -30148,6 +30151,7 @@ function setOutputs(outputs) {
     core.setOutput('duration-seconds', String(outputs.durationSeconds));
     core.setOutput('job-ids', JSON.stringify(outputs.jobIds));
     core.setOutput('job-urls', JSON.stringify(outputs.jobUrls));
+    core.setOutput('extracted-issues', JSON.stringify(outputs.extractedIssues));
 }
 run();
 
@@ -30891,6 +30895,7 @@ async function runTestForIssue(inputs, issue, analysis) {
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'completed',
                 analysis,
+                extractedIssues: finalStatus.extractedIssues,
             };
         }
         if (finalStatus.status === 'abandoned') {
@@ -30976,6 +30981,7 @@ async function runTestForPr(inputs, pr, analysis) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'completed',
+                extractedIssues: finalStatus.extractedIssues,
             };
         }
         if (finalStatus.status === 'abandoned') {
@@ -31079,6 +31085,7 @@ async function runTestWithDescription(inputs) {
                 costUsd: finalStatus.costUsd ?? 0,
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'completed',
+                extractedIssues: finalStatus.extractedIssues,
             };
         }
         if (finalStatus.status === 'abandoned') {

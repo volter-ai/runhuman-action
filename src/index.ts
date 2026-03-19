@@ -73,6 +73,7 @@ async function run(): Promise<void> {
         durationSeconds: result.durationSeconds,
         jobIds: jobId ? [jobId] : [],
         jobUrls: jobUrl ? [jobUrl] : [],
+        extractedIssues: result.extractedIssues ?? [],
       };
 
       setOutputs(outputs);
@@ -113,6 +114,7 @@ async function run(): Promise<void> {
         durationSeconds: 0,
         jobIds: [],
         jobUrls: [],
+        extractedIssues: [],
       });
       return;
     }
@@ -137,6 +139,7 @@ async function run(): Promise<void> {
       durationSeconds: result.durationSeconds,
       jobIds: result.jobId ? [result.jobId] : [],
       jobUrls: result.jobUrl ? [result.jobUrl] : [],
+      extractedIssues: result.extractedIssues ?? [],
     };
 
     setOutputs(outputs);
@@ -207,6 +210,7 @@ function setOutputs(outputs: ActionOutputs): void {
   core.setOutput('duration-seconds', String(outputs.durationSeconds));
   core.setOutput('job-ids', JSON.stringify(outputs.jobIds));
   core.setOutput('job-urls', JSON.stringify(outputs.jobUrls));
+  core.setOutput('extracted-issues', JSON.stringify(outputs.extractedIssues));
 }
 
 run();

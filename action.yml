@@ -118,6 +118,12 @@ outputs:
     description: 'Total cost in USD'
   duration-seconds:
     description: 'Total duration in seconds'
+  job-ids:
+    description: 'JSON array of job IDs'
+  job-urls:
+    description: 'JSON array of job URLs'
+  extracted-issues:
+    description: 'JSON array of AI-extracted issues from test results, enriched with related issue detection'
 
 runs:
   using: 'node20'

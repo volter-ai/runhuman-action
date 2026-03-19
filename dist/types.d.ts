@@ -197,6 +197,24 @@ export interface CreateJobResponse {
     jobId: string;
     message?: string;
 }
+/** Info about a related existing GitHub issue (from duplicate/related issue detection) */
+export interface RelatedIssueInfo {
+    issueNumber: number;
+    title: string;
+    state: 'open' | 'closed';
+    relation: 'duplicate' | 'related';
+    confidence: number;
+    reason: string;
+}
+/** Issue extracted by AI from test results, optionally enriched with related issue info */
+export interface ExtractedIssue {
+    title: string;
+    description: string;
+    reproductionSteps: string[];
+    severity: 'critical' | 'high' | 'medium' | 'low';
+    suggestedLabels: string[];
+    relatedIssues?: RelatedIssueInfo[];
+}
 /**
  * Response from job status endpoint
  */
@@ -217,6 +235,7 @@ export interface JobStatusResponse {
     targetDurationMinutes?: number;
     totalExtensionMinutes?: number;
     responseDeadline?: string;
+    extractedIssues?: ExtractedIssue[];
 }
 /**
  * Result of running a test for an issue
@@ -231,6 +250,7 @@ export interface RunhumanJobResult {
     analysis?: AnalyzeIssueResponse;
     jobId?: string;
     jobUrl?: string;
+    extractedIssues?: ExtractedIssue[];
 }
 export type TestOutcome = 'success' | 'failure' | 'not-testable' | 'timeout' | 'error';
 export interface IssueTestResult {
@@ -255,4 +275,5 @@ export interface ActionOutputs {
     durationSeconds: number;
     jobIds: string[];
     jobUrls: (string | undefined)[];
+    extractedIssues: ExtractedIssue[];
 }

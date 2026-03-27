@@ -74,6 +74,7 @@ async function run(): Promise<void> {
         jobIds: jobId ? [jobId] : [],
         jobUrls: jobUrl ? [jobUrl] : [],
         extractedIssues: result.extractedIssues ?? [],
+        createdIssues: result.createdIssues ?? [],
       };
 
       setOutputs(outputs);
@@ -115,6 +116,7 @@ async function run(): Promise<void> {
         jobIds: [],
         jobUrls: [],
         extractedIssues: [],
+        createdIssues: [],
       });
       return;
     }
@@ -140,6 +142,7 @@ async function run(): Promise<void> {
       jobIds: result.jobId ? [result.jobId] : [],
       jobUrls: result.jobUrl ? [result.jobUrl] : [],
       extractedIssues: result.extractedIssues ?? [],
+      createdIssues: result.createdIssues ?? [],
     };
 
     setOutputs(outputs);
@@ -211,6 +214,7 @@ function setOutputs(outputs: ActionOutputs): void {
   core.setOutput('job-ids', JSON.stringify(outputs.jobIds));
   core.setOutput('job-urls', JSON.stringify(outputs.jobUrls));
   core.setOutput('extracted-issues', JSON.stringify(outputs.extractedIssues));
+  core.setOutput('created-issues', JSON.stringify(outputs.createdIssues));
 }
 
 run();

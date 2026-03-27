@@ -183,6 +183,9 @@ export function parseInputs(): ActionInputs {
 
     // Repository context
     githubRepo,
+
+    // Auto-create GitHub issues
+    canCreateGithubIssues: core.getBooleanInput('can-create-github-issues'),
   };
 }
 

@@ -74,6 +74,9 @@ export interface ActionInputs {
 
   // Repository context
   githubRepo: string;
+
+  // Auto-create GitHub issues from findings
+  canCreateGithubIssues: boolean;
 }
 
 /**
@@ -171,6 +174,8 @@ export interface CreateJobRequest {
   prNumbers?: number[];
   /** Issue numbers to test (triggers server-side analysis) */
   issueNumbers?: number[];
+  /** Whether to automatically create GitHub issues from AI-extracted findings */
+  autoCreateGithubIssues?: boolean;
 }
 
 /**
@@ -264,6 +269,15 @@ export interface RelatedIssueInfo {
   reason: string;
 }
 
+/** Info about a GitHub issue created from AI-extracted findings */
+export interface CreatedIssueInfo {
+  issueNumber: number;
+  issueUrl: string;
+  title: string;
+  isNew: boolean;
+  matchReason?: string;
+}
+
 /** Issue extracted by AI from test results, optionally enriched with related issue info */
 export interface ExtractedIssue {
   title: string;
@@ -295,6 +309,7 @@ export interface JobStatusResponse {
   totalExtensionMinutes?: number;
   responseDeadline?: string;
   extractedIssues?: ExtractedIssue[];
+  createdIssues?: CreatedIssueInfo[];
 }
 
 /**
@@ -311,6 +326,7 @@ export interface RunhumanJobResult {
   jobId?: string;
   jobUrl?: string;
   extractedIssues?: ExtractedIssue[];
+  createdIssues?: CreatedIssueInfo[];
 }
 
 export type TestOutcome = 'success' | 'failure' | 'not-testable' | 'timeout' | 'error';
@@ -339,4 +355,5 @@ export interface ActionOutputs {
   jobIds: string[];
   jobUrls: (string | undefined)[];
   extractedIssues: ExtractedIssue[];
+  createdIssues: CreatedIssueInfo[];
 }

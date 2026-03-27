@@ -613,6 +613,8 @@ function buildJobRequest(inputs: ActionInputs): CreateJobRequest {
     templateContent: inputs.templateContent,
     // Pass GitHub token for GitHub operations without App installation
     githubToken: inputs.githubToken || undefined,
+    // Auto-create GitHub issues from AI-extracted findings
+    autoCreateGithubIssues: inputs.canCreateGithubIssues || undefined,
   };
 }
 
@@ -669,6 +671,7 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'completed',
         extractedIssues: finalStatus.extractedIssues,
+        createdIssues: finalStatus.createdIssues,
       };
     }
 
@@ -960,6 +963,7 @@ export async function runJobWithIds(
         metadata: buildBaseMetadata(),
         githubToken: inputs.githubToken || undefined,
         description: inputs.description,
+        autoCreateGithubIssues: inputs.canCreateGithubIssues || undefined,
       })
     );
 
@@ -1016,6 +1020,8 @@ export async function runJobWithIds(
           status: 'completed',
           jobId,
           jobUrl,
+          extractedIssues: finalStatus.extractedIssues,
+          createdIssues: finalStatus.createdIssues,
         },
         jobId,
         jobUrl,

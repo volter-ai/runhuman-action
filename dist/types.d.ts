@@ -32,6 +32,7 @@ export interface ActionInputs {
     failOnError: boolean;
     failOnFailure: boolean;
     failOnTimeout: boolean;
+    waitForResult: boolean;
     apiUrl: string;
     targetDurationMinutes: number;
     screenSize: ScreenSizeConfig;
@@ -246,7 +247,7 @@ export interface RunhumanJobResult {
     data?: Record<string, unknown>;
     costUsd: number;
     durationSeconds: number;
-    status: 'completed' | 'timeout' | 'error' | 'abandoned' | 'not-testable';
+    status: 'completed' | 'timeout' | 'error' | 'abandoned' | 'not-testable' | 'created';
     analysis?: AnalyzeIssueResponse;
     jobId?: string;
     jobUrl?: string;
@@ -263,7 +264,7 @@ export interface IssueTestResult {
     analysis?: AnalyzeIssueResponse;
 }
 export interface ActionOutputs {
-    status: 'completed' | 'error' | 'timeout' | 'no-issues';
+    status: 'completed' | 'error' | 'timeout' | 'no-issues' | 'created';
     success: boolean;
     testedIssues: number[];
     passedIssues: number[];

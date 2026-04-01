@@ -67,6 +67,10 @@ inputs:
     description: 'Fail the workflow if tester times out'
     required: false
     default: 'false'
+  wait-for-result:
+    description: 'Wait for test completion before finishing. Set to false for fire-and-forget mode (creates jobs and exits immediately).'
+    required: false
+    default: 'true'
 
   # API configuration
   api-key:
@@ -99,7 +103,7 @@ inputs:
     required: false
 outputs:
   status:
-    description: 'Test status (completed, error, timeout, no-issues)'
+    description: 'Test status (completed, error, timeout, no-issues, created)'
   success:
     description: 'Whether all tests passed (true/false)'
   tested-issues:

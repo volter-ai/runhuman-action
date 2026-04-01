@@ -643,6 +643,18 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
 
     core.info(`Created job ${jobId}`);
 
+    if (!inputs.waitForResult) {
+      core.info('Fire-and-forget mode: job created, not waiting for completion');
+      return {
+        success: true,
+        explanation: 'Job created successfully (not waiting for result)',
+        costUsd: 0,
+        durationSeconds: 0,
+        status: 'created',
+        jobId,
+      };
+    }
+
     // Poll for completion
     const { status: finalStatus, timedOut } = await pollForCompletion(
       inputs,
@@ -964,6 +976,22 @@ export async function runJobWithIds(
     );
 
     core.info('Created job ' + jobId + ' for ' + itemSummary);
+
+    if (!inputs.waitForResult) {
+      core.info('Fire-and-forget mode: job created, not waiting for completion');
+      return {
+        result: {
+          success: true,
+          explanation: 'Job created successfully (not waiting for result)',
+          costUsd: 0,
+          durationSeconds: 0,
+          status: 'created',
+          jobId,
+        },
+        jobId,
+      };
+    }
+
     core.info('Waiting for job ' + jobId + ' to complete...');
     const { status: finalStatus, timedOut } = await pollForCompletion(
       inputs,

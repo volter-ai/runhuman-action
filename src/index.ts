@@ -39,9 +39,12 @@ async function run(): Promise<void> {
         outcome = 'error';
       }
 
-      // Apply labels for all tested items
-      for (const issueNumber of allIssueNumbers) {
-        await applyLabelsForOutcome(octokit, owner, repo, issueNumber, inputs, outcome);
+      // In fire-and-forget mode, skip labels and failure checks
+      if (inputs.waitForResult) {
+        // Apply labels for all tested items
+        for (const issueNumber of allIssueNumbers) {
+          await applyLabelsForOutcome(octokit, owner, repo, issueNumber, inputs, outcome);
+        }
       }
 
       // Build results array
@@ -61,7 +64,7 @@ async function run(): Promise<void> {
       const timedOutIssues = outcome === 'timeout' ? allIssueNumbers : [];
 
       const outputs: ActionOutputs = {
-        status: result.status === 'not-testable' ? 'completed' : (result.status === 'timeout' ? 'timeout' : (result.status === 'error' ? 'error' : 'completed')),
+        status: result.status === 'created' ? 'created' : (result.status === 'not-testable' ? 'completed' : (result.status === 'timeout' ? 'timeout' : (result.status === 'error' ? 'error' : 'completed'))),
         success: result.success,
         testedIssues: allIssueNumbers,
         passedIssues,
@@ -86,13 +89,15 @@ async function run(): Promise<void> {
       core.info('Cost: $' + result.costUsd.toFixed(4));
       core.info('Duration: ' + result.durationSeconds + 's');
 
-      // Handle workflow failure
-      if (outcome === 'error' && inputs.failOnError) {
-        core.setFailed('Test encountered an error: ' + result.explanation);
-      } else if (outcome === 'timeout' && inputs.failOnTimeout) {
-        core.setFailed('Test timed out');
-      } else if (outcome === 'failure' && inputs.failOnFailure) {
-        core.setFailed('Test failed: ' + result.explanation);
+      // Handle workflow failure (skip in fire-and-forget mode)
+      if (inputs.waitForResult) {
+        if (outcome === 'error' && inputs.failOnError) {
+          core.setFailed('Test encountered an error: ' + result.explanation);
+        } else if (outcome === 'timeout' && inputs.failOnTimeout) {
+          core.setFailed('Test timed out');
+        } else if (outcome === 'failure' && inputs.failOnFailure) {
+          core.setFailed('Test failed: ' + result.explanation);
+        }
       }
 
       return;
@@ -144,7 +149,7 @@ async function run(): Promise<void> {
 
     setOutputs(outputs);
 
-    if (!success) {
+    if (!success && inputs.waitForResult) {
       if (result.status === 'timeout' && inputs.failOnTimeout) {
         core.setFailed('Test timed out');
       } else if (result.status === 'error' && inputs.failOnError) {

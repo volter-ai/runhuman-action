@@ -63,6 +63,7 @@ export interface ActionInputs {
   failOnError: boolean;
   failOnFailure: boolean;
   failOnTimeout: boolean;
+  waitForResult: boolean;
 
   // API configuration
   apiUrl: string;
@@ -306,7 +307,7 @@ export interface RunhumanJobResult {
   data?: Record<string, unknown>;
   costUsd: number;
   durationSeconds: number;
-  status: 'completed' | 'timeout' | 'error' | 'abandoned' | 'not-testable';
+  status: 'completed' | 'timeout' | 'error' | 'abandoned' | 'not-testable' | 'created';
   analysis?: AnalyzeIssueResponse;
   jobId?: string;
   jobUrl?: string;
@@ -326,7 +327,7 @@ export interface IssueTestResult {
 }
 
 export interface ActionOutputs {
-  status: 'completed' | 'error' | 'timeout' | 'no-issues';
+  status: 'completed' | 'error' | 'timeout' | 'no-issues' | 'created';
   success: boolean;
   testedIssues: number[];
   passedIssues: number[];

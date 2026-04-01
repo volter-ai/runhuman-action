@@ -146,12 +146,13 @@ jobs:
 | `fail-on-error` | `true` | Fail the workflow on system errors |
 | `fail-on-failure` | `true` | Fail the workflow if any test fails |
 | `fail-on-timeout` | `false` | Fail the workflow if tester times out |
+| `wait-for-result` | `true` | Wait for test completion. Set to `false` for fire-and-forget mode. |
 
 ## Outputs
 
 | Output | Description |
 |--------|-------------|
-| `status` | Test status (completed, error, timeout, no-issues) |
+| `status` | Test status (completed, error, timeout, no-issues, created) |
 | `success` | Whether all tests passed (true/false) |
 | `tested-issues` | JSON array of tested issue numbers |
 | `passed-issues` | JSON array of passed issue numbers |
@@ -189,6 +190,25 @@ Each item in the `extracted-issues` JSON array has this structure:
 
 - **`duplicate`** (confidence > 70%): The finding matches an existing issue — comment on it instead of creating a new one.
 - **`related`** (confidence 30–70%): Similar but distinct — mention when creating a new issue.
+
+### Fire-and-Forget Mode
+
+Create test jobs without waiting for results. Useful for triggering QA as a side-effect without blocking the workflow:
+
+```yaml
+- uses: volter-ai/runhuman-action@v1
+  with:
+    url: https://staging.example.com
+    pr-numbers: '[${{ github.event.pull_request.number }}]'
+    api-key: ${{ secrets.RUNHUMAN_API_KEY }}
+    wait-for-result: false
+```
+
+When `wait-for-result: false`:
+- Jobs are created and the action exits immediately with `status: created`
+- `job-ids` and `job-urls` outputs are still populated
+- Labels are not applied (outcome is unknown)
+- `fail-on-*` flags are ignored
 
 ## Authentication & Project Management
 

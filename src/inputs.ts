@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as fs from 'fs';
-import type { ActionInputs, ScreenSizeConfig } from './types';
+import type { ActionInputs, DeviceClass } from './types';
 
 /**
  * Parse a string that could be either JSON array or comma-separated values
@@ -77,28 +77,14 @@ export function parseStringList(input: string): string[] {
 }
 
 /**
- * Parse screen size input - can be preset name or custom JSON dimensions
+ * Parse device-class input — must be 'desktop' or 'mobile'
  */
-function parseScreenSize(input: string): ScreenSizeConfig {
-  const trimmed = input.trim();
-
-  // Check for preset names
-  if (['desktop', 'laptop', 'tablet', 'mobile'].includes(trimmed)) {
-    return trimmed as 'desktop' | 'laptop' | 'tablet' | 'mobile';
+function parseDeviceClass(input: string): DeviceClass {
+  const trimmed = input.trim() as DeviceClass;
+  if (trimmed === 'desktop' || trimmed === 'mobile') {
+    return trimmed;
   }
-
-  // Try to parse as custom JSON dimensions
-  if (trimmed.startsWith('{')) {
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (typeof parsed.width === 'number' && typeof parsed.height === 'number') {
-        return { width: parsed.width, height: parsed.height };
-      }
-    } catch (e) {
-      core.warning(`Failed to parse screen-size as JSON, using default 'desktop'`);
-    }
-  }
-
+  core.warning(`Invalid device-class "${input}", using default 'desktop'`);
   return 'desktop';
 }
 
@@ -179,7 +165,7 @@ export function parseInputs(): ActionInputs {
 
     // Test configuration
     targetDurationMinutes: parseInt(core.getInput('target-duration-minutes') || '30', 10),
-    screenSize: parseScreenSize(core.getInput('screen-size') || 'desktop'),
+    deviceClass: parseDeviceClass(core.getInput('device-class') || 'desktop'),
     outputSchema: parseOutputSchema(core.getInput('output-schema')),
 
     // Repository context

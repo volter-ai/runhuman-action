@@ -94,8 +94,8 @@ inputs:
     description: 'Target test duration in minutes (1-60)'
     required: false
     default: '5'
-  screen-size:
-    description: 'Screen size for testing (desktop, laptop, tablet, mobile, or custom JSON)'
+  device-class:
+    description: 'Device class: desktop or mobile'
     required: false
     default: 'desktop'
   output-schema:

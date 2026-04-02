@@ -22,13 +22,8 @@ export function isTerminalStatus(status: JobStatus): status is TerminalJobStatus
   return ['completed', 'incomplete', 'abandoned', 'rejected', 'error', 'untestable'].includes(status);
 }
 
-// Screen size configuration
-export type ScreenSizeConfig =
-  | 'desktop'
-  | 'laptop'
-  | 'tablet'
-  | 'mobile'
-  | { width: number; height: number };
+// Device class configuration
+export type DeviceClass = 'desktop' | 'mobile';
 
 /**
  * Parsed inputs from the action
@@ -70,7 +65,7 @@ export interface ActionInputs {
 
   // Test configuration
   targetDurationMinutes: number;
-  screenSize: ScreenSizeConfig;
+  deviceClass: DeviceClass;
   outputSchema?: Record<string, unknown>;
 
   // Repository context
@@ -160,7 +155,7 @@ export interface CreateJobRequest {
   targetDurationMinutes?: number;
   additionalValidationInstructions?: string;
   githubRepo?: string;
-  screenSize?: ScreenSizeConfig;
+  deviceClass?: DeviceClass;
   metadata?: JobMetadata;
   /** Template name for server-side resolution */
   template?: string;

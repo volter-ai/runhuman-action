@@ -30276,26 +30276,14 @@ function parseStringList(input) {
         .filter((s) => s !== '');
 }
 /**
- * Parse screen size input - can be preset name or custom JSON dimensions
+ * Parse device-class input — must be 'desktop' or 'mobile'
  */
-function parseScreenSize(input) {
+function parseDeviceClass(input) {
     const trimmed = input.trim();
-    // Check for preset names
-    if (['desktop', 'laptop', 'tablet', 'mobile'].includes(trimmed)) {
+    if (trimmed === 'desktop' || trimmed === 'mobile') {
         return trimmed;
     }
-    // Try to parse as custom JSON dimensions
-    if (trimmed.startsWith('{')) {
-        try {
-            const parsed = JSON.parse(trimmed);
-            if (typeof parsed.width === 'number' && typeof parsed.height === 'number') {
-                return { width: parsed.width, height: parsed.height };
-            }
-        }
-        catch (e) {
-            core.warning(`Failed to parse screen-size as JSON, using default 'desktop'`);
-        }
-    }
+    core.warning(`Invalid device-class "${input}", using default 'desktop'`);
     return 'desktop';
 }
 /**
@@ -30364,7 +30352,7 @@ function parseInputs() {
         apiUrl: 'https://qa-experiment.fly.dev',
         // Test configuration
         targetDurationMinutes: parseInt(core.getInput('target-duration-minutes') || '30', 10),
-        screenSize: parseScreenSize(core.getInput('screen-size') || 'desktop'),
+        deviceClass: parseDeviceClass(core.getInput('device-class') || 'desktop'),
         outputSchema: parseOutputSchema(core.getInput('output-schema')),
         // Repository context
         githubRepo,
@@ -30873,7 +30861,7 @@ async function runTestForIssue(inputs, issue, analysis) {
             targetDurationMinutes: inputs.targetDurationMinutes,
             additionalValidationInstructions: formatIssueContext(issue),
             githubRepo: inputs.githubRepo,
-            screenSize: inputs.screenSize,
+            deviceClass: inputs.deviceClass,
             metadata: buildIssueTestMetadata(issue, inputs.githubRepo),
             githubToken: inputs.githubToken || undefined,
         }));
@@ -30961,7 +30949,7 @@ async function runTestForPr(inputs, pr, analysis) {
             targetDurationMinutes: inputs.targetDurationMinutes,
             additionalValidationInstructions: formatPrContext(pr, analysis),
             githubRepo: inputs.githubRepo,
-            screenSize: inputs.screenSize,
+            deviceClass: inputs.deviceClass,
             metadata: buildPrTestMetadata(pr, inputs.githubRepo),
             githubToken: inputs.githubToken || undefined,
         }));
@@ -31038,7 +31026,7 @@ function buildJobRequest(inputs) {
         outputSchema: inputs.outputSchema,
         targetDurationMinutes: inputs.targetDurationMinutes,
         githubRepo: inputs.githubRepo,
-        screenSize: inputs.screenSize,
+        deviceClass: inputs.deviceClass,
         metadata: buildBaseMetadata(),
         // Pass template name for server-side resolution
         template: inputs.template,
@@ -31245,7 +31233,7 @@ async function runConsolidatedTest(inputs, prs, issues) {
             targetDurationMinutes: inputs.targetDurationMinutes,
             additionalValidationInstructions: validationInstructions,
             githubRepo: inputs.githubRepo,
-            screenSize: inputs.screenSize,
+            deviceClass: inputs.deviceClass,
             metadata,
             githubToken: inputs.githubToken || undefined,
         }));
@@ -31334,7 +31322,7 @@ async function runJobWithIds(inputs, prNumbers, issueNumbers) {
             outputSchema: inputs.outputSchema,
             targetDurationMinutes: inputs.targetDurationMinutes,
             githubRepo: inputs.githubRepo,
-            screenSize: inputs.screenSize,
+            deviceClass: inputs.deviceClass,
             metadata: buildBaseMetadata(),
             githubToken: inputs.githubToken || undefined,
             description: inputs.description,

@@ -4,10 +4,7 @@
 export type JobStatus = 'pending' | 'preparing' | 'waiting' | 'working' | 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'untestable' | 'error';
 export type TerminalJobStatus = 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'error' | 'untestable';
 export declare function isTerminalStatus(status: JobStatus): status is TerminalJobStatus;
-export type ScreenSizeConfig = 'desktop' | 'laptop' | 'tablet' | 'mobile' | {
-    width: number;
-    height: number;
-};
+export type DeviceClass = 'desktop' | 'mobile';
 /**
  * Parsed inputs from the action
  */
@@ -35,7 +32,7 @@ export interface ActionInputs {
     waitForResult: boolean;
     apiUrl: string;
     targetDurationMinutes: number;
-    screenSize: ScreenSizeConfig;
+    deviceClass: DeviceClass;
     outputSchema?: Record<string, unknown>;
     githubRepo: string;
 }
@@ -110,7 +107,7 @@ export interface CreateJobRequest {
     targetDurationMinutes?: number;
     additionalValidationInstructions?: string;
     githubRepo?: string;
-    screenSize?: ScreenSizeConfig;
+    deviceClass?: DeviceClass;
     metadata?: JobMetadata;
     /** Template name for server-side resolution */
     template?: string;

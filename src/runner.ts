@@ -409,7 +409,7 @@ export async function runTestForIssue(
         targetDurationMinutes: inputs.targetDurationMinutes,
         additionalValidationInstructions: formatIssueContext(issue),
         githubRepo: inputs.githubRepo,
-        screenSize: inputs.screenSize,
+        deviceClass: inputs.deviceClass,
         metadata: buildIssueTestMetadata(issue, inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
       })
@@ -516,7 +516,7 @@ export async function runTestForPr(
         targetDurationMinutes: inputs.targetDurationMinutes,
         additionalValidationInstructions: formatPrContext(pr, analysis),
         githubRepo: inputs.githubRepo,
-        screenSize: inputs.screenSize,
+        deviceClass: inputs.deviceClass,
         metadata: buildPrTestMetadata(pr, inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
       })
@@ -605,7 +605,7 @@ function buildJobRequest(inputs: ActionInputs): CreateJobRequest {
     outputSchema: inputs.outputSchema,
     targetDurationMinutes: inputs.targetDurationMinutes,
     githubRepo: inputs.githubRepo,
-    screenSize: inputs.screenSize,
+    deviceClass: inputs.deviceClass,
     metadata: buildBaseMetadata(),
     // Pass template name for server-side resolution
     template: inputs.template,
@@ -855,7 +855,7 @@ export async function runConsolidatedTest(
         targetDurationMinutes: inputs.targetDurationMinutes,
         additionalValidationInstructions: validationInstructions,
         githubRepo: inputs.githubRepo,
-        screenSize: inputs.screenSize,
+        deviceClass: inputs.deviceClass,
         metadata,
         githubToken: inputs.githubToken || undefined,
       })
@@ -968,7 +968,7 @@ export async function runJobWithIds(
         outputSchema: inputs.outputSchema,
         targetDurationMinutes: inputs.targetDurationMinutes,
         githubRepo: inputs.githubRepo,
-        screenSize: inputs.screenSize,
+        deviceClass: inputs.deviceClass,
         metadata: buildBaseMetadata(),
         githubToken: inputs.githubToken || undefined,
         description: inputs.description,

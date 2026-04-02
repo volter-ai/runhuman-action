@@ -123,7 +123,7 @@ jobs:
 | `github-token` | No | `${{ github.token }}` | GitHub token for reading PR/issue data |
 | `api-url` | No | `https://runhuman.com` | Runhuman API base URL |
 | `target-duration-minutes` | No | `5` | Target test duration (1-60 minutes) |
-| `screen-size` | No | `desktop` | Screen size (desktop, laptop, tablet, mobile) |
+| `device-class` | No | `desktop` | Device class: desktop or mobile |
 | `output-schema` | No | - | JSON schema for structured test results |
 
 ### Label Callbacks

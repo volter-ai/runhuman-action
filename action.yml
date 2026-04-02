@@ -74,7 +74,7 @@ inputs:
 
   # API configuration
   api-key:
-    description: 'Runhuman API key or PAT (rh_..., rh_pat_..., or legacy qa_live_...)'
+    description: 'Runhuman API key or PAT (rh_..., rh_pat_..., or qa_live_...)'
     required: true
   github-token:
     description: 'GitHub token for API access'

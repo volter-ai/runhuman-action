@@ -184,6 +184,9 @@ export function parseInputs(): ActionInputs {
 
     // Repository context
     githubRepo,
+
+    // Tester pool requirements
+    requireApkInstall: core.getBooleanInput('require-apk-install'),
   };
 }
 

@@ -101,6 +101,10 @@ inputs:
   output-schema:
     description: 'JSON schema for extracting structured data from test results (used with description-only tests)'
     required: false
+  require-apk-install:
+    description: 'Require testers to have APK installation capability (filters tester pool to Android-capable testers)'
+    required: false
+    default: 'false'
 outputs:
   status:
     description: 'Test status (completed, error, timeout, no-issues, created)'

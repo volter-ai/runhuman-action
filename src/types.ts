@@ -75,6 +75,9 @@ export interface ActionInputs {
 
   // Repository context
   githubRepo: string;
+
+  // Tester pool requirements
+  requireApkInstall: boolean;
 }
 
 /**
@@ -172,6 +175,8 @@ export interface CreateJobRequest {
   prNumbers?: number[];
   /** Issue numbers to test (triggers server-side analysis) */
   issueNumbers?: number[];
+  /** Require testers to have APK installation capability */
+  requireApkInstall?: boolean;
 }
 
 /**

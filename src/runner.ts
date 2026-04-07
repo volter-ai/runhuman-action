@@ -412,6 +412,7 @@ export async function runTestForIssue(
         screenSize: inputs.screenSize,
         metadata: buildIssueTestMetadata(issue, inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
+        requireApkInstall: inputs.requireApkInstall,
       })
     );
 
@@ -519,6 +520,7 @@ export async function runTestForPr(
         screenSize: inputs.screenSize,
         metadata: buildPrTestMetadata(pr, inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
+        requireApkInstall: inputs.requireApkInstall,
       })
     );
 
@@ -613,6 +615,7 @@ function buildJobRequest(inputs: ActionInputs): CreateJobRequest {
     templateContent: inputs.templateContent,
     // Pass GitHub token for GitHub operations without App installation
     githubToken: inputs.githubToken || undefined,
+    requireApkInstall: inputs.requireApkInstall,
   };
 }
 
@@ -858,6 +861,7 @@ export async function runConsolidatedTest(
         screenSize: inputs.screenSize,
         metadata,
         githubToken: inputs.githubToken || undefined,
+        requireApkInstall: inputs.requireApkInstall,
       })
     );
 
@@ -972,6 +976,7 @@ export async function runJobWithIds(
         metadata: buildBaseMetadata(),
         githubToken: inputs.githubToken || undefined,
         description: inputs.description,
+        requireApkInstall: inputs.requireApkInstall,
       })
     );
 

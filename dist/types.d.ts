@@ -38,6 +38,7 @@ export interface ActionInputs {
     screenSize: ScreenSizeConfig;
     outputSchema?: Record<string, unknown>;
     githubRepo: string;
+    requireApkInstall: boolean;
 }
 /**
  * GitHub issue data
@@ -122,6 +123,8 @@ export interface CreateJobRequest {
     prNumbers?: number[];
     /** Issue numbers to test (triggers server-side analysis) */
     issueNumbers?: number[];
+    /** Require testers to have APK installation capability */
+    requireApkInstall?: boolean;
 }
 /**
  * PR commit information for PR analysis

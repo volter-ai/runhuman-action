@@ -34,7 +34,12 @@ export interface ActionInputs {
     targetDurationMinutes: number;
     deviceClass: DeviceClass;
     outputSchema?: Record<string, unknown>;
+    /** Repo that triggered the action (format: "owner/repo") — always `github.context.repo`. */
     githubRepo: string;
+    /** Repo list sent to the backend on job creation. Currently always `[githubRepo]` — will broaden if the action ever targets multiple repos in one run. */
+    githubRepos: string[];
+    /** Target repo for auto-created issues; defaults to `githubRepo` unless overridden by the `auto-create-github-issues-repo` input. */
+    autoCreateGithubIssuesRepo: string;
 }
 /**
  * GitHub issue data
@@ -106,7 +111,10 @@ export interface CreateJobRequest {
     outputSchema?: Record<string, unknown>;
     targetDurationMinutes?: number;
     additionalValidationInstructions?: string;
-    githubRepo?: string;
+    /** GitHub repositories linked to this job (format: "owner/repo"). */
+    githubRepos?: string[];
+    /** Target repository for auto-created GitHub issues — must be one of githubRepos. */
+    autoCreateGithubIssuesRepo?: string;
     deviceClass?: DeviceClass;
     metadata?: JobMetadata;
     /** Template name for server-side resolution */
@@ -170,6 +178,8 @@ export interface AnalyzePrResponse {
 export interface JobMetadata {
     source: string;
     sourceCreatedAt: string;
+    /** Repository that triggered this job — used as the default target for auto-created issues. */
+    sourceRepo?: string;
     githubAction?: {
         actionName: string;
         runId?: string;

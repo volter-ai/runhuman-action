@@ -98,14 +98,17 @@ export async function withRetry<T>(
 }
 
 /**
- * Build base metadata with GitHub Action context
+ * Build base metadata with GitHub Action context.
+ * `sourceRepo` is the repo that triggered the action — used by the backend
+ * as the default target for auto-created issues in multi-repo projects.
  */
-function buildBaseMetadata(): JobMetadata {
+function buildBaseMetadata(sourceRepo: string): JobMetadata {
   const context = github.context;
 
   return {
     source: 'runhuman-action',
     sourceCreatedAt: new Date().toISOString(),
+    sourceRepo,
     githubAction: {
       actionName: 'runhuman-action',
       runId: context.runId?.toString(),
@@ -120,7 +123,7 @@ function buildBaseMetadata(): JobMetadata {
  * Build metadata for issue testing
  */
 function buildIssueTestMetadata(issue: Issue, githubRepo: string): JobMetadata {
-  const metadata = buildBaseMetadata();
+  const metadata = buildBaseMetadata(githubRepo);
 
   metadata.githubIssue = {
     repo: githubRepo,
@@ -135,7 +138,7 @@ function buildIssueTestMetadata(issue: Issue, githubRepo: string): JobMetadata {
  * Build metadata for PR testing
  */
 function buildPrTestMetadata(pr: PullRequest, githubRepo: string): JobMetadata {
-  const metadata = buildBaseMetadata();
+  const metadata = buildBaseMetadata(githubRepo);
 
   metadata.githubPR = {
     repo: githubRepo,
@@ -408,7 +411,8 @@ export async function runTestForIssue(
         outputSchema: analysis.outputSchema,
         targetDurationMinutes: inputs.targetDurationMinutes,
         additionalValidationInstructions: formatIssueContext(issue),
-        githubRepo: inputs.githubRepo,
+        githubRepos: inputs.githubRepos,
+        autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
         deviceClass: inputs.deviceClass,
         metadata: buildIssueTestMetadata(issue, inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
@@ -515,7 +519,8 @@ export async function runTestForPr(
         outputSchema: analysis.outputSchema,
         targetDurationMinutes: inputs.targetDurationMinutes,
         additionalValidationInstructions: formatPrContext(pr, analysis),
-        githubRepo: inputs.githubRepo,
+        githubRepos: inputs.githubRepos,
+        autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
         deviceClass: inputs.deviceClass,
         metadata: buildPrTestMetadata(pr, inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
@@ -604,9 +609,10 @@ function buildJobRequest(inputs: ActionInputs): CreateJobRequest {
     description: inputs.description,
     outputSchema: inputs.outputSchema,
     targetDurationMinutes: inputs.targetDurationMinutes,
-    githubRepo: inputs.githubRepo,
+    githubRepos: inputs.githubRepos,
+    autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
     deviceClass: inputs.deviceClass,
-    metadata: buildBaseMetadata(),
+    metadata: buildBaseMetadata(inputs.githubRepo),
     // Pass template name for server-side resolution
     template: inputs.template,
     // Pass raw template content for server-side parsing
@@ -721,7 +727,7 @@ function buildConsolidatedMetadata(
   issues: AnalyzedIssue[],
   githubRepo: string
 ): JobMetadata {
-  const metadata = buildBaseMetadata();
+  const metadata = buildBaseMetadata(githubRepo);
 
   // Add PR references
   if (prs.length === 1) {
@@ -854,7 +860,8 @@ export async function runConsolidatedTest(
         outputSchema,
         targetDurationMinutes: inputs.targetDurationMinutes,
         additionalValidationInstructions: validationInstructions,
-        githubRepo: inputs.githubRepo,
+        githubRepos: inputs.githubRepos,
+        autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
         deviceClass: inputs.deviceClass,
         metadata,
         githubToken: inputs.githubToken || undefined,
@@ -967,9 +974,10 @@ export async function runJobWithIds(
         issueNumbers: issueNumbers.length > 0 ? issueNumbers : undefined,
         outputSchema: inputs.outputSchema,
         targetDurationMinutes: inputs.targetDurationMinutes,
-        githubRepo: inputs.githubRepo,
+        githubRepos: inputs.githubRepos,
+        autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
         deviceClass: inputs.deviceClass,
-        metadata: buildBaseMetadata(),
+        metadata: buildBaseMetadata(inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
         description: inputs.description,
       })

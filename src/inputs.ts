@@ -102,9 +102,15 @@ export function parseInputs(): ActionInputs {
     throw new Error('api-key is required');
   }
 
-  // Get github repo from context
+  // Get github repo from context — the repo that triggered this action run
   const { owner, repo } = github.context.repo;
   const githubRepo = `${owner}/${repo}`;
+
+  // Optional override for where auto-created issues land.
+  // Defaults to the triggering repo so that multi-repo projects don't
+  // fall back to githubRepos[0] (which is arbitrary).
+  const autoCreateGithubIssuesRepo =
+    core.getInput('auto-create-github-issues-repo') || githubRepo;
 
   // Parse template inputs
   const template = core.getInput('template') || undefined;
@@ -170,6 +176,8 @@ export function parseInputs(): ActionInputs {
 
     // Repository context
     githubRepo,
+    githubRepos: [githubRepo],
+    autoCreateGithubIssuesRepo,
   };
 }
 

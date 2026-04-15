@@ -125,6 +125,7 @@ jobs:
 | `target-duration-minutes` | No | `5` | Target test duration (1-60 minutes) |
 | `device-class` | No | `desktop` | Device class: desktop or mobile |
 | `output-schema` | No | - | JSON schema for structured test results |
+| `auto-create-github-issues-repo` | No | Triggering repo | Target repo (`owner/repo`) for auto-created GitHub issues when the template/project has `autoCreateGithubIssues` enabled. Must be one of the project's linked repos. |
 
 ### Label Callbacks
 

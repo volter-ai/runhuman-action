@@ -67,6 +67,8 @@ export interface ActionInputs {
   targetDurationMinutes: number;
   deviceClass: DeviceClass;
   outputSchema?: Record<string, unknown>;
+  /** Internal-only flag: request Runhuman's dual-device self-test flow (APK-install tester capability). Backend rejects non-@volter.ai callers with 403. */
+  requiresRunhumanApkInstall: boolean;
 
   // Repository context
   /** Repo that triggered the action (format: "owner/repo") — always `github.context.repo`. */
@@ -175,6 +177,8 @@ export interface CreateJobRequest {
   prNumbers?: number[];
   /** Issue numbers to test (triggers server-side analysis) */
   issueNumbers?: number[];
+  /** Internal-only: request Runhuman's dual-device self-test flow. Backend rejects non-@volter.ai callers with 403. */
+  requiresRunhumanApkInstall?: boolean;
 }
 
 /**

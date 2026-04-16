@@ -173,6 +173,7 @@ export function parseInputs(): ActionInputs {
     targetDurationMinutes: parseInt(core.getInput('target-duration-minutes') || '30', 10),
     deviceClass: parseDeviceClass(core.getInput('device-class') || 'desktop'),
     outputSchema: parseOutputSchema(core.getInput('output-schema')),
+    requiresRunhumanApkInstall: core.getBooleanInput('requires-runhuman-apk-install'),
 
     // Repository context
     githubRepo,

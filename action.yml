@@ -104,6 +104,10 @@ inputs:
   auto-create-github-issues-repo:
     description: 'Target repo (owner/repo) for auto-created GitHub issues when the template/project has autoCreateGithubIssues enabled. Defaults to the repo that triggered the action. Must be one of the project''s linked repos.'
     required: false
+  requires-runhuman-apk-install:
+    description: 'INTERNAL (@volter.ai callers only): request the Runhuman dual-device self-test flow, routing to testers with the APK-install capability. Non-Volter callers are rejected with 403. Distinct from generic third-party APK-install jobs.'
+    required: false
+    default: 'false'
 outputs:
   status:
     description: 'Test status (completed, error, timeout, no-issues, created)'

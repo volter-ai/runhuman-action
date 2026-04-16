@@ -414,6 +414,7 @@ export async function runTestForIssue(
         githubRepos: inputs.githubRepos,
         autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
         deviceClass: inputs.deviceClass,
+        requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
         metadata: buildIssueTestMetadata(issue, inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
       })
@@ -522,6 +523,7 @@ export async function runTestForPr(
         githubRepos: inputs.githubRepos,
         autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
         deviceClass: inputs.deviceClass,
+        requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
         metadata: buildPrTestMetadata(pr, inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
       })
@@ -612,6 +614,7 @@ function buildJobRequest(inputs: ActionInputs): CreateJobRequest {
     githubRepos: inputs.githubRepos,
     autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
     deviceClass: inputs.deviceClass,
+    requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
     metadata: buildBaseMetadata(inputs.githubRepo),
     // Pass template name for server-side resolution
     template: inputs.template,
@@ -863,6 +866,7 @@ export async function runConsolidatedTest(
         githubRepos: inputs.githubRepos,
         autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
         deviceClass: inputs.deviceClass,
+        requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
         metadata,
         githubToken: inputs.githubToken || undefined,
       })
@@ -977,6 +981,7 @@ export async function runJobWithIds(
         githubRepos: inputs.githubRepos,
         autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
         deviceClass: inputs.deviceClass,
+        requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
         metadata: buildBaseMetadata(inputs.githubRepo),
         githubToken: inputs.githubToken || undefined,
         description: inputs.description,

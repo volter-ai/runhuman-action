@@ -106,11 +106,10 @@ export function parseInputs(): ActionInputs {
   const { owner, repo } = github.context.repo;
   const githubRepo = `${owner}/${repo}`;
 
-  // Optional override for where auto-created issues land.
-  // Defaults to the triggering repo so that multi-repo projects don't
-  // fall back to githubRepos[0] (which is arbitrary).
-  const autoCreateGithubIssuesRepo =
-    core.getInput('auto-create-github-issues-repo') || githubRepo;
+  // Optional override for where auto-created issues land. Only forwarded
+  // when the caller explicitly sets the input — defaulting would trip the
+  // server-side validator that rejects this field when auto-creation is off.
+  const autoCreateGithubIssuesRepo = core.getInput('auto-create-github-issues-repo') || undefined;
 
   // Parse template inputs
   const template = core.getInput('template') || undefined;

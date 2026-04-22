@@ -76,8 +76,8 @@ export interface ActionInputs {
   githubRepo: string;
   /** Repo list sent to the backend on job creation. Currently always `[githubRepo]` — will broaden if the action ever targets multiple repos in one run. */
   githubRepos: string[];
-  /** Target repo for auto-created issues; defaults to `githubRepo` unless overridden by the `auto-create-github-issues-repo` input. */
-  autoCreateGithubIssuesRepo: string;
+  /** Target repo for auto-created issues. Only set when the caller explicitly provides `auto-create-github-issues-repo`; otherwise omitted so the server does not reject the request. */
+  autoCreateGithubIssuesRepo?: string;
 }
 
 /**

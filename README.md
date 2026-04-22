@@ -149,6 +149,7 @@ jobs:
 | `fail-on-failure` | `true` | Fail the workflow if any test fails |
 | `fail-on-timeout` | `false` | Fail the workflow if tester times out |
 | `wait-for-result` | `true` | Wait for test completion. Set to `false` for fire-and-forget mode. |
+| `post-pr-comment` | `false` | When `true`, post (and update in place on re-runs) a sticky PR comment containing the tester narrative, AI-extracted bug list, and a link to the full session (video, key moments, timeline). Requires `pr-numbers`, `wait-for-result: true`, and a `github-token` with `pull-requests: write`. |
 
 ## Outputs
 

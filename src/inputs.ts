@@ -165,6 +165,7 @@ export function parseInputs(): ActionInputs {
     failOnFailure: core.getBooleanInput('fail-on-failure'),
     failOnTimeout: core.getBooleanInput('fail-on-timeout'),
     waitForResult: core.getBooleanInput('wait-for-result'),
+    postPrComment: core.getBooleanInput('post-pr-comment'),
 
     // API configuration - always use production
     apiUrl: 'https://qa-experiment.fly.dev',

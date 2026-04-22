@@ -72,6 +72,11 @@ inputs:
     required: false
     default: 'true'
 
+  post-pr-comment:
+    description: 'When true, post (or update) a sticky PR comment containing the tester narrative, AI-extracted bug list, and a link to the full session. Requires pr-numbers, wait-for-result=true, and a github-token with pull-requests:write.'
+    required: false
+    default: 'false'
+
   # API configuration
   api-key:
     description: 'Runhuman API key or PAT (rh_..., rh_pat_...)'

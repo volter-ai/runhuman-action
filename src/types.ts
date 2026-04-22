@@ -59,6 +59,7 @@ export interface ActionInputs {
   failOnFailure: boolean;
   failOnTimeout: boolean;
   waitForResult: boolean;
+  postPrComment: boolean;
 
   // API configuration
   apiUrl: string;

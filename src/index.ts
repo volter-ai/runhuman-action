@@ -4,6 +4,7 @@ import { parseInputs } from './inputs';
 import { collectIssues } from './issues';
 import { runJobWithIds, runTestWithDescription } from './runner';
 import { applyLabelsForOutcome } from './labels';
+import { upsertPrDigestComment } from './pr-comment';
 import type { ActionOutputs, IssueTestResult, TestOutcome } from './types';
 
 async function run(): Promise<void> {
@@ -44,6 +45,19 @@ async function run(): Promise<void> {
         // Apply labels for all tested items
         for (const issueNumber of allIssueNumbers) {
           await applyLabelsForOutcome(octokit, owner, repo, issueNumber, inputs, outcome);
+        }
+
+        if (inputs.postPrComment) {
+          for (const prNumber of inputs.prNumbers) {
+            await upsertPrDigestComment({
+              octokit,
+              owner,
+              repo,
+              prNumber,
+              result,
+              outcome,
+            });
+          }
         }
       }
 

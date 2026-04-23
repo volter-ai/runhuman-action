@@ -30314,9 +30314,15 @@ function parseInputs() {
     // Get github repo from context — the repo that triggered this action run
     const { owner, repo } = github.context.repo;
     const githubRepo = `${owner}/${repo}`;
-    // Optional override for where auto-created issues land. Only forwarded
-    // when the caller explicitly sets the input — defaulting would trip the
-    // server-side validator that rejects this field when auto-creation is off.
+    // Optional override for server-side auto-creation of GitHub issues from
+    // extracted findings. Only forwarded when the caller explicitly sets the
+    // input — otherwise the project/template default applies. Kept separate
+    // from auto-create-github-issues-repo so callers can opt in via just the
+    // boolean and rely on the project's default target repo.
+    const autoCreateGithubIssuesRaw = core.getInput('auto-create-github-issues');
+    const autoCreateGithubIssues = autoCreateGithubIssuesRaw
+        ? core.getBooleanInput('auto-create-github-issues')
+        : undefined;
     const autoCreateGithubIssuesRepo = core.getInput('auto-create-github-issues-repo') || undefined;
     // Parse template inputs
     const template = core.getInput('template') || undefined;
@@ -30376,6 +30382,7 @@ function parseInputs() {
         // Repository context
         githubRepo,
         githubRepos: [githubRepo],
+        autoCreateGithubIssues,
         autoCreateGithubIssuesRepo,
     };
 }
@@ -31015,6 +31022,7 @@ async function runTestForIssue(inputs, issue, analysis) {
             targetDurationMinutes: inputs.targetDurationMinutes,
             additionalValidationInstructions: formatIssueContext(issue),
             githubRepos: inputs.githubRepos,
+            autoCreateGithubIssues: inputs.autoCreateGithubIssues,
             autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
@@ -31105,6 +31113,7 @@ async function runTestForPr(inputs, pr, analysis) {
             targetDurationMinutes: inputs.targetDurationMinutes,
             additionalValidationInstructions: formatPrContext(pr, analysis),
             githubRepos: inputs.githubRepos,
+            autoCreateGithubIssues: inputs.autoCreateGithubIssues,
             autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
@@ -31184,6 +31193,7 @@ function buildJobRequest(inputs) {
         outputSchema: inputs.outputSchema,
         targetDurationMinutes: inputs.targetDurationMinutes,
         githubRepos: inputs.githubRepos,
+        autoCreateGithubIssues: inputs.autoCreateGithubIssues,
         autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
         deviceClass: inputs.deviceClass,
         requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
@@ -31393,6 +31403,7 @@ async function runConsolidatedTest(inputs, prs, issues) {
             targetDurationMinutes: inputs.targetDurationMinutes,
             additionalValidationInstructions: validationInstructions,
             githubRepos: inputs.githubRepos,
+            autoCreateGithubIssues: inputs.autoCreateGithubIssues,
             autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
@@ -31484,6 +31495,7 @@ async function runJobWithIds(inputs, prNumbers, issueNumbers) {
             outputSchema: inputs.outputSchema,
             targetDurationMinutes: inputs.targetDurationMinutes,
             githubRepos: inputs.githubRepos,
+            autoCreateGithubIssues: inputs.autoCreateGithubIssues,
             autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,

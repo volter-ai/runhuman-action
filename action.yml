@@ -106,8 +106,11 @@ inputs:
   output-schema:
     description: 'JSON schema for extracting structured data from test results (used with description-only tests)'
     required: false
+  auto-create-github-issues:
+    description: 'When set, enables (true) or disables (false) server-side auto-creation of GitHub issues from extracted QA findings using the detailed renderer (Expected / Actual / Where / Evidence / Related Telemetry). When unset, the project/template default applies.'
+    required: false
   auto-create-github-issues-repo:
-    description: 'Target repo (owner/repo) for auto-created GitHub issues when the template/project has autoCreateGithubIssues enabled. Defaults to the repo that triggered the action. Must be one of the project''s linked repos.'
+    description: 'Target repo (owner/repo) for auto-created GitHub issues. Only takes effect when auto-creation is enabled via this input or the project/template. Must be one of the project''s linked repos.'
     required: false
   requires-runhuman-apk-install:
     description: 'INTERNAL (@volter.ai callers only): request the Runhuman dual-device self-test flow, routing to testers with the APK-install capability. Non-Volter callers are rejected with 403. Distinct from generic third-party APK-install jobs.'

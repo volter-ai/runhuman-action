@@ -106,9 +106,15 @@ export function parseInputs(): ActionInputs {
   const { owner, repo } = github.context.repo;
   const githubRepo = `${owner}/${repo}`;
 
-  // Optional override for where auto-created issues land. Only forwarded
-  // when the caller explicitly sets the input — defaulting would trip the
-  // server-side validator that rejects this field when auto-creation is off.
+  // Optional override for server-side auto-creation of GitHub issues from
+  // extracted findings. Only forwarded when the caller explicitly sets the
+  // input — otherwise the project/template default applies. Kept separate
+  // from auto-create-github-issues-repo so callers can opt in via just the
+  // boolean and rely on the project's default target repo.
+  const autoCreateGithubIssuesRaw = core.getInput('auto-create-github-issues');
+  const autoCreateGithubIssues = autoCreateGithubIssuesRaw
+    ? core.getBooleanInput('auto-create-github-issues')
+    : undefined;
   const autoCreateGithubIssuesRepo = core.getInput('auto-create-github-issues-repo') || undefined;
 
   // Parse template inputs
@@ -178,6 +184,7 @@ export function parseInputs(): ActionInputs {
     // Repository context
     githubRepo,
     githubRepos: [githubRepo],
+    autoCreateGithubIssues,
     autoCreateGithubIssuesRepo,
   };
 }

@@ -80,6 +80,8 @@ export interface ActionInputs {
   autoCreateGithubIssues?: boolean;
   /** Target repo for auto-created issues. Only set when the caller explicitly provides `auto-create-github-issues-repo`; otherwise omitted so the server does not reject the request. */
   autoCreateGithubIssuesRepo?: string;
+  /** When auto-creation is enabled and this is true, skip auto-filing telemetry-only issues (testerSurfaced=false). See runhuman#3160. */
+  autoCreateOnlyTesterSurfaced: boolean;
 }
 
 /**
@@ -170,6 +172,8 @@ export interface CreateJobRequest {
   autoCreateGithubIssues?: boolean;
   /** Target repository for auto-created GitHub issues — must be one of githubRepos. */
   autoCreateGithubIssuesRepo?: string;
+  /** Skip auto-filing telemetry-only issues when true. See runhuman#3160. */
+  autoCreateOnlyTesterSurfaced?: boolean;
   deviceClass?: DeviceClass;
   metadata?: JobMetadata;
   /** Template name for server-side resolution */

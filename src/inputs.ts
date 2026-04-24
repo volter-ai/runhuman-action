@@ -116,6 +116,7 @@ export function parseInputs(): ActionInputs {
     ? core.getBooleanInput('auto-create-github-issues')
     : undefined;
   const autoCreateGithubIssuesRepo = core.getInput('auto-create-github-issues-repo') || undefined;
+  const autoCreateOnlyTesterSurfaced = core.getBooleanInput('only-tester-surfaced-issues');
 
   // Parse template inputs
   const template = core.getInput('template') || undefined;
@@ -186,6 +187,7 @@ export function parseInputs(): ActionInputs {
     githubRepos: [githubRepo],
     autoCreateGithubIssues,
     autoCreateGithubIssuesRepo,
+    autoCreateOnlyTesterSurfaced,
   };
 }
 

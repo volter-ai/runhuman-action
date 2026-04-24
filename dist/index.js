@@ -30324,6 +30324,7 @@ function parseInputs() {
         ? core.getBooleanInput('auto-create-github-issues')
         : undefined;
     const autoCreateGithubIssuesRepo = core.getInput('auto-create-github-issues-repo') || undefined;
+    const autoCreateOnlyTesterSurfaced = core.getBooleanInput('only-tester-surfaced-issues');
     // Parse template inputs
     const template = core.getInput('template') || undefined;
     const templateFile = core.getInput('template-file') || undefined;
@@ -30384,6 +30385,7 @@ function parseInputs() {
         githubRepos: [githubRepo],
         autoCreateGithubIssues,
         autoCreateGithubIssuesRepo,
+        autoCreateOnlyTesterSurfaced,
     };
 }
 /**
@@ -31024,6 +31026,7 @@ async function runTestForIssue(inputs, issue, analysis) {
             githubRepos: inputs.githubRepos,
             autoCreateGithubIssues: inputs.autoCreateGithubIssues,
             autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
+            autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
             metadata: buildIssueTestMetadata(issue, inputs.githubRepo),
@@ -31115,6 +31118,7 @@ async function runTestForPr(inputs, pr, analysis) {
             githubRepos: inputs.githubRepos,
             autoCreateGithubIssues: inputs.autoCreateGithubIssues,
             autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
+            autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
             metadata: buildPrTestMetadata(pr, inputs.githubRepo),
@@ -31195,6 +31199,7 @@ function buildJobRequest(inputs) {
         githubRepos: inputs.githubRepos,
         autoCreateGithubIssues: inputs.autoCreateGithubIssues,
         autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
+        autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
         deviceClass: inputs.deviceClass,
         requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
         metadata: buildBaseMetadata(inputs.githubRepo),
@@ -31405,6 +31410,7 @@ async function runConsolidatedTest(inputs, prs, issues) {
             githubRepos: inputs.githubRepos,
             autoCreateGithubIssues: inputs.autoCreateGithubIssues,
             autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
+            autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
             metadata,
@@ -31497,6 +31503,7 @@ async function runJobWithIds(inputs, prNumbers, issueNumbers) {
             githubRepos: inputs.githubRepos,
             autoCreateGithubIssues: inputs.autoCreateGithubIssues,
             autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
+            autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
             metadata: buildBaseMetadata(inputs.githubRepo),

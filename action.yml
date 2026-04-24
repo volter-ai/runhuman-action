@@ -112,6 +112,10 @@ inputs:
   auto-create-github-issues-repo:
     description: 'Target repo (owner/repo) for auto-created GitHub issues. Only takes effect when auto-creation is enabled via this input or the project/template. Must be one of the project''s linked repos.'
     required: false
+  only-tester-surfaced-issues:
+    description: 'When auto-creation is enabled and this is true, skip auto-filing issues the tester did not explicitly flag as a bug (telemetry-only findings). Defaults to false (file all extracted issues). See runhuman#3160.'
+    required: false
+    default: 'false'
   requires-runhuman-apk-install:
     description: 'INTERNAL (@volter.ai callers only): request the Runhuman dual-device self-test flow, routing to testers with the APK-install capability. Non-Volter callers are rejected with 403. Distinct from generic third-party APK-install jobs.'
     required: false

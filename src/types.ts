@@ -82,6 +82,14 @@ export interface ActionInputs {
   autoCreateGithubIssuesRepo?: string;
   /** When auto-creation is enabled and this is true, skip auto-filing telemetry-only issues (testerSurfaced=false). See runhuman#3160. */
   autoCreateOnlyTesterSurfaced: boolean;
+
+  // === Code-context (#3320) ===
+  /** Opt this job into the code-context preview feature. Bug reports include file/symbol references when the org is on the allowlist. */
+  enableCodeContext: boolean;
+  /** Commit SHA the deployed app corresponds to. Threaded onto job metadata so code references reflect this commit's code. */
+  commitSha?: string;
+  /** Block scoring until per-commit code-context is ready (up to 90s server-side). Default false preserves the old fall-back-to-base semantics. */
+  waitForCodeContextOverlay: boolean;
 }
 
 /**
@@ -263,6 +271,14 @@ export interface JobMetadata {
     prNumber: number;
     prUrl: string;
   };
+
+  // === Code-context (#3320) ===
+  /** Opt-in to the code-context preview feature. */
+  enableCodeContext?: boolean;
+  /** Commit SHA the test ran against — used to scope per-commit code references. */
+  commitSha?: string;
+  /** Block scoring until per-commit code-context is ready (up to 90s). */
+  waitForCodeContextOverlay?: boolean;
 }
 
 /**

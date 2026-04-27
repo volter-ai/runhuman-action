@@ -120,6 +120,17 @@ inputs:
     description: 'INTERNAL (@volter.ai callers only): request the Runhuman dual-device self-test flow, routing to testers with the APK-install capability. Non-Volter callers are rejected with 403. Distinct from generic third-party APK-install jobs.'
     required: false
     default: 'false'
+  enable-code-context:
+    description: 'Preview feature. When true, bug reports include references to the specific files and symbols in your codebase that are most likely related, so issues are easier to debug.'
+    required: false
+    default: 'false'
+  commit-sha:
+    description: 'Commit SHA the deployed app corresponds to (typically github.event.pull_request.head.sha). When provided alongside enable-code-context, code references reflect this commit''s code instead of the default branch.'
+    required: false
+  wait-for-code-context:
+    description: 'When true, the test waits up to 90 seconds for code references to be prepared for the given commit-sha before scoring. When false (default), the test proceeds immediately and code references may reflect the default branch instead of this commit.'
+    required: false
+    default: 'false'
 outputs:
   status:
     description: 'Test status (completed, error, timeout, no-issues, created)'

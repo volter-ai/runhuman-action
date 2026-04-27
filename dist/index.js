@@ -30380,6 +30380,12 @@ function parseInputs() {
         deviceClass: parseDeviceClass(core.getInput('device-class') || 'desktop'),
         outputSchema: parseOutputSchema(core.getInput('output-schema')),
         requiresRunhumanApkInstall: core.getBooleanInput('requires-runhuman-apk-install'),
+        // Code-context (#3320). All three live under metadata server-side; the
+        // GitHub Action surfaces them as inputs so PR workflows can score
+        // against the PR's HEAD SHA instead of the staging repo's base index.
+        enableCodeContext: core.getBooleanInput('enable-code-context'),
+        commitSha: core.getInput('commit-sha') || undefined,
+        waitForCodeContextOverlay: core.getBooleanInput('wait-for-code-context'),
         // Repository context
         githubRepo,
         githubRepos: [githubRepo],
@@ -30774,15 +30780,19 @@ async function withRetry(fn, maxRetries = 3, baseDelayMs = 1000) {
 }
 /**
  * Build base metadata with GitHub Action context.
- * `sourceRepo` is the repo that triggered the action — used by the backend
- * as the default target for auto-created issues in multi-repo projects.
+ * `inputs.githubRepo` is the repo that triggered the action — used by the
+ * backend as the default target for auto-created issues in multi-repo
+ * projects. `enableCodeContext`/`commitSha`/`waitForCodeContextOverlay`
+ * are only stamped onto metadata when the caller opted in, so a default
+ * `false`/empty value doesn't clobber a template/schedule that already
+ * resolves the flag (#3320).
  */
-function buildBaseMetadata(sourceRepo) {
+function buildBaseMetadata(inputs) {
     const context = github.context;
-    return {
+    const metadata = {
         source: 'runhuman-action',
         sourceCreatedAt: new Date().toISOString(),
-        sourceRepo,
+        sourceRepo: inputs.githubRepo,
         githubAction: {
             actionName: 'runhuman-action',
             runId: context.runId?.toString(),
@@ -30791,28 +30801,35 @@ function buildBaseMetadata(sourceRepo) {
             actor: context.actor,
         },
     };
+    if (inputs.enableCodeContext)
+        metadata.enableCodeContext = true;
+    if (inputs.commitSha !== undefined)
+        metadata.commitSha = inputs.commitSha;
+    if (inputs.waitForCodeContextOverlay)
+        metadata.waitForCodeContextOverlay = true;
+    return metadata;
 }
 /**
  * Build metadata for issue testing
  */
-function buildIssueTestMetadata(issue, githubRepo) {
-    const metadata = buildBaseMetadata(githubRepo);
+function buildIssueTestMetadata(issue, inputs) {
+    const metadata = buildBaseMetadata(inputs);
     metadata.githubIssue = {
-        repo: githubRepo,
+        repo: inputs.githubRepo,
         issueNumber: issue.number,
-        issueUrl: `https://github.com/${githubRepo}/issues/${issue.number}`,
+        issueUrl: `https://github.com/${inputs.githubRepo}/issues/${issue.number}`,
     };
     return metadata;
 }
 /**
  * Build metadata for PR testing
  */
-function buildPrTestMetadata(pr, githubRepo) {
-    const metadata = buildBaseMetadata(githubRepo);
+function buildPrTestMetadata(pr, inputs) {
+    const metadata = buildBaseMetadata(inputs);
     metadata.githubPR = {
-        repo: githubRepo,
+        repo: inputs.githubRepo,
         prNumber: pr.number,
-        prUrl: `https://github.com/${githubRepo}/pull/${pr.number}`,
+        prUrl: `https://github.com/${inputs.githubRepo}/pull/${pr.number}`,
     };
     return metadata;
 }
@@ -31029,7 +31046,7 @@ async function runTestForIssue(inputs, issue, analysis) {
             autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
-            metadata: buildIssueTestMetadata(issue, inputs.githubRepo),
+            metadata: buildIssueTestMetadata(issue, inputs),
             githubToken: inputs.githubToken || undefined,
         }));
         core.info(`Created job ${jobId} for issue #${issue.number}`);
@@ -31121,7 +31138,7 @@ async function runTestForPr(inputs, pr, analysis) {
             autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
-            metadata: buildPrTestMetadata(pr, inputs.githubRepo),
+            metadata: buildPrTestMetadata(pr, inputs),
             githubToken: inputs.githubToken || undefined,
         }));
         core.info(`Created job ${jobId} for PR #${pr.number}`);
@@ -31202,7 +31219,7 @@ function buildJobRequest(inputs) {
         autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
         deviceClass: inputs.deviceClass,
         requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
-        metadata: buildBaseMetadata(inputs.githubRepo),
+        metadata: buildBaseMetadata(inputs),
         // Pass template name for server-side resolution
         template: inputs.template,
         // Pass raw template content for server-side parsing
@@ -31299,8 +31316,9 @@ async function runTestWithDescription(inputs) {
 /**
  * Build metadata for a consolidated test that covers multiple PRs and/or issues
  */
-function buildConsolidatedMetadata(prs, issues, githubRepo) {
-    const metadata = buildBaseMetadata(githubRepo);
+function buildConsolidatedMetadata(prs, issues, inputs) {
+    const metadata = buildBaseMetadata(inputs);
+    const githubRepo = inputs.githubRepo;
     // Add PR references
     if (prs.length === 1) {
         metadata.githubPR = {
@@ -31398,7 +31416,7 @@ async function runConsolidatedTest(inputs, prs, issues) {
     try {
         const description = buildConsolidatedDescription(prs, issues);
         const validationInstructions = buildConsolidatedValidationInstructions(prs, issues);
-        const metadata = buildConsolidatedMetadata(prs, issues, inputs.githubRepo);
+        const metadata = buildConsolidatedMetadata(prs, issues, inputs);
         // Use the first available output schema, or null if none
         const outputSchema = prs[0]?.analysis.outputSchema || issues[0]?.analysis.outputSchema || undefined;
         const jobId = await withRetry(() => createJob(inputs, {
@@ -31506,7 +31524,7 @@ async function runJobWithIds(inputs, prNumbers, issueNumbers) {
             autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
             deviceClass: inputs.deviceClass,
             requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
-            metadata: buildBaseMetadata(inputs.githubRepo),
+            metadata: buildBaseMetadata(inputs),
             githubToken: inputs.githubToken || undefined,
             description: inputs.description,
         }));

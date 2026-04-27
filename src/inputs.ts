@@ -182,6 +182,13 @@ export function parseInputs(): ActionInputs {
     outputSchema: parseOutputSchema(core.getInput('output-schema')),
     requiresRunhumanApkInstall: core.getBooleanInput('requires-runhuman-apk-install'),
 
+    // Code-context (#3320). All three live under metadata server-side; the
+    // GitHub Action surfaces them as inputs so PR workflows can score
+    // against the PR's HEAD SHA instead of the staging repo's base index.
+    enableCodeContext: core.getBooleanInput('enable-code-context'),
+    commitSha: core.getInput('commit-sha') || undefined,
+    waitForCodeContextOverlay: core.getBooleanInput('wait-for-code-context'),
+
     // Repository context
     githubRepo,
     githubRepos: [githubRepo],

@@ -41,7 +41,6 @@ export function renderDigestMarkdown(result: RunhumanJobResult, outcome: TestOut
   const bugs = result.extractedIssues ?? [];
   const narrative = result.explanation?.trim() || '_No tester narrative was returned._';
   const duration = formatDuration(result.durationSeconds);
-  const cost = `$${result.costUsd.toFixed(2)}`;
 
   const renderJob = result.jobStatus
     ? jobStatusToRenderJob(result.jobStatus)
@@ -50,7 +49,7 @@ export function renderDigestMarkdown(result: RunhumanJobResult, outcome: TestOut
 
   const bugsSection =
     bugs.length === 0
-      ? '**No bugs found** 🎉'
+      ? '**No bugs found**'
       : [
           `**Bugs found (${bugs.length}):**`,
           ...bugs.map((bug) => renderBugDetails(bug, renderJob, ctx)),
@@ -62,13 +61,13 @@ export function renderDigestMarkdown(result: RunhumanJobResult, outcome: TestOut
 
   return [
     STICKY_MARKER,
-    `### 🧪 Runhuman QA — ${emoji} ${label}`,
+    `### Runhuman QA — ${emoji} ${label}`,
     '',
     `> ${narrative.replace(/\n+/g, ' ')}`,
     '',
     bugsSection,
     '',
-    `**Duration:** ${duration}  •  **Cost:** ${cost}`,
+    `**Duration:** ${duration}`,
     '',
     jobLink,
   ].join('\n');

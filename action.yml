@@ -127,6 +127,9 @@ inputs:
   commit-sha:
     description: 'Commit SHA the deployed app corresponds to (typically github.event.pull_request.head.sha). When provided alongside enable-code-context, code references reflect this commit''s code instead of the default branch.'
     required: false
+  commit-base-sha:
+    description: 'Base commit SHA the PR is merging into (typically github.event.pull_request.base.sha). When provided alongside commit-sha, code-context only re-indexes files actually changed in the PR rather than every file changed since the repo was last fully indexed.'
+    required: false
   wait-for-code-context:
     description: 'When true, the test waits up to 90 seconds for code references to be prepared for the given commit-sha before scoring. When false (default), the test proceeds immediately and code references may reflect the default branch instead of this commit.'
     required: false

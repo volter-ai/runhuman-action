@@ -49,6 +49,8 @@ export interface ActionInputs {
     enableCodeContext: boolean;
     /** Commit SHA the deployed app corresponds to. Threaded onto job metadata so code references reflect this commit's code. */
     commitSha?: string;
+    /** Base commit SHA the PR is merging into. Threaded onto job metadata so the per-commit overlay diffs against the merge-base instead of the (often-stale) repo's last-indexed SHA. */
+    commitBaseSha?: string;
     /** Block scoring until per-commit code-context is ready (up to 90s server-side). Default false preserves the old fall-back-to-base semantics. */
     waitForCodeContextOverlay: boolean;
 }
@@ -218,6 +220,8 @@ export interface JobMetadata {
     enableCodeContext?: boolean;
     /** Commit SHA the test ran against — used to scope per-commit code references. */
     commitSha?: string;
+    /** Base commit SHA the PR merges into — used to scope the per-commit overlay diff. */
+    commitBaseSha?: string;
     /** Block scoring until per-commit code-context is ready (up to 90s). */
     waitForCodeContextOverlay?: boolean;
 }

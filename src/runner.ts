@@ -124,6 +124,7 @@ function buildBaseMetadata(inputs: ActionInputs): JobMetadata {
 
   if (inputs.enableCodeContext) metadata.enableCodeContext = true;
   if (inputs.commitSha !== undefined) metadata.commitSha = inputs.commitSha;
+  if (inputs.commitBaseSha !== undefined) metadata.commitBaseSha = inputs.commitBaseSha;
   if (inputs.waitForCodeContextOverlay) metadata.waitForCodeContextOverlay = true;
 
   return metadata;

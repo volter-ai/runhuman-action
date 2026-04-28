@@ -187,6 +187,7 @@ export function parseInputs(): ActionInputs {
     // against the PR's HEAD SHA instead of the staging repo's base index.
     enableCodeContext: core.getBooleanInput('enable-code-context'),
     commitSha: core.getInput('commit-sha') || undefined,
+    commitBaseSha: core.getInput('commit-base-sha') || undefined,
     waitForCodeContextOverlay: core.getBooleanInput('wait-for-code-context'),
 
     // Repository context

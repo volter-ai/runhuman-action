@@ -30392,6 +30392,7 @@ function parseInputs() {
         // against the PR's HEAD SHA instead of the staging repo's base index.
         enableCodeContext: core.getBooleanInput('enable-code-context'),
         commitSha: core.getInput('commit-sha') || undefined,
+        commitBaseSha: core.getInput('commit-base-sha') || undefined,
         waitForCodeContextOverlay: core.getBooleanInput('wait-for-code-context'),
         // Repository context
         githubRepo,
@@ -30637,7 +30638,7 @@ exports.STICKY_MARKER = void 0;
 exports.renderDigestMarkdown = renderDigestMarkdown;
 exports.upsertPrDigestComment = upsertPrDigestComment;
 const core = __importStar(__nccwpck_require__(2648));
-const shared_1 = __nccwpck_require__(6640);
+const shared_1 = __nccwpck_require__(7708);
 const job_like_adapter_1 = __nccwpck_require__(9909);
 /**
  * Hidden HTML marker used as the sticky key for the digest comment.
@@ -30865,6 +30866,8 @@ function buildBaseMetadata(inputs) {
         metadata.enableCodeContext = true;
     if (inputs.commitSha !== undefined)
         metadata.commitSha = inputs.commitSha;
+    if (inputs.commitBaseSha !== undefined)
+        metadata.commitBaseSha = inputs.commitBaseSha;
     if (inputs.waitForCodeContextOverlay)
         metadata.waitForCodeContextOverlay = true;
     return metadata;
@@ -31709,7 +31712,7 @@ async function runJobWithIds(inputs, prNumbers, issueNumbers) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.renderStdoutIssues = renderStdoutIssues;
-const shared_1 = __nccwpck_require__(6640);
+const shared_1 = __nccwpck_require__(7708);
 const job_like_adapter_1 = __nccwpck_require__(9909);
 /**
  * Render the per-issue stdout block for the action's `qa-test` job log.
@@ -31750,7 +31753,7 @@ function renderStdoutIssues(issues, jobStatus) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isTerminalStatus = void 0;
 exports.extractSuccessFromResult = extractSuccessFromResult;
-var shared_1 = __nccwpck_require__(6640);
+var shared_1 = __nccwpck_require__(7708);
 Object.defineProperty(exports, "isTerminalStatus", ({ enumerable: true, get: function () { return shared_1.isTerminalStatus; } }));
 /**
  * Extract the success value from an ExtractedResult.
@@ -33644,7 +33647,7 @@ module.exports = parseParams
 
 /***/ }),
 
-/***/ 6640:
+/***/ 7708:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -33653,8 +33656,10 @@ __nccwpck_require__.r(__webpack_exports__);
 
 // EXPORTS
 __nccwpck_require__.d(__webpack_exports__, {
+  ADMIN_JOB_LIST_CHIP_GROUPS: () => (/* reexport */ ADMIN_JOB_LIST_CHIP_GROUPS),
   API_PREFIX: () => (/* reexport */ API_PREFIX),
   APK_INSTALL_CAPABILITY: () => (/* reexport */ APK_INSTALL_CAPABILITY),
+  ARCHIVED_CHIP_LABEL: () => (/* reexport */ ARCHIVED_CHIP_LABEL),
   BASE_CHIP_GROUPS: () => (/* reexport */ BASE_CHIP_GROUPS),
   BILLING_TIERS: () => (/* reexport */ BILLING_TIERS),
   BILLING_TIERS_SET: () => (/* reexport */ BILLING_TIERS_SET),
@@ -33674,6 +33679,10 @@ __nccwpck_require__.d(__webpack_exports__, {
   EXTENSION_EVENT_TYPES: () => (/* reexport */ EXTENSION_EVENT_TYPES),
   FINE_GRAIN_CHIP_GROUPS: () => (/* reexport */ FINE_GRAIN_CHIP_GROUPS),
   FREQUENCY_LABELS: () => (/* reexport */ FREQUENCY_LABELS),
+  JIRA_QA_LABELS: () => (/* reexport */ JIRA_QA_LABELS),
+  JIRA_QA_LABEL_FAILED: () => (/* reexport */ JIRA_QA_LABEL_FAILED),
+  JIRA_QA_LABEL_IN_PROGRESS: () => (/* reexport */ JIRA_QA_LABEL_IN_PROGRESS),
+  JIRA_QA_LABEL_PASSED: () => (/* reexport */ JIRA_QA_LABEL_PASSED),
   JOB_ARTIFACT_TYPES: () => (/* reexport */ JOB_ARTIFACT_TYPES),
   JOB_PRIORITIES: () => (/* reexport */ JOB_PRIORITIES),
   JOB_STATUS: () => (/* reexport */ JOB_STATUS),
@@ -34029,6 +34038,24 @@ const FINE_GRAIN_CHIP_GROUPS = [
     { label: 'Error', statuses: [JOB_STATUS.ERROR] },
     { label: 'Untestable', statuses: [JOB_STATUS.UNTESTABLE] },
 ];
+/**
+ * Flat chip set for the admin `/admin/jobs` list. Each chip maps to a single
+ * (or grouped) status — admins triage status-by-status, so the customer
+ * "Failed" trio is split into Incomplete / Error / Untestable here. Built by
+ * composition from {@link BASE_CHIP_GROUPS} + the failure-status entries from
+ * {@link FINE_GRAIN_CHIP_GROUPS} so adding a new status in one place
+ * automatically flows to both surfaces.
+ */
+const ADMIN_JOB_LIST_CHIP_GROUPS = [
+    ...BASE_CHIP_GROUPS.filter((g) => g.label !== 'Failed'),
+    ...FINE_GRAIN_CHIP_GROUPS.filter((g) => g.label === 'Incomplete' || g.label === 'Error' || g.label === 'Untestable'),
+];
+/**
+ * Special chip label that toggles the "only archived rows" filter on the
+ * admin jobs list (`archivedOnly=true`). Lives in the same chip row as the
+ * status chips so admins can combine e.g. `Archived + Completed`.
+ */
+const ARCHIVED_CHIP_LABEL = 'Archived';
 /**
  * Reference set that defines "covered" for the Other chip. A terminal row that
  * matches NONE of these matchers is surfaced by Other — notably the two
@@ -35108,6 +35135,8 @@ const webRoutes = {
     organizationSentry: defineRoute('/dashboard/organizations/:organizationId/sentry'),
     /** Organization Otto GitHub-App integration page */
     organizationOttoGitHub: defineRoute('/dashboard/organizations/:organizationId/otto-github'),
+    /** Organization Jira integration page */
+    organizationJira: defineRoute('/dashboard/organizations/:organizationId/jira'),
     /** Organization playground (with project selector) */
     organizationPlayground: defineRoute('/dashboard/organizations/:organizationId/playground'),
     /** Organization templates overview (aggregated across projects) */
@@ -35175,6 +35204,8 @@ const webRoutes = {
     issues: defineRoute('/dashboard/:projectId/issues'),
     /** Single issue detail (modal) */
     issue: defineRoute('/dashboard/:projectId/issues/:issueNumber'),
+    /** Single Jira issue detail (modal) — Jira keys have a distinct shape (PROJ-123) so we use a dedicated route */
+    issueJira: defineRoute('/dashboard/:projectId/issues/jira/:issueKey'),
     /** Issue test sessions page */
     issueSessions: defineRoute('/dashboard/:projectId/issue-sessions'),
     /** Single test session detail (modal) */
@@ -35434,6 +35465,41 @@ const apiRoutes = {
     /** Otto GitHub-App top-level webhooks (installation.created / deleted) */
     ottoGithubAppWebhooks: defineRoute('/webhooks/otto-github-app'),
     // ============================================
+    // Jira endpoints
+    // ============================================
+    /** Jira OAuth 2.0 (3LO) authorize — returns Atlassian authorize URL */
+    jiraOAuthAuthorize: defineRoute('/jira/oauth/authorize'),
+    /** Jira OAuth 2.0 (3LO) callback — exchanges code for tokens and persists installation */
+    jiraOAuthCallback: defineRoute('/jira/oauth/callback'),
+    /** List the Jira installation for an organization (empty array if none) */
+    jiraInstallations: defineRoute('/organizations/:organizationId/jira/installations'),
+    /** Disconnect a Jira installation — revokes token + deletes DB row + nulls project keys */
+    jiraInstallationDelete: defineRoute('/organizations/:organizationId/jira/installations/:installationId'),
+    /** List Jira projects accessible via the org's installation (for project picker) */
+    jiraProjects: defineRoute('/organizations/:organizationId/jira/projects'),
+    /** Manually create a Jira issue from a job's extracted finding */
+    jiraIssueCreateManual: defineRoute('/jobs/:jobId/issues/:extractedIssueId/jira'),
+    /** Get the jira_filed_issues mapping for a job (to rehydrate button state) */
+    jiraIssuesForJob: defineRoute('/jobs/:jobId/jira-issues'),
+    /** List Jira issues for a project (by projectId query param) — mirrors githubIssues */
+    jiraIssues: defineRoute('/jira/issues'),
+    /** Get a single Jira issue by key */
+    jiraIssue: defineRoute('/jira/issues/:issueKey'),
+    /** Get comments for a Jira issue */
+    jiraIssueComments: defineRoute('/jira/issues/:issueKey/comments'),
+    /** Test a single Jira issue (creates a 1-item bulk session) */
+    jiraIssueTest: defineRoute('/jira/issues/test'),
+    /** Bulk test multiple Jira issues */
+    jiraIssuesBulkTest: defineRoute('/jira/issues/bulk-test'),
+    /** List Jira test sessions for a project */
+    jiraTestSessions: defineRoute('/jira/issues/test-sessions'),
+    /** Get / cancel a Jira test session by id */
+    jiraTestSession: defineRoute('/jira/issues/test-sessions/:sessionId'),
+    /** Mark a Jira test session as seen */
+    jiraTestSessionSeen: defineRoute('/jira/issues/test-sessions/:sessionId/seen'),
+    /** Get counts of running and unseen Jira test sessions for a project */
+    jiraTestSessionsCounts: defineRoute('/jira/issues/test-sessions/counts'),
+    // ============================================
     // Auth endpoints (Clerk-based)
     // ============================================
     /** Sync user data from Clerk after sign-in */
@@ -35480,6 +35546,8 @@ const apiRoutes = {
     health: defineRoute('/health'),
     /** Detailed system status */
     status: defineRoute('/status'),
+    /** Feature flags resolved for the authenticated user (e.g. Jira visibility) */
+    configFeatureFlags: defineRoute('/config/feature-flags'),
     /** List templates */
     templates: defineRoute('/templates'),
     /** Issue analyzer */
@@ -35673,6 +35741,8 @@ const apiRoutes = {
     organizationRepoIndexes: defineRoute('/organizations/:organizationId/repo-indexes'),
     /** Re-trigger indexing for a single (org, repo) — used by the manual "Re-index" button */
     organizationRepoIndexReindex: defineRoute('/organizations/:organizationId/repo-indexes/reindex'),
+    /** Cancel an in-flight reindex for a single (org, repo) — Cancel button (#3399). */
+    organizationRepoIndexCancel: defineRoute('/organizations/:organizationId/repo-indexes/cancel'),
     // ============================================
     // Transfers endpoints
     // ============================================
@@ -36071,6 +36141,37 @@ This test was not successfully completed. The issue state has not been changed.
     return comment;
 }
 //# sourceMappingURL=comment-template.js.map
+;// CONCATENATED MODULE: ../shared/dist/issue-testing/jira-qa-labels.js
+/**
+ * Jira label constants applied by the Jira test queue (US-033) to signal
+ * test status on issues. These mirror the GitHub `qa-failed` labeling
+ * pattern, but expanded to a triplet so users can see the current state
+ * (in-progress / passed / failed) without inferring it from issue
+ * comments.
+ *
+ * Names use hyphens because Jira labels cannot contain spaces — applying
+ * a label with a space silently strips/rejects it depending on the
+ * Atlassian REST endpoint version.
+ */
+const JIRA_QA_LABEL_IN_PROGRESS = 'runhuman-qa-in-progress';
+const JIRA_QA_LABEL_PASSED = 'runhuman-qa-success';
+const JIRA_QA_LABEL_FAILED = 'runhuman-qa-fail';
+/**
+ * The complete set of QA labels managed by the Jira test queue. Useful
+ * for filter expressions or for "remove all known QA labels" operations.
+ */
+const JIRA_QA_LABELS = Object.freeze([
+    JIRA_QA_LABEL_IN_PROGRESS,
+    JIRA_QA_LABEL_PASSED,
+    JIRA_QA_LABEL_FAILED,
+]);
+//# sourceMappingURL=jira-qa-labels.js.map
+;// CONCATENATED MODULE: ../shared/dist/issue-testing/index.js
+
+
+// Jira QA label constants applied by the Jira test queue
+
+//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/template/template-filter-sort.js
 function filterTemplates(items, criteria) {
     let result = [...items];

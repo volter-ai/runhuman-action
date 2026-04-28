@@ -1,5 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { buildIssueBody, type IssueRenderJob } from '@runhuman/shared';
+import { jobStatusToRenderJob } from './job-like-adapter';
 import type { ExtractedIssue, RunhumanJobResult, TestOutcome } from './types';
 
 type Octokit = ReturnType<typeof github.getOctokit>;
@@ -25,6 +27,15 @@ const SEVERITY_EMOJI: Record<ExtractedIssue['severity'], string> = {
   low: '🔵',
 };
 
+/**
+ * Synthetic minimal `IssueRenderJob` for cases where the runner didn't
+ * carry the full job-status payload through. The body still renders —
+ * only the test-target / device / media sections come back empty.
+ */
+function fallbackRenderJob(jobId: string | undefined): IssueRenderJob {
+  return { id: jobId ?? 'unknown-job', description: '' };
+}
+
 export function renderDigestMarkdown(result: RunhumanJobResult, outcome: TestOutcome): string {
   const { emoji, label } = OUTCOME_PRESENTATION[outcome];
   const bugs = result.extractedIssues ?? [];
@@ -32,10 +43,18 @@ export function renderDigestMarkdown(result: RunhumanJobResult, outcome: TestOut
   const duration = formatDuration(result.durationSeconds);
   const cost = `$${result.costUsd.toFixed(2)}`;
 
+  const renderJob = result.jobStatus
+    ? jobStatusToRenderJob(result.jobStatus)
+    : fallbackRenderJob(result.jobId);
+  const ctx = { jobUrl: result.jobUrl };
+
   const bugsSection =
     bugs.length === 0
       ? '**No bugs found** 🎉'
-      : [`**Bugs found (${bugs.length}):**`, ...bugs.map(renderBugLine)].join('\n');
+      : [
+          `**Bugs found (${bugs.length}):**`,
+          ...bugs.map((bug) => renderBugDetails(bug, renderJob, ctx)),
+        ].join('\n\n');
 
   const jobLink = result.jobUrl
     ? `[View full session (video, key moments, timeline)](${result.jobUrl})`
@@ -55,9 +74,14 @@ export function renderDigestMarkdown(result: RunhumanJobResult, outcome: TestOut
   ].join('\n');
 }
 
-function renderBugLine(bug: ExtractedIssue): string {
-  const firstLine = bug.description.split('\n')[0].trim();
-  return `- ${SEVERITY_EMOJI[bug.severity]} **${bug.severity}** — ${bug.title}\n  ${firstLine}`;
+function renderBugDetails(
+  bug: ExtractedIssue,
+  renderJob: IssueRenderJob,
+  ctx: { jobUrl?: string },
+): string {
+  const summary = `${SEVERITY_EMOJI[bug.severity]} <strong>${bug.severity}</strong> — ${bug.title}`;
+  const body = buildIssueBody(bug, renderJob, ctx);
+  return `<details>\n<summary>${summary}</summary>\n\n${body}\n\n</details>`;
 }
 
 function formatDuration(seconds: number): string {

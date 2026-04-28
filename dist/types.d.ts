@@ -1,9 +1,7 @@
 /**
  * Types for the unified Runhuman GitHub Action
  */
-export type JobStatus = 'pending' | 'preparing' | 'waiting' | 'working' | 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'untestable' | 'error';
-export type TerminalJobStatus = 'completed' | 'incomplete' | 'abandoned' | 'rejected' | 'error' | 'untestable';
-export declare function isTerminalStatus(status: JobStatus): status is TerminalJobStatus;
+export { type JobStatus, type TerminalJobStatus, isTerminalStatus, } from '@runhuman/shared';
 export type DeviceClass = 'desktop' | 'mobile';
 /**
  * Parsed inputs from the action
@@ -230,46 +228,8 @@ export interface CreateJobResponse {
     jobId: string;
     message?: string;
 }
-/** Info about a related existing GitHub issue (from duplicate/related issue detection) */
-export interface RelatedIssueInfo {
-    issueNumber: number;
-    title: string;
-    state: 'open' | 'closed';
-    relation: 'duplicate' | 'related';
-    confidence: number;
-    reason: string;
-}
-/** Issue extracted by AI from test results, optionally enriched with related issue info */
-export interface ExtractedIssue {
-    title: string;
-    description: string;
-    reproductionSteps: string[];
-    severity: 'critical' | 'high' | 'medium' | 'low';
-    suggestedLabels: string[];
-    relatedIssues?: RelatedIssueInfo[];
-}
-/**
- * Response from job status endpoint
- */
-export interface JobStatusResponse {
-    id: string;
-    status: JobStatus;
-    result?: ExtractedResult;
-    error?: string;
-    reason?: string;
-    costUsd?: number;
-    testDurationSeconds?: number;
-    testerData?: unknown;
-    testerResponse?: string;
-    testerAlias?: string;
-    testerAvatarUrl?: string;
-    testerColor?: string;
-    jobUrl?: string;
-    targetDurationMinutes?: number;
-    totalExtensionMinutes?: number;
-    responseDeadline?: string;
-    extractedIssues?: ExtractedIssue[];
-}
+import type { ExtractedIssue, ExtractedIssueWithRelation, RelatedIssueInfo, JobStatusResponse } from '@runhuman/shared';
+export type { ExtractedIssue, ExtractedIssueWithRelation, RelatedIssueInfo, JobStatusResponse, };
 /**
  * Result of running a test for an issue
  */
@@ -284,6 +244,12 @@ export interface RunhumanJobResult {
     jobId?: string;
     jobUrl?: string;
     extractedIssues?: ExtractedIssue[];
+    /**
+     * Final job-status payload from the API. Carried through so the rich
+     * issue-body renderer (`buildIssueBody`) can consume the test target,
+     * device class, recording URLs, etc. without a second fetch.
+     */
+    jobStatus?: JobStatusResponse;
 }
 export type TestOutcome = 'success' | 'failure' | 'not-testable' | 'timeout' | 'error';
 export interface IssueTestResult {

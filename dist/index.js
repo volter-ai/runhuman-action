@@ -1,7 +1,7 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 2062:
+/***/ 2470:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -32,7 +32,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issue = exports.issueCommand = void 0;
 const os = __importStar(__nccwpck_require__(857));
-const utils_1 = __nccwpck_require__(234);
+const utils_1 = __nccwpck_require__(274);
 /**
  * Commands
  *
@@ -104,7 +104,7 @@ function escapeProperty(s) {
 
 /***/ }),
 
-/***/ 2648:
+/***/ 7184:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -143,12 +143,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.platform = exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = exports.markdownSummary = exports.summary = exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
-const command_1 = __nccwpck_require__(2062);
-const file_command_1 = __nccwpck_require__(4261);
-const utils_1 = __nccwpck_require__(234);
+const command_1 = __nccwpck_require__(2470);
+const file_command_1 = __nccwpck_require__(9933);
+const utils_1 = __nccwpck_require__(274);
 const os = __importStar(__nccwpck_require__(857));
 const path = __importStar(__nccwpck_require__(6928));
-const oidc_utils_1 = __nccwpck_require__(8134);
+const oidc_utils_1 = __nccwpck_require__(5950);
 /**
  * The code to exit an action
  */
@@ -433,29 +433,29 @@ exports.getIDToken = getIDToken;
 /**
  * Summary exports
  */
-var summary_1 = __nccwpck_require__(1363);
+var summary_1 = __nccwpck_require__(2491);
 Object.defineProperty(exports, "summary", ({ enumerable: true, get: function () { return summary_1.summary; } }));
 /**
  * @deprecated use core.summary
  */
-var summary_2 = __nccwpck_require__(1363);
+var summary_2 = __nccwpck_require__(2491);
 Object.defineProperty(exports, "markdownSummary", ({ enumerable: true, get: function () { return summary_2.markdownSummary; } }));
 /**
  * Path exports
  */
-var path_utils_1 = __nccwpck_require__(3452);
+var path_utils_1 = __nccwpck_require__(5828);
 Object.defineProperty(exports, "toPosixPath", ({ enumerable: true, get: function () { return path_utils_1.toPosixPath; } }));
 Object.defineProperty(exports, "toWin32Path", ({ enumerable: true, get: function () { return path_utils_1.toWin32Path; } }));
 Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: function () { return path_utils_1.toPlatformPath; } }));
 /**
  * Platform utilities exports
  */
-exports.platform = __importStar(__nccwpck_require__(556));
+exports.platform = __importStar(__nccwpck_require__(7396));
 //# sourceMappingURL=core.js.map
 
 /***/ }),
 
-/***/ 4261:
+/***/ 9933:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -491,7 +491,7 @@ exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 const crypto = __importStar(__nccwpck_require__(6982));
 const fs = __importStar(__nccwpck_require__(9896));
 const os = __importStar(__nccwpck_require__(857));
-const utils_1 = __nccwpck_require__(234);
+const utils_1 = __nccwpck_require__(274);
 function issueFileCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -524,7 +524,7 @@ exports.prepareKeyValueMessage = prepareKeyValueMessage;
 
 /***/ }),
 
-/***/ 8134:
+/***/ 5950:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -540,9 +540,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OidcClient = void 0;
-const http_client_1 = __nccwpck_require__(8824);
-const auth_1 = __nccwpck_require__(9572);
-const core_1 = __nccwpck_require__(2648);
+const http_client_1 = __nccwpck_require__(9920);
+const auth_1 = __nccwpck_require__(4220);
+const core_1 = __nccwpck_require__(7184);
 class OidcClient {
     static createHttpClient(allowRetry = true, maxRetry = 10) {
         const requestOptions = {
@@ -608,7 +608,7 @@ exports.OidcClient = OidcClient;
 
 /***/ }),
 
-/***/ 3452:
+/***/ 5828:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -677,7 +677,7 @@ exports.toPlatformPath = toPlatformPath;
 
 /***/ }),
 
-/***/ 556:
+/***/ 7396:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -720,7 +720,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getDetails = exports.isLinux = exports.isMacOS = exports.isWindows = exports.arch = exports.platform = void 0;
 const os_1 = __importDefault(__nccwpck_require__(857));
-const exec = __importStar(__nccwpck_require__(2803));
+const exec = __importStar(__nccwpck_require__(9192));
 const getWindowsInfo = () => __awaiter(void 0, void 0, void 0, function* () {
     const { stdout: version } = yield exec.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Version"', undefined, {
         silent: true
@@ -778,7 +778,7 @@ exports.getDetails = getDetails;
 
 /***/ }),
 
-/***/ 1363:
+/***/ 2491:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1068,7 +1068,7 @@ exports.summary = _summary;
 
 /***/ }),
 
-/***/ 234:
+/***/ 274:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -1115,7 +1115,7 @@ exports.toCommandProperties = toCommandProperties;
 
 /***/ }),
 
-/***/ 2803:
+/***/ 9192:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1150,8 +1150,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getExecOutput = exports.exec = void 0;
-const string_decoder_1 = __nccwpck_require__(3193);
-const tr = __importStar(__nccwpck_require__(4053));
+const string_decoder_1 = __nccwpck_require__(5574);
+const tr = __importStar(__nccwpck_require__(8317));
 /**
  * Exec a command.
  * Output will be streamed to the live console.
@@ -1225,7 +1225,7 @@ exports.getExecOutput = getExecOutput;
 
 /***/ }),
 
-/***/ 4053:
+/***/ 8317:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1264,8 +1264,8 @@ const os = __importStar(__nccwpck_require__(857));
 const events = __importStar(__nccwpck_require__(4434));
 const child = __importStar(__nccwpck_require__(5317));
 const path = __importStar(__nccwpck_require__(6928));
-const io = __importStar(__nccwpck_require__(8094));
-const ioUtil = __importStar(__nccwpck_require__(5755));
+const io = __importStar(__nccwpck_require__(4502));
+const ioUtil = __importStar(__nccwpck_require__(6499));
 const timers_1 = __nccwpck_require__(3557);
 /* eslint-disable @typescript-eslint/unbound-method */
 const IS_WINDOWS = process.platform === 'win32';
@@ -1850,7 +1850,7 @@ class ExecState extends events.EventEmitter {
 
 /***/ }),
 
-/***/ 9476:
+/***/ 4108:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -1913,7 +1913,7 @@ exports.Context = Context;
 
 /***/ }),
 
-/***/ 3352:
+/***/ 5683:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1943,8 +1943,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getOctokit = exports.context = void 0;
-const Context = __importStar(__nccwpck_require__(9476));
-const utils_1 = __nccwpck_require__(9114);
+const Context = __importStar(__nccwpck_require__(4108));
+const utils_1 = __nccwpck_require__(9010);
 exports.context = new Context.Context();
 /**
  * Returns a hydrated octokit ready to use for GitHub Actions
@@ -1961,7 +1961,7 @@ exports.getOctokit = getOctokit;
 
 /***/ }),
 
-/***/ 224:
+/***/ 4168:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -2000,8 +2000,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getApiBaseUrl = exports.getProxyFetch = exports.getProxyAgentDispatcher = exports.getProxyAgent = exports.getAuthString = void 0;
-const httpClient = __importStar(__nccwpck_require__(8824));
-const undici_1 = __nccwpck_require__(9564);
+const httpClient = __importStar(__nccwpck_require__(9920));
+const undici_1 = __nccwpck_require__(1684);
 function getAuthString(token, options) {
     if (!token && !options.auth) {
         throw new Error('Parameter token or opts.auth is required');
@@ -2038,7 +2038,7 @@ exports.getApiBaseUrl = getApiBaseUrl;
 
 /***/ }),
 
-/***/ 9114:
+/***/ 9010:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -2068,12 +2068,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getOctokitOptions = exports.GitHub = exports.defaults = exports.context = void 0;
-const Context = __importStar(__nccwpck_require__(9476));
-const Utils = __importStar(__nccwpck_require__(224));
+const Context = __importStar(__nccwpck_require__(4108));
+const Utils = __importStar(__nccwpck_require__(4168));
 // octokit + plugins
-const core_1 = __nccwpck_require__(9610);
-const plugin_rest_endpoint_methods_1 = __nccwpck_require__(3451);
-const plugin_paginate_rest_1 = __nccwpck_require__(3078);
+const core_1 = __nccwpck_require__(7205);
+const plugin_rest_endpoint_methods_1 = __nccwpck_require__(6659);
+const plugin_paginate_rest_1 = __nccwpck_require__(3214);
 exports.context = new Context.Context();
 const baseUrl = Utils.getApiBaseUrl();
 exports.defaults = {
@@ -2104,7 +2104,7 @@ exports.getOctokitOptions = getOctokitOptions;
 
 /***/ }),
 
-/***/ 9572:
+/***/ 4220:
 /***/ (function(__unused_webpack_module, exports) {
 
 "use strict";
@@ -2192,7 +2192,7 @@ exports.PersonalAccessTokenCredentialHandler = PersonalAccessTokenCredentialHand
 
 /***/ }),
 
-/***/ 8824:
+/***/ 9920:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -2234,9 +2234,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HttpClient = exports.isHttps = exports.HttpClientResponse = exports.HttpClientError = exports.getProxyUrl = exports.MediaTypes = exports.Headers = exports.HttpCodes = void 0;
 const http = __importStar(__nccwpck_require__(8611));
 const https = __importStar(__nccwpck_require__(5692));
-const pm = __importStar(__nccwpck_require__(8936));
-const tunnel = __importStar(__nccwpck_require__(9254));
-const undici_1 = __nccwpck_require__(9564);
+const pm = __importStar(__nccwpck_require__(8688));
+const tunnel = __importStar(__nccwpck_require__(5070));
+const undici_1 = __nccwpck_require__(1684);
 var HttpCodes;
 (function (HttpCodes) {
     HttpCodes[HttpCodes["OK"] = 200] = "OK";
@@ -2851,7 +2851,7 @@ const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCa
 
 /***/ }),
 
-/***/ 8936:
+/***/ 8688:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -2953,7 +2953,7 @@ class DecodedURL extends URL {
 
 /***/ }),
 
-/***/ 5755:
+/***/ 6499:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -3143,7 +3143,7 @@ exports.getCmdPath = getCmdPath;
 
 /***/ }),
 
-/***/ 8094:
+/***/ 4502:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -3180,7 +3180,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
 const assert_1 = __nccwpck_require__(2613);
 const path = __importStar(__nccwpck_require__(6928));
-const ioUtil = __importStar(__nccwpck_require__(5755));
+const ioUtil = __importStar(__nccwpck_require__(6499));
 /**
  * Copies a file or folder.
  * Based off of shelljs - https://github.com/shelljs/shelljs/blob/9237f66c52e5daa40458f94f9565e18e8132f5a6/src/cp.js
@@ -3449,7 +3449,7 @@ function copyFile(srcFile, destFile, force) {
 
 /***/ }),
 
-/***/ 6756:
+/***/ 3452:
 /***/ ((module) => {
 
 "use strict";
@@ -3534,7 +3534,7 @@ var createTokenAuth = function createTokenAuth2(token) {
 
 /***/ }),
 
-/***/ 9610:
+/***/ 7205:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -3563,11 +3563,11 @@ __export(index_exports, {
   Octokit: () => Octokit
 });
 module.exports = __toCommonJS(index_exports);
-var import_universal_user_agent = __nccwpck_require__(1554);
-var import_before_after_hook = __nccwpck_require__(7344);
-var import_request = __nccwpck_require__(6450);
-var import_graphql = __nccwpck_require__(9338);
-var import_auth_token = __nccwpck_require__(6756);
+var import_universal_user_agent = __nccwpck_require__(4698);
+var import_before_after_hook = __nccwpck_require__(7544);
+var import_request = __nccwpck_require__(8698);
+var import_graphql = __nccwpck_require__(1147);
+var import_auth_token = __nccwpck_require__(3452);
 
 // pkg/dist-src/version.js
 var VERSION = "5.2.2";
@@ -3710,7 +3710,7 @@ var Octokit = class {
 
 /***/ }),
 
-/***/ 1416:
+/***/ 6432:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -3741,7 +3741,7 @@ __export(dist_src_exports, {
 module.exports = __toCommonJS(dist_src_exports);
 
 // pkg/dist-src/defaults.js
-var import_universal_user_agent = __nccwpck_require__(1554);
+var import_universal_user_agent = __nccwpck_require__(4698);
 
 // pkg/dist-src/version.js
 var VERSION = "9.0.6";
@@ -4094,164 +4094,7 @@ var endpoint = withDefaults(null, DEFAULTS);
 
 /***/ }),
 
-/***/ 9338:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// pkg/dist-src/index.js
-var index_exports = {};
-__export(index_exports, {
-  GraphqlResponseError: () => GraphqlResponseError,
-  graphql: () => graphql2,
-  withCustomRequest: () => withCustomRequest
-});
-module.exports = __toCommonJS(index_exports);
-var import_request3 = __nccwpck_require__(6450);
-var import_universal_user_agent = __nccwpck_require__(1554);
-
-// pkg/dist-src/version.js
-var VERSION = "7.1.1";
-
-// pkg/dist-src/with-defaults.js
-var import_request2 = __nccwpck_require__(6450);
-
-// pkg/dist-src/graphql.js
-var import_request = __nccwpck_require__(6450);
-
-// pkg/dist-src/error.js
-function _buildMessageForResponseErrors(data) {
-  return `Request failed due to following response errors:
-` + data.errors.map((e) => ` - ${e.message}`).join("\n");
-}
-var GraphqlResponseError = class extends Error {
-  constructor(request2, headers, response) {
-    super(_buildMessageForResponseErrors(response));
-    this.request = request2;
-    this.headers = headers;
-    this.response = response;
-    this.name = "GraphqlResponseError";
-    this.errors = response.errors;
-    this.data = response.data;
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
-  }
-};
-
-// pkg/dist-src/graphql.js
-var NON_VARIABLE_OPTIONS = [
-  "method",
-  "baseUrl",
-  "url",
-  "headers",
-  "request",
-  "query",
-  "mediaType"
-];
-var FORBIDDEN_VARIABLE_OPTIONS = ["query", "method", "url"];
-var GHES_V3_SUFFIX_REGEX = /\/api\/v3\/?$/;
-function graphql(request2, query, options) {
-  if (options) {
-    if (typeof query === "string" && "query" in options) {
-      return Promise.reject(
-        new Error(`[@octokit/graphql] "query" cannot be used as variable name`)
-      );
-    }
-    for (const key in options) {
-      if (!FORBIDDEN_VARIABLE_OPTIONS.includes(key)) continue;
-      return Promise.reject(
-        new Error(
-          `[@octokit/graphql] "${key}" cannot be used as variable name`
-        )
-      );
-    }
-  }
-  const parsedOptions = typeof query === "string" ? Object.assign({ query }, options) : query;
-  const requestOptions = Object.keys(
-    parsedOptions
-  ).reduce((result, key) => {
-    if (NON_VARIABLE_OPTIONS.includes(key)) {
-      result[key] = parsedOptions[key];
-      return result;
-    }
-    if (!result.variables) {
-      result.variables = {};
-    }
-    result.variables[key] = parsedOptions[key];
-    return result;
-  }, {});
-  const baseUrl = parsedOptions.baseUrl || request2.endpoint.DEFAULTS.baseUrl;
-  if (GHES_V3_SUFFIX_REGEX.test(baseUrl)) {
-    requestOptions.url = baseUrl.replace(GHES_V3_SUFFIX_REGEX, "/api/graphql");
-  }
-  return request2(requestOptions).then((response) => {
-    if (response.data.errors) {
-      const headers = {};
-      for (const key of Object.keys(response.headers)) {
-        headers[key] = response.headers[key];
-      }
-      throw new GraphqlResponseError(
-        requestOptions,
-        headers,
-        response.data
-      );
-    }
-    return response.data.data;
-  });
-}
-
-// pkg/dist-src/with-defaults.js
-function withDefaults(request2, newDefaults) {
-  const newRequest = request2.defaults(newDefaults);
-  const newApi = (query, options) => {
-    return graphql(newRequest, query, options);
-  };
-  return Object.assign(newApi, {
-    defaults: withDefaults.bind(null, newRequest),
-    endpoint: newRequest.endpoint
-  });
-}
-
-// pkg/dist-src/index.js
-var graphql2 = withDefaults(import_request3.request, {
-  headers: {
-    "user-agent": `octokit-graphql.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`
-  },
-  method: "POST",
-  url: "/graphql"
-});
-function withCustomRequest(customRequest) {
-  return withDefaults(customRequest, {
-    method: "POST",
-    url: "/graphql"
-  });
-}
-// Annotate the CommonJS export names for ESM import in node:
-0 && (0);
-
-
-/***/ }),
-
-/***/ 5485:
+/***/ 7077:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4290,8 +4133,8 @@ __export(dist_src_exports, {
   RequestError: () => RequestError
 });
 module.exports = __toCommonJS(dist_src_exports);
-var import_deprecation = __nccwpck_require__(7826);
-var import_once = __toESM(__nccwpck_require__(7740));
+var import_deprecation = __nccwpck_require__(5802);
+var import_once = __toESM(__nccwpck_require__(423));
 var logOnceCode = (0, import_once.default)((deprecation) => console.warn(deprecation));
 var logOnceHeaders = (0, import_once.default)((deprecation) => console.warn(deprecation));
 var RequestError = class extends Error {
@@ -4349,7 +4192,7 @@ var RequestError = class extends Error {
 
 /***/ }),
 
-/***/ 6450:
+/***/ 8698:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -4378,8 +4221,8 @@ __export(dist_src_exports, {
   request: () => request
 });
 module.exports = __toCommonJS(dist_src_exports);
-var import_endpoint = __nccwpck_require__(1416);
-var import_universal_user_agent = __nccwpck_require__(1554);
+var import_endpoint = __nccwpck_require__(6432);
+var import_universal_user_agent = __nccwpck_require__(4698);
 
 // pkg/dist-src/version.js
 var VERSION = "8.4.1";
@@ -4398,7 +4241,7 @@ function isPlainObject(value) {
 }
 
 // pkg/dist-src/fetch-wrapper.js
-var import_request_error = __nccwpck_require__(5485);
+var import_request_error = __nccwpck_require__(7077);
 
 // pkg/dist-src/get-buffer-response.js
 function getBufferResponse(response) {
@@ -4579,7 +4422,7 @@ var request = withDefaults(import_endpoint.endpoint, {
 
 /***/ }),
 
-/***/ 1554:
+/***/ 4698:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -4605,7 +4448,902 @@ exports.getUserAgent = getUserAgent;
 
 /***/ }),
 
-/***/ 3078:
+/***/ 1147:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// pkg/dist-src/index.js
+var index_exports = {};
+__export(index_exports, {
+  GraphqlResponseError: () => GraphqlResponseError,
+  graphql: () => graphql2,
+  withCustomRequest: () => withCustomRequest
+});
+module.exports = __toCommonJS(index_exports);
+var import_request3 = __nccwpck_require__(9160);
+var import_universal_user_agent = __nccwpck_require__(5716);
+
+// pkg/dist-src/version.js
+var VERSION = "7.1.1";
+
+// pkg/dist-src/with-defaults.js
+var import_request2 = __nccwpck_require__(9160);
+
+// pkg/dist-src/graphql.js
+var import_request = __nccwpck_require__(9160);
+
+// pkg/dist-src/error.js
+function _buildMessageForResponseErrors(data) {
+  return `Request failed due to following response errors:
+` + data.errors.map((e) => ` - ${e.message}`).join("\n");
+}
+var GraphqlResponseError = class extends Error {
+  constructor(request2, headers, response) {
+    super(_buildMessageForResponseErrors(response));
+    this.request = request2;
+    this.headers = headers;
+    this.response = response;
+    this.name = "GraphqlResponseError";
+    this.errors = response.errors;
+    this.data = response.data;
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+};
+
+// pkg/dist-src/graphql.js
+var NON_VARIABLE_OPTIONS = [
+  "method",
+  "baseUrl",
+  "url",
+  "headers",
+  "request",
+  "query",
+  "mediaType"
+];
+var FORBIDDEN_VARIABLE_OPTIONS = ["query", "method", "url"];
+var GHES_V3_SUFFIX_REGEX = /\/api\/v3\/?$/;
+function graphql(request2, query, options) {
+  if (options) {
+    if (typeof query === "string" && "query" in options) {
+      return Promise.reject(
+        new Error(`[@octokit/graphql] "query" cannot be used as variable name`)
+      );
+    }
+    for (const key in options) {
+      if (!FORBIDDEN_VARIABLE_OPTIONS.includes(key)) continue;
+      return Promise.reject(
+        new Error(
+          `[@octokit/graphql] "${key}" cannot be used as variable name`
+        )
+      );
+    }
+  }
+  const parsedOptions = typeof query === "string" ? Object.assign({ query }, options) : query;
+  const requestOptions = Object.keys(
+    parsedOptions
+  ).reduce((result, key) => {
+    if (NON_VARIABLE_OPTIONS.includes(key)) {
+      result[key] = parsedOptions[key];
+      return result;
+    }
+    if (!result.variables) {
+      result.variables = {};
+    }
+    result.variables[key] = parsedOptions[key];
+    return result;
+  }, {});
+  const baseUrl = parsedOptions.baseUrl || request2.endpoint.DEFAULTS.baseUrl;
+  if (GHES_V3_SUFFIX_REGEX.test(baseUrl)) {
+    requestOptions.url = baseUrl.replace(GHES_V3_SUFFIX_REGEX, "/api/graphql");
+  }
+  return request2(requestOptions).then((response) => {
+    if (response.data.errors) {
+      const headers = {};
+      for (const key of Object.keys(response.headers)) {
+        headers[key] = response.headers[key];
+      }
+      throw new GraphqlResponseError(
+        requestOptions,
+        headers,
+        response.data
+      );
+    }
+    return response.data.data;
+  });
+}
+
+// pkg/dist-src/with-defaults.js
+function withDefaults(request2, newDefaults) {
+  const newRequest = request2.defaults(newDefaults);
+  const newApi = (query, options) => {
+    return graphql(newRequest, query, options);
+  };
+  return Object.assign(newApi, {
+    defaults: withDefaults.bind(null, newRequest),
+    endpoint: newRequest.endpoint
+  });
+}
+
+// pkg/dist-src/index.js
+var graphql2 = withDefaults(import_request3.request, {
+  headers: {
+    "user-agent": `octokit-graphql.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`
+  },
+  method: "POST",
+  url: "/graphql"
+});
+function withCustomRequest(customRequest) {
+  return withDefaults(customRequest, {
+    method: "POST",
+    url: "/graphql"
+  });
+}
+// Annotate the CommonJS export names for ESM import in node:
+0 && (0);
+
+
+/***/ }),
+
+/***/ 3422:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// pkg/dist-src/index.js
+var dist_src_exports = {};
+__export(dist_src_exports, {
+  endpoint: () => endpoint
+});
+module.exports = __toCommonJS(dist_src_exports);
+
+// pkg/dist-src/defaults.js
+var import_universal_user_agent = __nccwpck_require__(5716);
+
+// pkg/dist-src/version.js
+var VERSION = "9.0.6";
+
+// pkg/dist-src/defaults.js
+var userAgent = `octokit-endpoint.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`;
+var DEFAULTS = {
+  method: "GET",
+  baseUrl: "https://api.github.com",
+  headers: {
+    accept: "application/vnd.github.v3+json",
+    "user-agent": userAgent
+  },
+  mediaType: {
+    format: ""
+  }
+};
+
+// pkg/dist-src/util/lowercase-keys.js
+function lowercaseKeys(object) {
+  if (!object) {
+    return {};
+  }
+  return Object.keys(object).reduce((newObj, key) => {
+    newObj[key.toLowerCase()] = object[key];
+    return newObj;
+  }, {});
+}
+
+// pkg/dist-src/util/is-plain-object.js
+function isPlainObject(value) {
+  if (typeof value !== "object" || value === null)
+    return false;
+  if (Object.prototype.toString.call(value) !== "[object Object]")
+    return false;
+  const proto = Object.getPrototypeOf(value);
+  if (proto === null)
+    return true;
+  const Ctor = Object.prototype.hasOwnProperty.call(proto, "constructor") && proto.constructor;
+  return typeof Ctor === "function" && Ctor instanceof Ctor && Function.prototype.call(Ctor) === Function.prototype.call(value);
+}
+
+// pkg/dist-src/util/merge-deep.js
+function mergeDeep(defaults, options) {
+  const result = Object.assign({}, defaults);
+  Object.keys(options).forEach((key) => {
+    if (isPlainObject(options[key])) {
+      if (!(key in defaults))
+        Object.assign(result, { [key]: options[key] });
+      else
+        result[key] = mergeDeep(defaults[key], options[key]);
+    } else {
+      Object.assign(result, { [key]: options[key] });
+    }
+  });
+  return result;
+}
+
+// pkg/dist-src/util/remove-undefined-properties.js
+function removeUndefinedProperties(obj) {
+  for (const key in obj) {
+    if (obj[key] === void 0) {
+      delete obj[key];
+    }
+  }
+  return obj;
+}
+
+// pkg/dist-src/merge.js
+function merge(defaults, route, options) {
+  if (typeof route === "string") {
+    let [method, url] = route.split(" ");
+    options = Object.assign(url ? { method, url } : { url: method }, options);
+  } else {
+    options = Object.assign({}, route);
+  }
+  options.headers = lowercaseKeys(options.headers);
+  removeUndefinedProperties(options);
+  removeUndefinedProperties(options.headers);
+  const mergedOptions = mergeDeep(defaults || {}, options);
+  if (options.url === "/graphql") {
+    if (defaults && defaults.mediaType.previews?.length) {
+      mergedOptions.mediaType.previews = defaults.mediaType.previews.filter(
+        (preview) => !mergedOptions.mediaType.previews.includes(preview)
+      ).concat(mergedOptions.mediaType.previews);
+    }
+    mergedOptions.mediaType.previews = (mergedOptions.mediaType.previews || []).map((preview) => preview.replace(/-preview/, ""));
+  }
+  return mergedOptions;
+}
+
+// pkg/dist-src/util/add-query-parameters.js
+function addQueryParameters(url, parameters) {
+  const separator = /\?/.test(url) ? "&" : "?";
+  const names = Object.keys(parameters);
+  if (names.length === 0) {
+    return url;
+  }
+  return url + separator + names.map((name) => {
+    if (name === "q") {
+      return "q=" + parameters.q.split("+").map(encodeURIComponent).join("+");
+    }
+    return `${name}=${encodeURIComponent(parameters[name])}`;
+  }).join("&");
+}
+
+// pkg/dist-src/util/extract-url-variable-names.js
+var urlVariableRegex = /\{[^{}}]+\}/g;
+function removeNonChars(variableName) {
+  return variableName.replace(/(?:^\W+)|(?:(?<!\W)\W+$)/g, "").split(/,/);
+}
+function extractUrlVariableNames(url) {
+  const matches = url.match(urlVariableRegex);
+  if (!matches) {
+    return [];
+  }
+  return matches.map(removeNonChars).reduce((a, b) => a.concat(b), []);
+}
+
+// pkg/dist-src/util/omit.js
+function omit(object, keysToOmit) {
+  const result = { __proto__: null };
+  for (const key of Object.keys(object)) {
+    if (keysToOmit.indexOf(key) === -1) {
+      result[key] = object[key];
+    }
+  }
+  return result;
+}
+
+// pkg/dist-src/util/url-template.js
+function encodeReserved(str) {
+  return str.split(/(%[0-9A-Fa-f]{2})/g).map(function(part) {
+    if (!/%[0-9A-Fa-f]/.test(part)) {
+      part = encodeURI(part).replace(/%5B/g, "[").replace(/%5D/g, "]");
+    }
+    return part;
+  }).join("");
+}
+function encodeUnreserved(str) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+    return "%" + c.charCodeAt(0).toString(16).toUpperCase();
+  });
+}
+function encodeValue(operator, value, key) {
+  value = operator === "+" || operator === "#" ? encodeReserved(value) : encodeUnreserved(value);
+  if (key) {
+    return encodeUnreserved(key) + "=" + value;
+  } else {
+    return value;
+  }
+}
+function isDefined(value) {
+  return value !== void 0 && value !== null;
+}
+function isKeyOperator(operator) {
+  return operator === ";" || operator === "&" || operator === "?";
+}
+function getValues(context, operator, key, modifier) {
+  var value = context[key], result = [];
+  if (isDefined(value) && value !== "") {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      value = value.toString();
+      if (modifier && modifier !== "*") {
+        value = value.substring(0, parseInt(modifier, 10));
+      }
+      result.push(
+        encodeValue(operator, value, isKeyOperator(operator) ? key : "")
+      );
+    } else {
+      if (modifier === "*") {
+        if (Array.isArray(value)) {
+          value.filter(isDefined).forEach(function(value2) {
+            result.push(
+              encodeValue(operator, value2, isKeyOperator(operator) ? key : "")
+            );
+          });
+        } else {
+          Object.keys(value).forEach(function(k) {
+            if (isDefined(value[k])) {
+              result.push(encodeValue(operator, value[k], k));
+            }
+          });
+        }
+      } else {
+        const tmp = [];
+        if (Array.isArray(value)) {
+          value.filter(isDefined).forEach(function(value2) {
+            tmp.push(encodeValue(operator, value2));
+          });
+        } else {
+          Object.keys(value).forEach(function(k) {
+            if (isDefined(value[k])) {
+              tmp.push(encodeUnreserved(k));
+              tmp.push(encodeValue(operator, value[k].toString()));
+            }
+          });
+        }
+        if (isKeyOperator(operator)) {
+          result.push(encodeUnreserved(key) + "=" + tmp.join(","));
+        } else if (tmp.length !== 0) {
+          result.push(tmp.join(","));
+        }
+      }
+    }
+  } else {
+    if (operator === ";") {
+      if (isDefined(value)) {
+        result.push(encodeUnreserved(key));
+      }
+    } else if (value === "" && (operator === "&" || operator === "?")) {
+      result.push(encodeUnreserved(key) + "=");
+    } else if (value === "") {
+      result.push("");
+    }
+  }
+  return result;
+}
+function parseUrl(template) {
+  return {
+    expand: expand.bind(null, template)
+  };
+}
+function expand(template, context) {
+  var operators = ["+", "#", ".", "/", ";", "?", "&"];
+  template = template.replace(
+    /\{([^\{\}]+)\}|([^\{\}]+)/g,
+    function(_, expression, literal) {
+      if (expression) {
+        let operator = "";
+        const values = [];
+        if (operators.indexOf(expression.charAt(0)) !== -1) {
+          operator = expression.charAt(0);
+          expression = expression.substr(1);
+        }
+        expression.split(/,/g).forEach(function(variable) {
+          var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
+          values.push(getValues(context, operator, tmp[1], tmp[2] || tmp[3]));
+        });
+        if (operator && operator !== "+") {
+          var separator = ",";
+          if (operator === "?") {
+            separator = "&";
+          } else if (operator !== "#") {
+            separator = operator;
+          }
+          return (values.length !== 0 ? operator : "") + values.join(separator);
+        } else {
+          return values.join(",");
+        }
+      } else {
+        return encodeReserved(literal);
+      }
+    }
+  );
+  if (template === "/") {
+    return template;
+  } else {
+    return template.replace(/\/$/, "");
+  }
+}
+
+// pkg/dist-src/parse.js
+function parse(options) {
+  let method = options.method.toUpperCase();
+  let url = (options.url || "/").replace(/:([a-z]\w+)/g, "{$1}");
+  let headers = Object.assign({}, options.headers);
+  let body;
+  let parameters = omit(options, [
+    "method",
+    "baseUrl",
+    "url",
+    "headers",
+    "request",
+    "mediaType"
+  ]);
+  const urlVariableNames = extractUrlVariableNames(url);
+  url = parseUrl(url).expand(parameters);
+  if (!/^http/.test(url)) {
+    url = options.baseUrl + url;
+  }
+  const omittedParameters = Object.keys(options).filter((option) => urlVariableNames.includes(option)).concat("baseUrl");
+  const remainingParameters = omit(parameters, omittedParameters);
+  const isBinaryRequest = /application\/octet-stream/i.test(headers.accept);
+  if (!isBinaryRequest) {
+    if (options.mediaType.format) {
+      headers.accept = headers.accept.split(/,/).map(
+        (format) => format.replace(
+          /application\/vnd(\.\w+)(\.v3)?(\.\w+)?(\+json)?$/,
+          `application/vnd$1$2.${options.mediaType.format}`
+        )
+      ).join(",");
+    }
+    if (url.endsWith("/graphql")) {
+      if (options.mediaType.previews?.length) {
+        const previewsFromAcceptHeader = headers.accept.match(/(?<![\w-])[\w-]+(?=-preview)/g) || [];
+        headers.accept = previewsFromAcceptHeader.concat(options.mediaType.previews).map((preview) => {
+          const format = options.mediaType.format ? `.${options.mediaType.format}` : "+json";
+          return `application/vnd.github.${preview}-preview${format}`;
+        }).join(",");
+      }
+    }
+  }
+  if (["GET", "HEAD"].includes(method)) {
+    url = addQueryParameters(url, remainingParameters);
+  } else {
+    if ("data" in remainingParameters) {
+      body = remainingParameters.data;
+    } else {
+      if (Object.keys(remainingParameters).length) {
+        body = remainingParameters;
+      }
+    }
+  }
+  if (!headers["content-type"] && typeof body !== "undefined") {
+    headers["content-type"] = "application/json; charset=utf-8";
+  }
+  if (["PATCH", "PUT"].includes(method) && typeof body === "undefined") {
+    body = "";
+  }
+  return Object.assign(
+    { method, url, headers },
+    typeof body !== "undefined" ? { body } : null,
+    options.request ? { request: options.request } : null
+  );
+}
+
+// pkg/dist-src/endpoint-with-defaults.js
+function endpointWithDefaults(defaults, route, options) {
+  return parse(merge(defaults, route, options));
+}
+
+// pkg/dist-src/with-defaults.js
+function withDefaults(oldDefaults, newDefaults) {
+  const DEFAULTS2 = merge(oldDefaults, newDefaults);
+  const endpoint2 = endpointWithDefaults.bind(null, DEFAULTS2);
+  return Object.assign(endpoint2, {
+    DEFAULTS: DEFAULTS2,
+    defaults: withDefaults.bind(null, DEFAULTS2),
+    merge: merge.bind(null, DEFAULTS2),
+    parse
+  });
+}
+
+// pkg/dist-src/index.js
+var endpoint = withDefaults(null, DEFAULTS);
+// Annotate the CommonJS export names for ESM import in node:
+0 && (0);
+
+
+/***/ }),
+
+/***/ 9275:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// pkg/dist-src/index.js
+var dist_src_exports = {};
+__export(dist_src_exports, {
+  RequestError: () => RequestError
+});
+module.exports = __toCommonJS(dist_src_exports);
+var import_deprecation = __nccwpck_require__(5802);
+var import_once = __toESM(__nccwpck_require__(423));
+var logOnceCode = (0, import_once.default)((deprecation) => console.warn(deprecation));
+var logOnceHeaders = (0, import_once.default)((deprecation) => console.warn(deprecation));
+var RequestError = class extends Error {
+  constructor(message, statusCode, options) {
+    super(message);
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    this.name = "HttpError";
+    this.status = statusCode;
+    let headers;
+    if ("headers" in options && typeof options.headers !== "undefined") {
+      headers = options.headers;
+    }
+    if ("response" in options) {
+      this.response = options.response;
+      headers = options.response.headers;
+    }
+    const requestCopy = Object.assign({}, options.request);
+    if (options.request.headers.authorization) {
+      requestCopy.headers = Object.assign({}, options.request.headers, {
+        authorization: options.request.headers.authorization.replace(
+          /(?<! ) .*$/,
+          " [REDACTED]"
+        )
+      });
+    }
+    requestCopy.url = requestCopy.url.replace(/\bclient_secret=\w+/g, "client_secret=[REDACTED]").replace(/\baccess_token=\w+/g, "access_token=[REDACTED]");
+    this.request = requestCopy;
+    Object.defineProperty(this, "code", {
+      get() {
+        logOnceCode(
+          new import_deprecation.Deprecation(
+            "[@octokit/request-error] `error.code` is deprecated, use `error.status`."
+          )
+        );
+        return statusCode;
+      }
+    });
+    Object.defineProperty(this, "headers", {
+      get() {
+        logOnceHeaders(
+          new import_deprecation.Deprecation(
+            "[@octokit/request-error] `error.headers` is deprecated, use `error.response.headers`."
+          )
+        );
+        return headers || {};
+      }
+    });
+  }
+};
+// Annotate the CommonJS export names for ESM import in node:
+0 && (0);
+
+
+/***/ }),
+
+/***/ 9160:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// pkg/dist-src/index.js
+var dist_src_exports = {};
+__export(dist_src_exports, {
+  request: () => request
+});
+module.exports = __toCommonJS(dist_src_exports);
+var import_endpoint = __nccwpck_require__(3422);
+var import_universal_user_agent = __nccwpck_require__(5716);
+
+// pkg/dist-src/version.js
+var VERSION = "8.4.1";
+
+// pkg/dist-src/is-plain-object.js
+function isPlainObject(value) {
+  if (typeof value !== "object" || value === null)
+    return false;
+  if (Object.prototype.toString.call(value) !== "[object Object]")
+    return false;
+  const proto = Object.getPrototypeOf(value);
+  if (proto === null)
+    return true;
+  const Ctor = Object.prototype.hasOwnProperty.call(proto, "constructor") && proto.constructor;
+  return typeof Ctor === "function" && Ctor instanceof Ctor && Function.prototype.call(Ctor) === Function.prototype.call(value);
+}
+
+// pkg/dist-src/fetch-wrapper.js
+var import_request_error = __nccwpck_require__(9275);
+
+// pkg/dist-src/get-buffer-response.js
+function getBufferResponse(response) {
+  return response.arrayBuffer();
+}
+
+// pkg/dist-src/fetch-wrapper.js
+function fetchWrapper(requestOptions) {
+  var _a, _b, _c, _d;
+  const log = requestOptions.request && requestOptions.request.log ? requestOptions.request.log : console;
+  const parseSuccessResponseBody = ((_a = requestOptions.request) == null ? void 0 : _a.parseSuccessResponseBody) !== false;
+  if (isPlainObject(requestOptions.body) || Array.isArray(requestOptions.body)) {
+    requestOptions.body = JSON.stringify(requestOptions.body);
+  }
+  let headers = {};
+  let status;
+  let url;
+  let { fetch } = globalThis;
+  if ((_b = requestOptions.request) == null ? void 0 : _b.fetch) {
+    fetch = requestOptions.request.fetch;
+  }
+  if (!fetch) {
+    throw new Error(
+      "fetch is not set. Please pass a fetch implementation as new Octokit({ request: { fetch }}). Learn more at https://github.com/octokit/octokit.js/#fetch-missing"
+    );
+  }
+  return fetch(requestOptions.url, {
+    method: requestOptions.method,
+    body: requestOptions.body,
+    redirect: (_c = requestOptions.request) == null ? void 0 : _c.redirect,
+    headers: requestOptions.headers,
+    signal: (_d = requestOptions.request) == null ? void 0 : _d.signal,
+    // duplex must be set if request.body is ReadableStream or Async Iterables.
+    // See https://fetch.spec.whatwg.org/#dom-requestinit-duplex.
+    ...requestOptions.body && { duplex: "half" }
+  }).then(async (response) => {
+    url = response.url;
+    status = response.status;
+    for (const keyAndValue of response.headers) {
+      headers[keyAndValue[0]] = keyAndValue[1];
+    }
+    if ("deprecation" in headers) {
+      const matches = headers.link && headers.link.match(/<([^<>]+)>; rel="deprecation"/);
+      const deprecationLink = matches && matches.pop();
+      log.warn(
+        `[@octokit/request] "${requestOptions.method} ${requestOptions.url}" is deprecated. It is scheduled to be removed on ${headers.sunset}${deprecationLink ? `. See ${deprecationLink}` : ""}`
+      );
+    }
+    if (status === 204 || status === 205) {
+      return;
+    }
+    if (requestOptions.method === "HEAD") {
+      if (status < 400) {
+        return;
+      }
+      throw new import_request_error.RequestError(response.statusText, status, {
+        response: {
+          url,
+          status,
+          headers,
+          data: void 0
+        },
+        request: requestOptions
+      });
+    }
+    if (status === 304) {
+      throw new import_request_error.RequestError("Not modified", status, {
+        response: {
+          url,
+          status,
+          headers,
+          data: await getResponseData(response)
+        },
+        request: requestOptions
+      });
+    }
+    if (status >= 400) {
+      const data = await getResponseData(response);
+      const error = new import_request_error.RequestError(toErrorMessage(data), status, {
+        response: {
+          url,
+          status,
+          headers,
+          data
+        },
+        request: requestOptions
+      });
+      throw error;
+    }
+    return parseSuccessResponseBody ? await getResponseData(response) : response.body;
+  }).then((data) => {
+    return {
+      status,
+      url,
+      headers,
+      data
+    };
+  }).catch((error) => {
+    if (error instanceof import_request_error.RequestError)
+      throw error;
+    else if (error.name === "AbortError")
+      throw error;
+    let message = error.message;
+    if (error.name === "TypeError" && "cause" in error) {
+      if (error.cause instanceof Error) {
+        message = error.cause.message;
+      } else if (typeof error.cause === "string") {
+        message = error.cause;
+      }
+    }
+    throw new import_request_error.RequestError(message, 500, {
+      request: requestOptions
+    });
+  });
+}
+async function getResponseData(response) {
+  const contentType = response.headers.get("content-type");
+  if (/application\/json/.test(contentType)) {
+    return response.json().catch(() => response.text()).catch(() => "");
+  }
+  if (!contentType || /^text\/|charset=utf-8$/.test(contentType)) {
+    return response.text();
+  }
+  return getBufferResponse(response);
+}
+function toErrorMessage(data) {
+  if (typeof data === "string")
+    return data;
+  let suffix;
+  if ("documentation_url" in data) {
+    suffix = ` - ${data.documentation_url}`;
+  } else {
+    suffix = "";
+  }
+  if ("message" in data) {
+    if (Array.isArray(data.errors)) {
+      return `${data.message}: ${data.errors.map(JSON.stringify).join(", ")}${suffix}`;
+    }
+    return `${data.message}${suffix}`;
+  }
+  return `Unknown error: ${JSON.stringify(data)}`;
+}
+
+// pkg/dist-src/with-defaults.js
+function withDefaults(oldEndpoint, newDefaults) {
+  const endpoint2 = oldEndpoint.defaults(newDefaults);
+  const newApi = function(route, parameters) {
+    const endpointOptions = endpoint2.merge(route, parameters);
+    if (!endpointOptions.request || !endpointOptions.request.hook) {
+      return fetchWrapper(endpoint2.parse(endpointOptions));
+    }
+    const request2 = (route2, parameters2) => {
+      return fetchWrapper(
+        endpoint2.parse(endpoint2.merge(route2, parameters2))
+      );
+    };
+    Object.assign(request2, {
+      endpoint: endpoint2,
+      defaults: withDefaults.bind(null, endpoint2)
+    });
+    return endpointOptions.request.hook(request2, endpointOptions);
+  };
+  return Object.assign(newApi, {
+    endpoint: endpoint2,
+    defaults: withDefaults.bind(null, endpoint2)
+  });
+}
+
+// pkg/dist-src/index.js
+var request = withDefaults(import_endpoint.endpoint, {
+  headers: {
+    "user-agent": `octokit-request.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`
+  }
+});
+// Annotate the CommonJS export names for ESM import in node:
+0 && (0);
+
+
+/***/ }),
+
+/***/ 5716:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+function getUserAgent() {
+  if (typeof navigator === "object" && "userAgent" in navigator) {
+    return navigator.userAgent;
+  }
+
+  if (typeof process === "object" && process.version !== undefined) {
+    return `Node.js/${process.version.substr(1)} (${process.platform}; ${process.arch})`;
+  }
+
+  return "<environment undetectable>";
+}
+
+exports.getUserAgent = getUserAgent;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 3214:
 /***/ ((module) => {
 
 "use strict";
@@ -5006,7 +5744,7 @@ paginateRest.VERSION = VERSION;
 
 /***/ }),
 
-/***/ 3451:
+/***/ 6659:
 /***/ ((module) => {
 
 "use strict";
@@ -7176,12 +7914,12 @@ legacyRestEndpointMethods.VERSION = VERSION;
 
 /***/ }),
 
-/***/ 7344:
+/***/ 7544:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var register = __nccwpck_require__(4584);
-var addHook = __nccwpck_require__(8151);
-var removeHook = __nccwpck_require__(7850);
+var register = __nccwpck_require__(6371);
+var addHook = __nccwpck_require__(8191);
+var removeHook = __nccwpck_require__(8802);
 
 // bind with array of arguments: https://stackoverflow.com/a/21792913
 var bind = Function.bind;
@@ -7244,7 +7982,7 @@ module.exports.Collection = Hook.Collection;
 
 /***/ }),
 
-/***/ 8151:
+/***/ 8191:
 /***/ ((module) => {
 
 module.exports = addHook;
@@ -7297,7 +8035,7 @@ function addHook(state, kind, name, hook) {
 
 /***/ }),
 
-/***/ 4584:
+/***/ 6371:
 /***/ ((module) => {
 
 module.exports = register;
@@ -7331,7 +8069,7 @@ function register(state, name, method, options) {
 
 /***/ }),
 
-/***/ 7850:
+/***/ 8802:
 /***/ ((module) => {
 
 module.exports = removeHook;
@@ -7357,7 +8095,7 @@ function removeHook(state, name, method) {
 
 /***/ }),
 
-/***/ 7826:
+/***/ 5802:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -7385,10 +8123,10 @@ exports.Deprecation = Deprecation;
 
 /***/ }),
 
-/***/ 7740:
+/***/ 423:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var wrappy = __nccwpck_require__(892)
+var wrappy = __nccwpck_require__(7460)
 module.exports = wrappy(once)
 module.exports.strict = wrappy(onceStrict)
 
@@ -7434,15 +8172,15 @@ function onceStrict (fn) {
 
 /***/ }),
 
-/***/ 9254:
+/***/ 5070:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-module.exports = __nccwpck_require__(8110);
+module.exports = __nccwpck_require__(5862);
 
 
 /***/ }),
 
-/***/ 8110:
+/***/ 5862:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -7714,32 +8452,32 @@ exports.debug = debug; // for test
 
 /***/ }),
 
-/***/ 9564:
+/***/ 1684:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Client = __nccwpck_require__(1841)
-const Dispatcher = __nccwpck_require__(6535)
-const errors = __nccwpck_require__(6751)
-const Pool = __nccwpck_require__(3512)
-const BalancedPool = __nccwpck_require__(9673)
-const Agent = __nccwpck_require__(2193)
-const util = __nccwpck_require__(9796)
+const Client = __nccwpck_require__(5513)
+const Dispatcher = __nccwpck_require__(303)
+const errors = __nccwpck_require__(3959)
+const Pool = __nccwpck_require__(4288)
+const BalancedPool = __nccwpck_require__(5377)
+const Agent = __nccwpck_require__(2121)
+const util = __nccwpck_require__(9500)
 const { InvalidArgumentError } = errors
-const api = __nccwpck_require__(331)
-const buildConnector = __nccwpck_require__(3676)
-const MockClient = __nccwpck_require__(2065)
-const MockAgent = __nccwpck_require__(1793)
-const MockPool = __nccwpck_require__(4024)
-const mockErrors = __nccwpck_require__(9753)
-const ProxyAgent = __nccwpck_require__(5588)
-const RetryHandler = __nccwpck_require__(7689)
-const { getGlobalDispatcher, setGlobalDispatcher } = __nccwpck_require__(1521)
-const DecoratorHandler = __nccwpck_require__(6084)
-const RedirectHandler = __nccwpck_require__(247)
-const createRedirectInterceptor = __nccwpck_require__(4155)
+const api = __nccwpck_require__(2531)
+const buildConnector = __nccwpck_require__(1332)
+const MockClient = __nccwpck_require__(2361)
+const MockAgent = __nccwpck_require__(7017)
+const MockPool = __nccwpck_require__(6480)
+const mockErrors = __nccwpck_require__(2673)
+const ProxyAgent = __nccwpck_require__(9276)
+const RetryHandler = __nccwpck_require__(9569)
+const { getGlobalDispatcher, setGlobalDispatcher } = __nccwpck_require__(1481)
+const DecoratorHandler = __nccwpck_require__(1468)
+const RedirectHandler = __nccwpck_require__(8591)
+const createRedirectInterceptor = __nccwpck_require__(9299)
 
 let hasCrypto
 try {
@@ -7822,7 +8560,7 @@ if (util.nodeMajor > 16 || (util.nodeMajor === 16 && util.nodeMinor >= 8)) {
   let fetchImpl = null
   module.exports.fetch = async function fetch (resource) {
     if (!fetchImpl) {
-      fetchImpl = (__nccwpck_require__(3319).fetch)
+      fetchImpl = (__nccwpck_require__(1503).fetch)
     }
 
     try {
@@ -7835,20 +8573,20 @@ if (util.nodeMajor > 16 || (util.nodeMajor === 16 && util.nodeMinor >= 8)) {
       throw err
     }
   }
-  module.exports.Headers = __nccwpck_require__(6969).Headers
-  module.exports.Response = __nccwpck_require__(2016).Response
-  module.exports.Request = __nccwpck_require__(1054).Request
-  module.exports.FormData = __nccwpck_require__(3941).FormData
-  module.exports.File = __nccwpck_require__(6357).File
-  module.exports.FileReader = __nccwpck_require__(5324).FileReader
+  module.exports.Headers = __nccwpck_require__(2801).Headers
+  module.exports.Response = __nccwpck_require__(9928).Response
+  module.exports.Request = __nccwpck_require__(2630).Request
+  module.exports.FormData = __nccwpck_require__(7453).FormData
+  module.exports.File = __nccwpck_require__(7005).File
+  module.exports.FileReader = __nccwpck_require__(52).FileReader
 
-  const { setGlobalOrigin, getGlobalOrigin } = __nccwpck_require__(7640)
+  const { setGlobalOrigin, getGlobalOrigin } = __nccwpck_require__(2896)
 
   module.exports.setGlobalOrigin = setGlobalOrigin
   module.exports.getGlobalOrigin = getGlobalOrigin
 
-  const { CacheStorage } = __nccwpck_require__(7222)
-  const { kConstruct } = __nccwpck_require__(180)
+  const { CacheStorage } = __nccwpck_require__(6446)
+  const { kConstruct } = __nccwpck_require__(8652)
 
   // Cache & CacheStorage are tightly coupled with fetch. Even if it may run
   // in an older version of Node, it doesn't have any use without fetch.
@@ -7856,21 +8594,21 @@ if (util.nodeMajor > 16 || (util.nodeMajor === 16 && util.nodeMinor >= 8)) {
 }
 
 if (util.nodeMajor >= 16) {
-  const { deleteCookie, getCookies, getSetCookies, setCookie } = __nccwpck_require__(7596)
+  const { deleteCookie, getCookies, getSetCookies, setCookie } = __nccwpck_require__(4276)
 
   module.exports.deleteCookie = deleteCookie
   module.exports.getCookies = getCookies
   module.exports.getSetCookies = getSetCookies
   module.exports.setCookie = setCookie
 
-  const { parseMIMEType, serializeAMimeType } = __nccwpck_require__(1638)
+  const { parseMIMEType, serializeAMimeType } = __nccwpck_require__(7246)
 
   module.exports.parseMIMEType = parseMIMEType
   module.exports.serializeAMimeType = serializeAMimeType
 }
 
 if (util.nodeMajor >= 18 && hasCrypto) {
-  const { WebSocket } = __nccwpck_require__(799)
+  const { WebSocket } = __nccwpck_require__(551)
 
   module.exports.WebSocket = WebSocket
 }
@@ -7889,20 +8627,20 @@ module.exports.mockErrors = mockErrors
 
 /***/ }),
 
-/***/ 2193:
+/***/ 2121:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { InvalidArgumentError } = __nccwpck_require__(6751)
-const { kClients, kRunning, kClose, kDestroy, kDispatch, kInterceptors } = __nccwpck_require__(455)
-const DispatcherBase = __nccwpck_require__(7229)
-const Pool = __nccwpck_require__(3512)
-const Client = __nccwpck_require__(1841)
-const util = __nccwpck_require__(9796)
-const createRedirectInterceptor = __nccwpck_require__(4155)
-const { WeakRef, FinalizationRegistry } = __nccwpck_require__(318)()
+const { InvalidArgumentError } = __nccwpck_require__(3959)
+const { kClients, kRunning, kClose, kDestroy, kDispatch, kInterceptors } = __nccwpck_require__(8031)
+const DispatcherBase = __nccwpck_require__(2421)
+const Pool = __nccwpck_require__(4288)
+const Client = __nccwpck_require__(5513)
+const util = __nccwpck_require__(9500)
+const createRedirectInterceptor = __nccwpck_require__(9299)
+const { WeakRef, FinalizationRegistry } = __nccwpck_require__(22)()
 
 const kOnConnect = Symbol('onConnect')
 const kOnDisconnect = Symbol('onDisconnect')
@@ -8045,11 +8783,11 @@ module.exports = Agent
 
 /***/ }),
 
-/***/ 1298:
+/***/ 2730:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const { addAbortListener } = __nccwpck_require__(9796)
-const { RequestAbortedError } = __nccwpck_require__(6751)
+const { addAbortListener } = __nccwpck_require__(9500)
+const { RequestAbortedError } = __nccwpck_require__(3959)
 
 const kListener = Symbol('kListener')
 const kSignal = Symbol('kSignal')
@@ -8106,16 +8844,16 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7488:
+/***/ 3192:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 const { AsyncResource } = __nccwpck_require__(290)
-const { InvalidArgumentError, RequestAbortedError, SocketError } = __nccwpck_require__(6751)
-const util = __nccwpck_require__(9796)
-const { addSignal, removeSignal } = __nccwpck_require__(1298)
+const { InvalidArgumentError, RequestAbortedError, SocketError } = __nccwpck_require__(3959)
+const util = __nccwpck_require__(9500)
+const { addSignal, removeSignal } = __nccwpck_require__(2730)
 
 class ConnectHandler extends AsyncResource {
   constructor (opts, callback) {
@@ -8218,7 +8956,7 @@ module.exports = connect
 
 /***/ }),
 
-/***/ 6458:
+/***/ 2466:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -8233,10 +8971,10 @@ const {
   InvalidArgumentError,
   InvalidReturnValueError,
   RequestAbortedError
-} = __nccwpck_require__(6751)
-const util = __nccwpck_require__(9796)
+} = __nccwpck_require__(3959)
+const util = __nccwpck_require__(9500)
 const { AsyncResource } = __nccwpck_require__(290)
-const { addSignal, removeSignal } = __nccwpck_require__(1298)
+const { addSignal, removeSignal } = __nccwpck_require__(2730)
 const assert = __nccwpck_require__(2613)
 
 const kResume = Symbol('resume')
@@ -8475,21 +9213,21 @@ module.exports = pipeline
 
 /***/ }),
 
-/***/ 3007:
+/***/ 887:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Readable = __nccwpck_require__(5771)
+const Readable = __nccwpck_require__(8947)
 const {
   InvalidArgumentError,
   RequestAbortedError
-} = __nccwpck_require__(6751)
-const util = __nccwpck_require__(9796)
-const { getResolveErrorBodyCallback } = __nccwpck_require__(8467)
+} = __nccwpck_require__(3959)
+const util = __nccwpck_require__(9500)
+const { getResolveErrorBodyCallback } = __nccwpck_require__(363)
 const { AsyncResource } = __nccwpck_require__(290)
-const { addSignal, removeSignal } = __nccwpck_require__(1298)
+const { addSignal, removeSignal } = __nccwpck_require__(2730)
 
 class RequestHandler extends AsyncResource {
   constructor (opts, callback) {
@@ -8663,7 +9401,7 @@ module.exports.RequestHandler = RequestHandler
 
 /***/ }),
 
-/***/ 2284:
+/***/ 4388:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -8674,11 +9412,11 @@ const {
   InvalidArgumentError,
   InvalidReturnValueError,
   RequestAbortedError
-} = __nccwpck_require__(6751)
-const util = __nccwpck_require__(9796)
-const { getResolveErrorBodyCallback } = __nccwpck_require__(8467)
+} = __nccwpck_require__(3959)
+const util = __nccwpck_require__(9500)
+const { getResolveErrorBodyCallback } = __nccwpck_require__(363)
 const { AsyncResource } = __nccwpck_require__(290)
-const { addSignal, removeSignal } = __nccwpck_require__(1298)
+const { addSignal, removeSignal } = __nccwpck_require__(2730)
 
 class StreamHandler extends AsyncResource {
   constructor (opts, factory, callback) {
@@ -8891,16 +9629,16 @@ module.exports = stream
 
 /***/ }),
 
-/***/ 4862:
+/***/ 6342:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { InvalidArgumentError, RequestAbortedError, SocketError } = __nccwpck_require__(6751)
+const { InvalidArgumentError, RequestAbortedError, SocketError } = __nccwpck_require__(3959)
 const { AsyncResource } = __nccwpck_require__(290)
-const util = __nccwpck_require__(9796)
-const { addSignal, removeSignal } = __nccwpck_require__(1298)
+const util = __nccwpck_require__(9500)
+const { addSignal, removeSignal } = __nccwpck_require__(2730)
 const assert = __nccwpck_require__(2613)
 
 class UpgradeHandler extends AsyncResource {
@@ -9004,22 +9742,22 @@ module.exports = upgrade
 
 /***/ }),
 
-/***/ 331:
+/***/ 2531:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-module.exports.request = __nccwpck_require__(3007)
-module.exports.stream = __nccwpck_require__(2284)
-module.exports.pipeline = __nccwpck_require__(6458)
-module.exports.upgrade = __nccwpck_require__(4862)
-module.exports.connect = __nccwpck_require__(7488)
+module.exports.request = __nccwpck_require__(887)
+module.exports.stream = __nccwpck_require__(4388)
+module.exports.pipeline = __nccwpck_require__(2466)
+module.exports.upgrade = __nccwpck_require__(6342)
+module.exports.connect = __nccwpck_require__(3192)
 
 
 /***/ }),
 
-/***/ 5771:
+/***/ 8947:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -9029,9 +9767,9 @@ module.exports.connect = __nccwpck_require__(7488)
 
 const assert = __nccwpck_require__(2613)
 const { Readable } = __nccwpck_require__(2203)
-const { RequestAbortedError, NotSupportedError, InvalidArgumentError } = __nccwpck_require__(6751)
-const util = __nccwpck_require__(9796)
-const { ReadableStreamFrom, toUSVString } = __nccwpck_require__(9796)
+const { RequestAbortedError, NotSupportedError, InvalidArgumentError } = __nccwpck_require__(3959)
+const util = __nccwpck_require__(9500)
+const { ReadableStreamFrom, toUSVString } = __nccwpck_require__(9500)
 
 let Blob
 
@@ -9349,14 +10087,14 @@ function consumeFinish (consume, err) {
 
 /***/ }),
 
-/***/ 8467:
+/***/ 363:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const assert = __nccwpck_require__(2613)
 const {
   ResponseStatusCodeError
-} = __nccwpck_require__(6751)
-const { toUSVString } = __nccwpck_require__(9796)
+} = __nccwpck_require__(3959)
+const { toUSVString } = __nccwpck_require__(9500)
 
 async function getResolveErrorBodyCallback ({ callback, body, contentType, statusCode, statusMessage, headers }) {
   assert(body)
@@ -9402,7 +10140,7 @@ module.exports = { getResolveErrorBodyCallback }
 
 /***/ }),
 
-/***/ 9673:
+/***/ 5377:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -9411,7 +10149,7 @@ module.exports = { getResolveErrorBodyCallback }
 const {
   BalancedPoolMissingUpstreamError,
   InvalidArgumentError
-} = __nccwpck_require__(6751)
+} = __nccwpck_require__(3959)
 const {
   PoolBase,
   kClients,
@@ -9419,10 +10157,10 @@ const {
   kAddClient,
   kRemoveClient,
   kGetDispatcher
-} = __nccwpck_require__(5628)
-const Pool = __nccwpck_require__(3512)
-const { kUrl, kInterceptors } = __nccwpck_require__(455)
-const { parseOrigin } = __nccwpck_require__(9796)
+} = __nccwpck_require__(8804)
+const Pool = __nccwpck_require__(4288)
+const { kUrl, kInterceptors } = __nccwpck_require__(8031)
+const { parseOrigin } = __nccwpck_require__(9500)
 const kFactory = Symbol('factory')
 
 const kOptions = Symbol('options')
@@ -9600,24 +10338,24 @@ module.exports = BalancedPool
 
 /***/ }),
 
-/***/ 8683:
+/***/ 611:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { kConstruct } = __nccwpck_require__(180)
-const { urlEquals, fieldValues: getFieldValues } = __nccwpck_require__(253)
-const { kEnumerableProperty, isDisturbed } = __nccwpck_require__(9796)
-const { kHeadersList } = __nccwpck_require__(455)
-const { webidl } = __nccwpck_require__(4362)
-const { Response, cloneResponse } = __nccwpck_require__(2016)
-const { Request } = __nccwpck_require__(1054)
-const { kState, kHeaders, kGuard, kRealm } = __nccwpck_require__(6362)
-const { fetching } = __nccwpck_require__(3319)
-const { urlIsHttpHttpsScheme, createDeferredPromise, readAllBytes } = __nccwpck_require__(6039)
+const { kConstruct } = __nccwpck_require__(8652)
+const { urlEquals, fieldValues: getFieldValues } = __nccwpck_require__(1173)
+const { kEnumerableProperty, isDisturbed } = __nccwpck_require__(9500)
+const { kHeadersList } = __nccwpck_require__(8031)
+const { webidl } = __nccwpck_require__(4354)
+const { Response, cloneResponse } = __nccwpck_require__(9928)
+const { Request } = __nccwpck_require__(2630)
+const { kState, kHeaders, kGuard, kRealm } = __nccwpck_require__(3730)
+const { fetching } = __nccwpck_require__(1503)
+const { urlIsHttpHttpsScheme, createDeferredPromise, readAllBytes } = __nccwpck_require__(2847)
 const assert = __nccwpck_require__(2613)
-const { getGlobalDispatcher } = __nccwpck_require__(1521)
+const { getGlobalDispatcher } = __nccwpck_require__(1481)
 
 /**
  * @see https://w3c.github.io/ServiceWorker/#dfn-cache-batch-operation
@@ -10446,16 +11184,16 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7222:
+/***/ 6446:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { kConstruct } = __nccwpck_require__(180)
-const { Cache } = __nccwpck_require__(8683)
-const { webidl } = __nccwpck_require__(4362)
-const { kEnumerableProperty } = __nccwpck_require__(9796)
+const { kConstruct } = __nccwpck_require__(8652)
+const { Cache } = __nccwpck_require__(611)
+const { webidl } = __nccwpck_require__(4354)
+const { kEnumerableProperty } = __nccwpck_require__(9500)
 
 class CacheStorage {
   /**
@@ -10598,28 +11336,28 @@ module.exports = {
 
 /***/ }),
 
-/***/ 180:
+/***/ 8652:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 module.exports = {
-  kConstruct: (__nccwpck_require__(455).kConstruct)
+  kConstruct: (__nccwpck_require__(8031).kConstruct)
 }
 
 
 /***/ }),
 
-/***/ 253:
+/***/ 1173:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 const assert = __nccwpck_require__(2613)
-const { URLSerializer } = __nccwpck_require__(1638)
-const { isValidHeaderName } = __nccwpck_require__(6039)
+const { URLSerializer } = __nccwpck_require__(7246)
+const { isValidHeaderName } = __nccwpck_require__(2847)
 
 /**
  * @see https://url.spec.whatwg.org/#concept-url-equals
@@ -10668,7 +11406,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1841:
+/***/ 5513:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -10682,10 +11420,10 @@ const assert = __nccwpck_require__(2613)
 const net = __nccwpck_require__(9278)
 const http = __nccwpck_require__(8611)
 const { pipeline } = __nccwpck_require__(2203)
-const util = __nccwpck_require__(9796)
-const timers = __nccwpck_require__(1400)
-const Request = __nccwpck_require__(2707)
-const DispatcherBase = __nccwpck_require__(7229)
+const util = __nccwpck_require__(9500)
+const timers = __nccwpck_require__(2576)
+const Request = __nccwpck_require__(9691)
+const DispatcherBase = __nccwpck_require__(2421)
 const {
   RequestContentLengthMismatchError,
   ResponseContentLengthMismatchError,
@@ -10699,8 +11437,8 @@ const {
   HTTPParserError,
   ResponseExceededMaxSizeError,
   ClientDestroyedError
-} = __nccwpck_require__(6751)
-const buildConnector = __nccwpck_require__(3676)
+} = __nccwpck_require__(3959)
+const buildConnector = __nccwpck_require__(1332)
 const {
   kUrl,
   kReset,
@@ -10752,7 +11490,7 @@ const {
   kHTTP2BuildRequest,
   kHTTP2CopyHeaders,
   kHTTP1BuildRequest
-} = __nccwpck_require__(455)
+} = __nccwpck_require__(8031)
 
 /** @type {import('http2')} */
 let http2
@@ -11158,16 +11896,16 @@ function onHTTP2GoAway (code) {
   resume(client)
 }
 
-const constants = __nccwpck_require__(5748)
-const createRedirectInterceptor = __nccwpck_require__(4155)
+const constants = __nccwpck_require__(748)
+const createRedirectInterceptor = __nccwpck_require__(9299)
 const EMPTY_BUF = Buffer.alloc(0)
 
 async function lazyllhttp () {
-  const llhttpWasmData = process.env.JEST_WORKER_ID ? __nccwpck_require__(9210) : undefined
+  const llhttpWasmData = process.env.JEST_WORKER_ID ? __nccwpck_require__(3922) : undefined
 
   let mod
   try {
-    mod = await WebAssembly.compile(Buffer.from(__nccwpck_require__(2518), 'base64'))
+    mod = await WebAssembly.compile(Buffer.from(__nccwpck_require__(3742), 'base64'))
   } catch (e) {
     /* istanbul ignore next */
 
@@ -11175,7 +11913,7 @@ async function lazyllhttp () {
     // being enabled, but the occurring of this other error
     // * https://github.com/emscripten-core/emscripten/issues/11495
     // got me to remove that check to avoid breaking Node 12.
-    mod = await WebAssembly.compile(Buffer.from(llhttpWasmData || __nccwpck_require__(9210), 'base64'))
+    mod = await WebAssembly.compile(Buffer.from(llhttpWasmData || __nccwpck_require__(3922), 'base64'))
   }
 
   return await WebAssembly.instantiate(mod, {
@@ -12959,7 +13697,7 @@ module.exports = Client
 
 /***/ }),
 
-/***/ 318:
+/***/ 22:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -12967,7 +13705,7 @@ module.exports = Client
 
 /* istanbul ignore file: only for Node 12 */
 
-const { kConnected, kSize } = __nccwpck_require__(455)
+const { kConnected, kSize } = __nccwpck_require__(8031)
 
 class CompatWeakRef {
   constructor (value) {
@@ -13015,7 +13753,7 @@ module.exports = function () {
 
 /***/ }),
 
-/***/ 7665:
+/***/ 6985:
 /***/ ((module) => {
 
 "use strict";
@@ -13035,16 +13773,16 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7596:
+/***/ 4276:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { parseSetCookie } = __nccwpck_require__(5327)
-const { stringify } = __nccwpck_require__(4702)
-const { webidl } = __nccwpck_require__(4362)
-const { Headers } = __nccwpck_require__(6969)
+const { parseSetCookie } = __nccwpck_require__(6695)
+const { stringify } = __nccwpck_require__(3126)
+const { webidl } = __nccwpck_require__(4354)
+const { Headers } = __nccwpck_require__(2801)
 
 /**
  * @typedef {Object} Cookie
@@ -13226,15 +13964,15 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5327:
+/***/ 6695:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { maxNameValuePairSize, maxAttributeValueSize } = __nccwpck_require__(7665)
-const { isCTLExcludingHtab } = __nccwpck_require__(4702)
-const { collectASequenceOfCodePointsFast } = __nccwpck_require__(1638)
+const { maxNameValuePairSize, maxAttributeValueSize } = __nccwpck_require__(6985)
+const { isCTLExcludingHtab } = __nccwpck_require__(3126)
+const { collectASequenceOfCodePointsFast } = __nccwpck_require__(7246)
 const assert = __nccwpck_require__(2613)
 
 /**
@@ -13551,7 +14289,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4702:
+/***/ 3126:
 /***/ ((module) => {
 
 "use strict";
@@ -13833,7 +14571,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3676:
+/***/ 1332:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -13841,8 +14579,8 @@ module.exports = {
 
 const net = __nccwpck_require__(9278)
 const assert = __nccwpck_require__(2613)
-const util = __nccwpck_require__(9796)
-const { InvalidArgumentError, ConnectTimeoutError } = __nccwpck_require__(6751)
+const util = __nccwpck_require__(9500)
+const { InvalidArgumentError, ConnectTimeoutError } = __nccwpck_require__(3959)
 
 let tls // include tls conditionally since it is not always available
 
@@ -14030,7 +14768,7 @@ module.exports = buildConnector
 
 /***/ }),
 
-/***/ 8347:
+/***/ 2371:
 /***/ ((module) => {
 
 "use strict";
@@ -14156,7 +14894,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6751:
+/***/ 3959:
 /***/ ((module) => {
 
 "use strict";
@@ -14394,7 +15132,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2707:
+/***/ 9691:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -14403,10 +15141,10 @@ module.exports = {
 const {
   InvalidArgumentError,
   NotSupportedError
-} = __nccwpck_require__(6751)
+} = __nccwpck_require__(3959)
 const assert = __nccwpck_require__(2613)
-const { kHTTP2BuildRequest, kHTTP2CopyHeaders, kHTTP1BuildRequest } = __nccwpck_require__(455)
-const util = __nccwpck_require__(9796)
+const { kHTTP2BuildRequest, kHTTP2CopyHeaders, kHTTP1BuildRequest } = __nccwpck_require__(8031)
+const util = __nccwpck_require__(9500)
 
 // tokenRegExp and headerCharRegex have been lifted from
 // https://github.com/nodejs/node/blob/main/lib/_http_common.js
@@ -14601,7 +15339,7 @@ class Request {
       }
 
       if (!extractBody) {
-        extractBody = (__nccwpck_require__(6343).extractBody)
+        extractBody = (__nccwpck_require__(7791).extractBody)
       }
 
       const [bodyStream, contentType] = extractBody(body)
@@ -14901,7 +15639,7 @@ module.exports = Request
 
 /***/ }),
 
-/***/ 455:
+/***/ 8031:
 /***/ ((module) => {
 
 module.exports = {
@@ -14971,22 +15709,22 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9796:
+/***/ 9500:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 const assert = __nccwpck_require__(2613)
-const { kDestroyed, kBodyUsed } = __nccwpck_require__(455)
+const { kDestroyed, kBodyUsed } = __nccwpck_require__(8031)
 const { IncomingMessage } = __nccwpck_require__(8611)
 const stream = __nccwpck_require__(2203)
 const net = __nccwpck_require__(9278)
-const { InvalidArgumentError } = __nccwpck_require__(6751)
+const { InvalidArgumentError } = __nccwpck_require__(3959)
 const { Blob } = __nccwpck_require__(181)
 const nodeUtil = __nccwpck_require__(9023)
 const { stringify } = __nccwpck_require__(3480)
-const { headerNameLowerCasedRecord } = __nccwpck_require__(8347)
+const { headerNameLowerCasedRecord } = __nccwpck_require__(2371)
 
 const [nodeMajor, nodeMinor] = process.versions.node.split('.').map(v => Number(v))
 
@@ -15501,19 +16239,19 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7229:
+/***/ 2421:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Dispatcher = __nccwpck_require__(6535)
+const Dispatcher = __nccwpck_require__(303)
 const {
   ClientDestroyedError,
   ClientClosedError,
   InvalidArgumentError
-} = __nccwpck_require__(6751)
-const { kDestroy, kClose, kDispatch, kInterceptors } = __nccwpck_require__(455)
+} = __nccwpck_require__(3959)
+const { kDestroy, kClose, kDispatch, kInterceptors } = __nccwpck_require__(8031)
 
 const kDestroyed = Symbol('destroyed')
 const kClosed = Symbol('closed')
@@ -15701,7 +16439,7 @@ module.exports = DispatcherBase
 
 /***/ }),
 
-/***/ 6535:
+/***/ 303:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -15728,14 +16466,14 @@ module.exports = Dispatcher
 
 /***/ }),
 
-/***/ 6343:
+/***/ 7791:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Busboy = __nccwpck_require__(1273)
-const util = __nccwpck_require__(9796)
+const Busboy = __nccwpck_require__(6257)
+const util = __nccwpck_require__(9500)
 const {
   ReadableStreamFrom,
   isBlobLike,
@@ -15743,18 +16481,18 @@ const {
   readableStreamClose,
   createDeferredPromise,
   fullyReadBody
-} = __nccwpck_require__(6039)
-const { FormData } = __nccwpck_require__(3941)
-const { kState } = __nccwpck_require__(6362)
-const { webidl } = __nccwpck_require__(4362)
-const { DOMException, structuredClone } = __nccwpck_require__(2922)
+} = __nccwpck_require__(2847)
+const { FormData } = __nccwpck_require__(7453)
+const { kState } = __nccwpck_require__(3730)
+const { webidl } = __nccwpck_require__(4354)
+const { DOMException, structuredClone } = __nccwpck_require__(1234)
 const { Blob, File: NativeFile } = __nccwpck_require__(181)
-const { kBodyUsed } = __nccwpck_require__(455)
+const { kBodyUsed } = __nccwpck_require__(8031)
 const assert = __nccwpck_require__(2613)
-const { isErrored } = __nccwpck_require__(9796)
+const { isErrored } = __nccwpck_require__(9500)
 const { isUint8Array, isArrayBuffer } = __nccwpck_require__(8253)
-const { File: UndiciFile } = __nccwpck_require__(6357)
-const { parseMIMEType, serializeAMimeType } = __nccwpck_require__(1638)
+const { File: UndiciFile } = __nccwpck_require__(7005)
+const { parseMIMEType, serializeAMimeType } = __nccwpck_require__(7246)
 
 let random
 try {
@@ -16349,7 +17087,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2922:
+/***/ 1234:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -16508,12 +17246,12 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1638:
+/***/ 7246:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const assert = __nccwpck_require__(2613)
 const { atob } = __nccwpck_require__(181)
-const { isomorphicDecode } = __nccwpck_require__(6039)
+const { isomorphicDecode } = __nccwpck_require__(2847)
 
 const encoder = new TextEncoder()
 
@@ -17142,7 +17880,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6357:
+/***/ 7005:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17150,11 +17888,11 @@ module.exports = {
 
 const { Blob, File: NativeFile } = __nccwpck_require__(181)
 const { types } = __nccwpck_require__(9023)
-const { kState } = __nccwpck_require__(6362)
-const { isBlobLike } = __nccwpck_require__(6039)
-const { webidl } = __nccwpck_require__(4362)
-const { parseMIMEType, serializeAMimeType } = __nccwpck_require__(1638)
-const { kEnumerableProperty } = __nccwpck_require__(9796)
+const { kState } = __nccwpck_require__(3730)
+const { isBlobLike } = __nccwpck_require__(2847)
+const { webidl } = __nccwpck_require__(4354)
+const { parseMIMEType, serializeAMimeType } = __nccwpck_require__(7246)
+const { kEnumerableProperty } = __nccwpck_require__(9500)
 const encoder = new TextEncoder()
 
 class File extends Blob {
@@ -17494,16 +18232,16 @@ module.exports = { File, FileLike, isFileLike }
 
 /***/ }),
 
-/***/ 3941:
+/***/ 7453:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { isBlobLike, toUSVString, makeIterator } = __nccwpck_require__(6039)
-const { kState } = __nccwpck_require__(6362)
-const { File: UndiciFile, FileLike, isFileLike } = __nccwpck_require__(6357)
-const { webidl } = __nccwpck_require__(4362)
+const { isBlobLike, toUSVString, makeIterator } = __nccwpck_require__(2847)
+const { kState } = __nccwpck_require__(3730)
+const { File: UndiciFile, FileLike, isFileLike } = __nccwpck_require__(7005)
+const { webidl } = __nccwpck_require__(4354)
 const { Blob, File: NativeFile } = __nccwpck_require__(181)
 
 /** @type {globalThis['File']} */
@@ -17767,7 +18505,7 @@ module.exports = { FormData }
 
 /***/ }),
 
-/***/ 7640:
+/***/ 2896:
 /***/ ((module) => {
 
 "use strict";
@@ -17815,7 +18553,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6969:
+/***/ 2801:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17823,16 +18561,16 @@ module.exports = {
 
 
 
-const { kHeadersList, kConstruct } = __nccwpck_require__(455)
-const { kGuard } = __nccwpck_require__(6362)
-const { kEnumerableProperty } = __nccwpck_require__(9796)
+const { kHeadersList, kConstruct } = __nccwpck_require__(8031)
+const { kGuard } = __nccwpck_require__(3730)
+const { kEnumerableProperty } = __nccwpck_require__(9500)
 const {
   makeIterator,
   isValidHeaderName,
   isValidHeaderValue
-} = __nccwpck_require__(6039)
+} = __nccwpck_require__(2847)
 const util = __nccwpck_require__(9023)
-const { webidl } = __nccwpck_require__(4362)
+const { webidl } = __nccwpck_require__(4354)
 const assert = __nccwpck_require__(2613)
 
 const kHeadersMap = Symbol('headers map')
@@ -18416,7 +19154,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3319:
+/***/ 1503:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -18430,9 +19168,9 @@ const {
   makeAppropriateNetworkError,
   filterResponse,
   makeResponse
-} = __nccwpck_require__(2016)
-const { Headers } = __nccwpck_require__(6969)
-const { Request, makeRequest } = __nccwpck_require__(1054)
+} = __nccwpck_require__(9928)
+const { Headers } = __nccwpck_require__(2801)
+const { Request, makeRequest } = __nccwpck_require__(2630)
 const zlib = __nccwpck_require__(3106)
 const {
   bytesMatch,
@@ -18463,10 +19201,10 @@ const {
   urlIsLocal,
   urlIsHttpHttpsScheme,
   urlHasHttpsScheme
-} = __nccwpck_require__(6039)
-const { kState, kHeaders, kGuard, kRealm } = __nccwpck_require__(6362)
+} = __nccwpck_require__(2847)
+const { kState, kHeaders, kGuard, kRealm } = __nccwpck_require__(3730)
 const assert = __nccwpck_require__(2613)
-const { safelyExtractBody } = __nccwpck_require__(6343)
+const { safelyExtractBody } = __nccwpck_require__(7791)
 const {
   redirectStatusSet,
   nullBodyStatus,
@@ -18474,15 +19212,15 @@ const {
   requestBodyHeader,
   subresourceSet,
   DOMException
-} = __nccwpck_require__(2922)
-const { kHeadersList } = __nccwpck_require__(455)
+} = __nccwpck_require__(1234)
+const { kHeadersList } = __nccwpck_require__(8031)
 const EE = __nccwpck_require__(4434)
 const { Readable, pipeline } = __nccwpck_require__(2203)
-const { addAbortListener, isErrored, isReadable, nodeMajor, nodeMinor } = __nccwpck_require__(9796)
-const { dataURLProcessor, serializeAMimeType } = __nccwpck_require__(1638)
+const { addAbortListener, isErrored, isReadable, nodeMajor, nodeMinor } = __nccwpck_require__(9500)
+const { dataURLProcessor, serializeAMimeType } = __nccwpck_require__(7246)
 const { TransformStream } = __nccwpck_require__(3774)
-const { getGlobalDispatcher } = __nccwpck_require__(1521)
-const { webidl } = __nccwpck_require__(4362)
+const { getGlobalDispatcher } = __nccwpck_require__(1481)
+const { webidl } = __nccwpck_require__(4354)
 const { STATUS_CODES } = __nccwpck_require__(8611)
 const GET_OR_HEAD = ['GET', 'HEAD']
 
@@ -20572,7 +21310,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1054:
+/***/ 2630:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -20580,17 +21318,17 @@ module.exports = {
 
 
 
-const { extractBody, mixinBody, cloneBody } = __nccwpck_require__(6343)
-const { Headers, fill: fillHeaders, HeadersList } = __nccwpck_require__(6969)
-const { FinalizationRegistry } = __nccwpck_require__(318)()
-const util = __nccwpck_require__(9796)
+const { extractBody, mixinBody, cloneBody } = __nccwpck_require__(7791)
+const { Headers, fill: fillHeaders, HeadersList } = __nccwpck_require__(2801)
+const { FinalizationRegistry } = __nccwpck_require__(22)()
+const util = __nccwpck_require__(9500)
 const {
   isValidHTTPToken,
   sameOrigin,
   normalizeMethod,
   makePolicyContainer,
   normalizeMethodRecord
-} = __nccwpck_require__(6039)
+} = __nccwpck_require__(2847)
 const {
   forbiddenMethodsSet,
   corsSafeListedMethodsSet,
@@ -20600,13 +21338,13 @@ const {
   requestCredentials,
   requestCache,
   requestDuplex
-} = __nccwpck_require__(2922)
+} = __nccwpck_require__(1234)
 const { kEnumerableProperty } = util
-const { kHeaders, kSignal, kState, kGuard, kRealm } = __nccwpck_require__(6362)
-const { webidl } = __nccwpck_require__(4362)
-const { getGlobalOrigin } = __nccwpck_require__(7640)
-const { URLSerializer } = __nccwpck_require__(1638)
-const { kHeadersList, kConstruct } = __nccwpck_require__(455)
+const { kHeaders, kSignal, kState, kGuard, kRealm } = __nccwpck_require__(3730)
+const { webidl } = __nccwpck_require__(4354)
+const { getGlobalOrigin } = __nccwpck_require__(2896)
+const { URLSerializer } = __nccwpck_require__(7246)
+const { kHeadersList, kConstruct } = __nccwpck_require__(8031)
 const assert = __nccwpck_require__(2613)
 const { getMaxListeners, setMaxListeners, getEventListeners, defaultMaxListeners } = __nccwpck_require__(4434)
 
@@ -21526,15 +22264,15 @@ module.exports = { Request, makeRequest }
 
 /***/ }),
 
-/***/ 2016:
+/***/ 9928:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { Headers, HeadersList, fill } = __nccwpck_require__(6969)
-const { extractBody, cloneBody, mixinBody } = __nccwpck_require__(6343)
-const util = __nccwpck_require__(9796)
+const { Headers, HeadersList, fill } = __nccwpck_require__(2801)
+const { extractBody, cloneBody, mixinBody } = __nccwpck_require__(7791)
+const util = __nccwpck_require__(9500)
 const { kEnumerableProperty } = util
 const {
   isValidReasonPhrase,
@@ -21544,18 +22282,18 @@ const {
   serializeJavascriptValueToJSONString,
   isErrorLike,
   isomorphicEncode
-} = __nccwpck_require__(6039)
+} = __nccwpck_require__(2847)
 const {
   redirectStatusSet,
   nullBodyStatus,
   DOMException
-} = __nccwpck_require__(2922)
-const { kState, kHeaders, kGuard, kRealm } = __nccwpck_require__(6362)
-const { webidl } = __nccwpck_require__(4362)
-const { FormData } = __nccwpck_require__(3941)
-const { getGlobalOrigin } = __nccwpck_require__(7640)
-const { URLSerializer } = __nccwpck_require__(1638)
-const { kHeadersList, kConstruct } = __nccwpck_require__(455)
+} = __nccwpck_require__(1234)
+const { kState, kHeaders, kGuard, kRealm } = __nccwpck_require__(3730)
+const { webidl } = __nccwpck_require__(4354)
+const { FormData } = __nccwpck_require__(7453)
+const { getGlobalOrigin } = __nccwpck_require__(2896)
+const { URLSerializer } = __nccwpck_require__(7246)
+const { kHeadersList, kConstruct } = __nccwpck_require__(8031)
 const assert = __nccwpck_require__(2613)
 const { types } = __nccwpck_require__(9023)
 
@@ -22105,7 +22843,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6362:
+/***/ 3730:
 /***/ ((module) => {
 
 "use strict";
@@ -22123,16 +22861,16 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6039:
+/***/ 2847:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { redirectStatusSet, referrerPolicySet: referrerPolicyTokens, badPortsSet } = __nccwpck_require__(2922)
-const { getGlobalOrigin } = __nccwpck_require__(7640)
+const { redirectStatusSet, referrerPolicySet: referrerPolicyTokens, badPortsSet } = __nccwpck_require__(1234)
+const { getGlobalOrigin } = __nccwpck_require__(2896)
 const { performance } = __nccwpck_require__(2987)
-const { isBlobLike, toUSVString, ReadableStreamFrom } = __nccwpck_require__(9796)
+const { isBlobLike, toUSVString, ReadableStreamFrom } = __nccwpck_require__(9500)
 const assert = __nccwpck_require__(2613)
 const { isUint8Array } = __nccwpck_require__(8253)
 
@@ -23275,14 +24013,14 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4362:
+/***/ 4354:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 const { types } = __nccwpck_require__(9023)
-const { hasOwn, toUSVString } = __nccwpck_require__(6039)
+const { hasOwn, toUSVString } = __nccwpck_require__(2847)
 
 /** @type {import('../../types/webidl').Webidl} */
 const webidl = {}
@@ -23929,7 +24667,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1032:
+/***/ 8064:
 /***/ ((module) => {
 
 "use strict";
@@ -24227,7 +24965,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5324:
+/***/ 52:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24237,16 +24975,16 @@ const {
   staticPropertyDescriptors,
   readOperation,
   fireAProgressEvent
-} = __nccwpck_require__(8569)
+} = __nccwpck_require__(4273)
 const {
   kState,
   kError,
   kResult,
   kEvents,
   kAborted
-} = __nccwpck_require__(1624)
-const { webidl } = __nccwpck_require__(4362)
-const { kEnumerableProperty } = __nccwpck_require__(9796)
+} = __nccwpck_require__(2736)
+const { webidl } = __nccwpck_require__(4354)
+const { kEnumerableProperty } = __nccwpck_require__(9500)
 
 class FileReader extends EventTarget {
   constructor () {
@@ -24579,13 +25317,13 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5788:
+/***/ 2804:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { webidl } = __nccwpck_require__(4362)
+const { webidl } = __nccwpck_require__(4354)
 
 const kState = Symbol('ProgressEvent state')
 
@@ -24665,7 +25403,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1624:
+/***/ 2736:
 /***/ ((module) => {
 
 "use strict";
@@ -24683,7 +25421,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 8569:
+/***/ 4273:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24695,13 +25433,13 @@ const {
   kResult,
   kAborted,
   kLastProgressEventFired
-} = __nccwpck_require__(1624)
-const { ProgressEvent } = __nccwpck_require__(5788)
-const { getEncoding } = __nccwpck_require__(1032)
-const { DOMException } = __nccwpck_require__(2922)
-const { serializeAMimeType, parseMIMEType } = __nccwpck_require__(1638)
+} = __nccwpck_require__(2736)
+const { ProgressEvent } = __nccwpck_require__(2804)
+const { getEncoding } = __nccwpck_require__(8064)
+const { DOMException } = __nccwpck_require__(1234)
+const { serializeAMimeType, parseMIMEType } = __nccwpck_require__(7246)
 const { types } = __nccwpck_require__(9023)
-const { StringDecoder } = __nccwpck_require__(3193)
+const { StringDecoder } = __nccwpck_require__(5574)
 const { btoa } = __nccwpck_require__(181)
 
 /** @type {PropertyDescriptor} */
@@ -25083,7 +25821,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1521:
+/***/ 1481:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -25092,8 +25830,8 @@ module.exports = {
 // We include a version number for the Dispatcher API. In case of breaking changes,
 // this version number must be increased to avoid conflicts.
 const globalDispatcher = Symbol.for('undici.globalDispatcher.1')
-const { InvalidArgumentError } = __nccwpck_require__(6751)
-const Agent = __nccwpck_require__(2193)
+const { InvalidArgumentError } = __nccwpck_require__(3959)
+const Agent = __nccwpck_require__(2121)
 
 if (getGlobalDispatcher() === undefined) {
   setGlobalDispatcher(new Agent())
@@ -25123,7 +25861,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6084:
+/***/ 1468:
 /***/ ((module) => {
 
 "use strict";
@@ -25166,16 +25904,16 @@ module.exports = class DecoratorHandler {
 
 /***/ }),
 
-/***/ 247:
+/***/ 8591:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const util = __nccwpck_require__(9796)
-const { kBodyUsed } = __nccwpck_require__(455)
+const util = __nccwpck_require__(9500)
+const { kBodyUsed } = __nccwpck_require__(8031)
 const assert = __nccwpck_require__(2613)
-const { InvalidArgumentError } = __nccwpck_require__(6751)
+const { InvalidArgumentError } = __nccwpck_require__(3959)
 const EE = __nccwpck_require__(4434)
 
 const redirectableStatusCodes = [300, 301, 302, 303, 307, 308]
@@ -25395,14 +26133,14 @@ module.exports = RedirectHandler
 
 /***/ }),
 
-/***/ 7689:
+/***/ 9569:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const assert = __nccwpck_require__(2613)
 
-const { kRetryHandlerDefaultRetry } = __nccwpck_require__(455)
-const { RequestRetryError } = __nccwpck_require__(6751)
-const { isDisturbed, parseHeaders, parseRangeHeader } = __nccwpck_require__(9796)
+const { kRetryHandlerDefaultRetry } = __nccwpck_require__(8031)
+const { RequestRetryError } = __nccwpck_require__(3959)
+const { isDisturbed, parseHeaders, parseRangeHeader } = __nccwpck_require__(9500)
 
 function calculateRetryAfterHeader (retryAfter) {
   const current = Date.now()
@@ -25738,13 +26476,13 @@ module.exports = RetryHandler
 
 /***/ }),
 
-/***/ 4155:
+/***/ 9299:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const RedirectHandler = __nccwpck_require__(247)
+const RedirectHandler = __nccwpck_require__(8591)
 
 function createRedirectInterceptor ({ maxRedirections: defaultMaxRedirections }) {
   return (dispatch) => {
@@ -25767,14 +26505,14 @@ module.exports = createRedirectInterceptor
 
 /***/ }),
 
-/***/ 5748:
+/***/ 748:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SPECIAL_HEADERS = exports.HEADER_STATE = exports.MINOR = exports.MAJOR = exports.CONNECTION_TOKEN_CHARS = exports.HEADER_CHARS = exports.TOKEN = exports.STRICT_TOKEN = exports.HEX = exports.URL_CHAR = exports.STRICT_URL_CHAR = exports.USERINFO_CHARS = exports.MARK = exports.ALPHANUM = exports.NUM = exports.HEX_MAP = exports.NUM_MAP = exports.ALPHA = exports.FINISH = exports.H_METHOD_MAP = exports.METHOD_MAP = exports.METHODS_RTSP = exports.METHODS_ICE = exports.METHODS_HTTP = exports.METHODS = exports.LENIENT_FLAGS = exports.FLAGS = exports.TYPE = exports.ERROR = void 0;
-const utils_1 = __nccwpck_require__(9656);
+const utils_1 = __nccwpck_require__(4608);
 // C headers
 var ERROR;
 (function (ERROR) {
@@ -26052,7 +26790,7 @@ exports.SPECIAL_HEADERS = {
 
 /***/ }),
 
-/***/ 9210:
+/***/ 3922:
 /***/ ((module) => {
 
 module.exports = 'AGFzbQEAAAABMAhgAX8Bf2ADf39/AX9gBH9/f38Bf2AAAGADf39/AGABfwBgAn9/AGAGf39/f39/AALLAQgDZW52GHdhc21fb25faGVhZGVyc19jb21wbGV0ZQACA2VudhV3YXNtX29uX21lc3NhZ2VfYmVnaW4AAANlbnYLd2FzbV9vbl91cmwAAQNlbnYOd2FzbV9vbl9zdGF0dXMAAQNlbnYUd2FzbV9vbl9oZWFkZXJfZmllbGQAAQNlbnYUd2FzbV9vbl9oZWFkZXJfdmFsdWUAAQNlbnYMd2FzbV9vbl9ib2R5AAEDZW52GHdhc21fb25fbWVzc2FnZV9jb21wbGV0ZQAAA0ZFAwMEAAAFAAAAAAAABQEFAAUFBQAABgAAAAAGBgYGAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAAABAQcAAAUFAwABBAUBcAESEgUDAQACBggBfwFBgNQECwfRBSIGbWVtb3J5AgALX2luaXRpYWxpemUACRlfX2luZGlyZWN0X2Z1bmN0aW9uX3RhYmxlAQALbGxodHRwX2luaXQAChhsbGh0dHBfc2hvdWxkX2tlZXBfYWxpdmUAQQxsbGh0dHBfYWxsb2MADAZtYWxsb2MARgtsbGh0dHBfZnJlZQANBGZyZWUASA9sbGh0dHBfZ2V0X3R5cGUADhVsbGh0dHBfZ2V0X2h0dHBfbWFqb3IADxVsbGh0dHBfZ2V0X2h0dHBfbWlub3IAEBFsbGh0dHBfZ2V0X21ldGhvZAARFmxsaHR0cF9nZXRfc3RhdHVzX2NvZGUAEhJsbGh0dHBfZ2V0X3VwZ3JhZGUAEwxsbGh0dHBfcmVzZXQAFA5sbGh0dHBfZXhlY3V0ZQAVFGxsaHR0cF9zZXR0aW5nc19pbml0ABYNbGxodHRwX2ZpbmlzaAAXDGxsaHR0cF9wYXVzZQAYDWxsaHR0cF9yZXN1bWUAGRtsbGh0dHBfcmVzdW1lX2FmdGVyX3VwZ3JhZGUAGhBsbGh0dHBfZ2V0X2Vycm5vABsXbGxodHRwX2dldF9lcnJvcl9yZWFzb24AHBdsbGh0dHBfc2V0X2Vycm9yX3JlYXNvbgAdFGxsaHR0cF9nZXRfZXJyb3JfcG9zAB4RbGxodHRwX2Vycm5vX25hbWUAHxJsbGh0dHBfbWV0aG9kX25hbWUAIBJsbGh0dHBfc3RhdHVzX25hbWUAIRpsbGh0dHBfc2V0X2xlbmllbnRfaGVhZGVycwAiIWxsaHR0cF9zZXRfbGVuaWVudF9jaHVua2VkX2xlbmd0aAAjHWxsaHR0cF9zZXRfbGVuaWVudF9rZWVwX2FsaXZlACQkbGxodHRwX3NldF9sZW5pZW50X3RyYW5zZmVyX2VuY29kaW5nACUYbGxodHRwX21lc3NhZ2VfbmVlZHNfZW9mAD8JFwEAQQELEQECAwQFCwYHNTk3MS8tJyspCsLgAkUCAAsIABCIgICAAAsZACAAEMKAgIAAGiAAIAI2AjggACABOgAoCxwAIAAgAC8BMiAALQAuIAAQwYCAgAAQgICAgAALKgEBf0HAABDGgICAACIBEMKAgIAAGiABQYCIgIAANgI4IAEgADoAKCABCwoAIAAQyICAgAALBwAgAC0AKAsHACAALQAqCwcAIAAtACsLBwAgAC0AKQsHACAALwEyCwcAIAAtAC4LRQEEfyAAKAIYIQEgAC0ALSECIAAtACghAyAAKAI4IQQgABDCgICAABogACAENgI4IAAgAzoAKCAAIAI6AC0gACABNgIYCxEAIAAgASABIAJqEMOAgIAACxAAIABBAEHcABDMgICAABoLZwEBf0EAIQECQCAAKAIMDQACQAJAAkACQCAALQAvDgMBAAMCCyAAKAI4IgFFDQAgASgCLCIBRQ0AIAAgARGAgICAAAAiAQ0DC0EADwsQyoCAgAAACyAAQcOWgIAANgIQQQ4hAQsgAQseAAJAIAAoAgwNACAAQdGbgIAANgIQIABBFTYCDAsLFgACQCAAKAIMQRVHDQAgAEEANgIMCwsWAAJAIAAoAgxBFkcNACAAQQA2AgwLCwcAIAAoAgwLBwAgACgCEAsJACAAIAE2AhALBwAgACgCFAsiAAJAIABBJEkNABDKgICAAAALIABBAnRBoLOAgABqKAIACyIAAkAgAEEuSQ0AEMqAgIAAAAsgAEECdEGwtICAAGooAgAL7gsBAX9B66iAgAAhAQJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAIABBnH9qDvQDY2IAAWFhYWFhYQIDBAVhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhBgcICQoLDA0OD2FhYWFhEGFhYWFhYWFhYWFhEWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYRITFBUWFxgZGhthYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2YTc4OTphYWFhYWFhYTthYWE8YWFhYT0+P2FhYWFhYWFhQGFhQWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYUJDREVGR0hJSktMTU5PUFFSU2FhYWFhYWFhVFVWV1hZWlthXF1hYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFeYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhX2BhC0Hhp4CAAA8LQaShgIAADwtBy6yAgAAPC0H+sYCAAA8LQcCkgIAADwtBq6SAgAAPC0GNqICAAA8LQeKmgIAADwtBgLCAgAAPC0G5r4CAAA8LQdekgIAADwtB75+AgAAPC0Hhn4CAAA8LQfqfgIAADwtB8qCAgAAPC0Gor4CAAA8LQa6ygIAADwtBiLCAgAAPC0Hsp4CAAA8LQYKigIAADwtBjp2AgAAPC0HQroCAAA8LQcqjgIAADwtBxbKAgAAPC0HfnICAAA8LQdKcgIAADwtBxKCAgAAPC0HXoICAAA8LQaKfgIAADwtB7a6AgAAPC0GrsICAAA8LQdSlgIAADwtBzK6AgAAPC0H6roCAAA8LQfyrgIAADwtB0rCAgAAPC0HxnYCAAA8LQbuggIAADwtB96uAgAAPC0GQsYCAAA8LQdexgIAADwtBoq2AgAAPC0HUp4CAAA8LQeCrgIAADwtBn6yAgAAPC0HrsYCAAA8LQdWfgIAADwtByrGAgAAPC0HepYCAAA8LQdSegIAADwtB9JyAgAAPC0GnsoCAAA8LQbGdgIAADwtBoJ2AgAAPC0G5sYCAAA8LQbywgIAADwtBkqGAgAAPC0GzpoCAAA8LQemsgIAADwtBrJ6AgAAPC0HUq4CAAA8LQfemgIAADwtBgKaAgAAPC0GwoYCAAA8LQf6egIAADwtBjaOAgAAPC0GJrYCAAA8LQfeigIAADwtBoLGAgAAPC0Gun4CAAA8LQcalgIAADwtB6J6AgAAPC0GTooCAAA8LQcKvgIAADwtBw52AgAAPC0GLrICAAA8LQeGdgIAADwtBja+AgAAPC0HqoYCAAA8LQbStgIAADwtB0q+AgAAPC0HfsoCAAA8LQdKygIAADwtB8LCAgAAPC0GpooCAAA8LQfmjgIAADwtBmZ6AgAAPC0G1rICAAA8LQZuwgIAADwtBkrKAgAAPC0G2q4CAAA8LQcKigIAADwtB+LKAgAAPC0GepYCAAA8LQdCigIAADwtBup6AgAAPC0GBnoCAAA8LEMqAgIAAAAtB1qGAgAAhAQsgAQsWACAAIAAtAC1B/gFxIAFBAEdyOgAtCxkAIAAgAC0ALUH9AXEgAUEAR0EBdHI6AC0LGQAgACAALQAtQfsBcSABQQBHQQJ0cjoALQsZACAAIAAtAC1B9wFxIAFBAEdBA3RyOgAtCy4BAn9BACEDAkAgACgCOCIERQ0AIAQoAgAiBEUNACAAIAQRgICAgAAAIQMLIAMLSQECf0EAIQMCQCAAKAI4IgRFDQAgBCgCBCIERQ0AIAAgASACIAFrIAQRgYCAgAAAIgNBf0cNACAAQcaRgIAANgIQQRghAwsgAwsuAQJ/QQAhAwJAIAAoAjgiBEUNACAEKAIwIgRFDQAgACAEEYCAgIAAACEDCyADC0kBAn9BACEDAkAgACgCOCIERQ0AIAQoAggiBEUNACAAIAEgAiABayAEEYGAgIAAACIDQX9HDQAgAEH2ioCAADYCEEEYIQMLIAMLLgECf0EAIQMCQCAAKAI4IgRFDQAgBCgCNCIERQ0AIAAgBBGAgICAAAAhAwsgAwtJAQJ/QQAhAwJAIAAoAjgiBEUNACAEKAIMIgRFDQAgACABIAIgAWsgBBGBgICAAAAiA0F/Rw0AIABB7ZqAgAA2AhBBGCEDCyADCy4BAn9BACEDAkAgACgCOCIERQ0AIAQoAjgiBEUNACAAIAQRgICAgAAAIQMLIAMLSQECf0EAIQMCQCAAKAI4IgRFDQAgBCgCECIERQ0AIAAgASACIAFrIAQRgYCAgAAAIgNBf0cNACAAQZWQgIAANgIQQRghAwsgAwsuAQJ/QQAhAwJAIAAoAjgiBEUNACAEKAI8IgRFDQAgACAEEYCAgIAAACEDCyADC0kBAn9BACEDAkAgACgCOCIERQ0AIAQoAhQiBEUNACAAIAEgAiABayAEEYGAgIAAACIDQX9HDQAgAEGqm4CAADYCEEEYIQMLIAMLLgECf0EAIQMCQCAAKAI4IgRFDQAgBCgCQCIERQ0AIAAgBBGAgICAAAAhAwsgAwtJAQJ/QQAhAwJAIAAoAjgiBEUNACAEKAIYIgRFDQAgACABIAIgAWsgBBGBgICAAAAiA0F/Rw0AIABB7ZOAgAA2AhBBGCEDCyADCy4BAn9BACEDAkAgACgCOCIERQ0AIAQoAkQiBEUNACAAIAQRgICAgAAAIQMLIAMLLgECf0EAIQMCQCAAKAI4IgRFDQAgBCgCJCIERQ0AIAAgBBGAgICAAAAhAwsgAwsuAQJ/QQAhAwJAIAAoAjgiBEUNACAEKAIsIgRFDQAgACAEEYCAgIAAACEDCyADC0kBAn9BACEDAkAgACgCOCIERQ0AIAQoAigiBEUNACAAIAEgAiABayAEEYGAgIAAACIDQX9HDQAgAEH2iICAADYCEEEYIQMLIAMLLgECf0EAIQMCQCAAKAI4IgRFDQAgBCgCUCIERQ0AIAAgBBGAgICAAAAhAwsgAwtJAQJ/QQAhAwJAIAAoAjgiBEUNACAEKAIcIgRFDQAgACABIAIgAWsgBBGBgICAAAAiA0F/Rw0AIABBwpmAgAA2AhBBGCEDCyADCy4BAn9BACEDAkAgACgCOCIERQ0AIAQoAkgiBEUNACAAIAQRgICAgAAAIQMLIAMLSQECf0EAIQMCQCAAKAI4IgRFDQAgBCgCICIERQ0AIAAgASACIAFrIAQRgYCAgAAAIgNBf0cNACAAQZSUgIAANgIQQRghAwsgAwsuAQJ/QQAhAwJAIAAoAjgiBEUNACAEKAJMIgRFDQAgACAEEYCAgIAAACEDCyADCy4BAn9BACEDAkAgACgCOCIERQ0AIAQoAlQiBEUNACAAIAQRgICAgAAAIQMLIAMLLgECf0EAIQMCQCAAKAI4IgRFDQAgBCgCWCIERQ0AIAAgBBGAgICAAAAhAwsgAwtFAQF/AkACQCAALwEwQRRxQRRHDQBBASEDIAAtAChBAUYNASAALwEyQeUARiEDDAELIAAtAClBBUYhAwsgACADOgAuQQAL/gEBA39BASEDAkAgAC8BMCIEQQhxDQAgACkDIEIAUiEDCwJAAkAgAC0ALkUNAEEBIQUgAC0AKUEFRg0BQQEhBSAEQcAAcUUgA3FBAUcNAQtBACEFIARBwABxDQBBAiEFIARB//8DcSIDQQhxDQACQCADQYAEcUUNAAJAIAAtAChBAUcNACAALQAtQQpxDQBBBQ8LQQQPCwJAIANBIHENAAJAIAAtAChBAUYNACAALwEyQf//A3EiAEGcf2pB5ABJDQAgAEHMAUYNACAAQbACRg0AQQQhBSAEQShxRQ0CIANBiARxQYAERg0CC0EADwtBAEEDIAApAyBQGyEFCyAFC2IBAn9BACEBAkAgAC0AKEEBRg0AIAAvATJB//8DcSICQZx/akHkAEkNACACQcwBRg0AIAJBsAJGDQAgAC8BMCIAQcAAcQ0AQQEhASAAQYgEcUGABEYNACAAQShxRSEBCyABC6cBAQN/AkACQAJAIAAtACpFDQAgAC0AK0UNAEEAIQMgAC8BMCIEQQJxRQ0BDAILQQAhAyAALwEwIgRBAXFFDQELQQEhAyAALQAoQQFGDQAgAC8BMkH//wNxIgVBnH9qQeQASQ0AIAVBzAFGDQAgBUGwAkYNACAEQcAAcQ0AQQAhAyAEQYgEcUGABEYNACAEQShxQQBHIQMLIABBADsBMCAAQQA6AC8gAwuZAQECfwJAAkACQCAALQAqRQ0AIAAtACtFDQBBACEBIAAvATAiAkECcUUNAQwCC0EAIQEgAC8BMCICQQFxRQ0BC0EBIQEgAC0AKEEBRg0AIAAvATJB//8DcSIAQZx/akHkAEkNACAAQcwBRg0AIABBsAJGDQAgAkHAAHENAEEAIQEgAkGIBHFBgARGDQAgAkEocUEARyEBCyABC1kAIABBGGpCADcDACAAQgA3AwAgAEE4akIANwMAIABBMGpCADcDACAAQShqQgA3AwAgAEEgakIANwMAIABBEGpCADcDACAAQQhqQgA3AwAgAEHdATYCHEEAC3sBAX8CQCAAKAIMIgMNAAJAIAAoAgRFDQAgACABNgIECwJAIAAgASACEMSAgIAAIgMNACAAKAIMDwsgACADNgIcQQAhAyAAKAIEIgFFDQAgACABIAIgACgCCBGBgICAAAAiAUUNACAAIAI2AhQgACABNgIMIAEhAwsgAwvk8wEDDn8DfgR/I4CAgIAAQRBrIgMkgICAgAAgASEEIAEhBSABIQYgASEHIAEhCCABIQkgASEKIAEhCyABIQwgASENIAEhDiABIQ8CQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkAgACgCHCIQQX9qDt0B2gEB2QECAwQFBgcICQoLDA0O2AEPENcBERLWARMUFRYXGBkaG+AB3wEcHR7VAR8gISIjJCXUASYnKCkqKyzTAdIBLS7RAdABLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVG2wFHSElKzwHOAUvNAUzMAU1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4ABgQGCAYMBhAGFAYYBhwGIAYkBigGLAYwBjQGOAY8BkAGRAZIBkwGUAZUBlgGXAZgBmQGaAZsBnAGdAZ4BnwGgAaEBogGjAaQBpQGmAacBqAGpAaoBqwGsAa0BrgGvAbABsQGyAbMBtAG1AbYBtwHLAcoBuAHJAbkByAG6AbsBvAG9Ab4BvwHAAcEBwgHDAcQBxQHGAQDcAQtBACEQDMYBC0EOIRAMxQELQQ0hEAzEAQtBDyEQDMMBC0EQIRAMwgELQRMhEAzBAQtBFCEQDMABC0EVIRAMvwELQRYhEAy+AQtBFyEQDL0BC0EYIRAMvAELQRkhEAy7AQtBGiEQDLoBC0EbIRAMuQELQRwhEAy4AQtBCCEQDLcBC0EdIRAMtgELQSAhEAy1AQtBHyEQDLQBC0EHIRAMswELQSEhEAyyAQtBIiEQDLEBC0EeIRAMsAELQSMhEAyvAQtBEiEQDK4BC0ERIRAMrQELQSQhEAysAQtBJSEQDKsBC0EmIRAMqgELQSchEAypAQtBwwEhEAyoAQtBKSEQDKcBC0ErIRAMpgELQSwhEAylAQtBLSEQDKQBC0EuIRAMowELQS8hEAyiAQtBxAEhEAyhAQtBMCEQDKABC0E0IRAMnwELQQwhEAyeAQtBMSEQDJ0BC0EyIRAMnAELQTMhEAybAQtBOSEQDJoBC0E1IRAMmQELQcUBIRAMmAELQQshEAyXAQtBOiEQDJYBC0E2IRAMlQELQQohEAyUAQtBNyEQDJMBC0E4IRAMkgELQTwhEAyRAQtBOyEQDJABC0E9IRAMjwELQQkhEAyOAQtBKCEQDI0BC0E+IRAMjAELQT8hEAyLAQtBwAAhEAyKAQtBwQAhEAyJAQtBwgAhEAyIAQtBwwAhEAyHAQtBxAAhEAyGAQtBxQAhEAyFAQtBxgAhEAyEAQtBKiEQDIMBC0HHACEQDIIBC0HIACEQDIEBC0HJACEQDIABC0HKACEQDH8LQcsAIRAMfgtBzQAhEAx9C0HMACEQDHwLQc4AIRAMewtBzwAhEAx6C0HQACEQDHkLQdEAIRAMeAtB0gAhEAx3C0HTACEQDHYLQdQAIRAMdQtB1gAhEAx0C0HVACEQDHMLQQYhEAxyC0HXACEQDHELQQUhEAxwC0HYACEQDG8LQQQhEAxuC0HZACEQDG0LQdoAIRAMbAtB2wAhEAxrC0HcACEQDGoLQQMhEAxpC0HdACEQDGgLQd4AIRAMZwtB3wAhEAxmC0HhACEQDGULQeAAIRAMZAtB4gAhEAxjC0HjACEQDGILQQIhEAxhC0HkACEQDGALQeUAIRAMXwtB5gAhEAxeC0HnACEQDF0LQegAIRAMXAtB6QAhEAxbC0HqACEQDFoLQesAIRAMWQtB7AAhEAxYC0HtACEQDFcLQe4AIRAMVgtB7wAhEAxVC0HwACEQDFQLQfEAIRAMUwtB8gAhEAxSC0HzACEQDFELQfQAIRAMUAtB9QAhEAxPC0H2ACEQDE4LQfcAIRAMTQtB+AAhEAxMC0H5ACEQDEsLQfoAIRAMSgtB+wAhEAxJC0H8ACEQDEgLQf0AIRAMRwtB/gAhEAxGC0H/ACEQDEULQYABIRAMRAtBgQEhEAxDC0GCASEQDEILQYMBIRAMQQtBhAEhEAxAC0GFASEQDD8LQYYBIRAMPgtBhwEhEAw9C0GIASEQDDwLQYkBIRAMOwtBigEhEAw6C0GLASEQDDkLQYwBIRAMOAtBjQEhEAw3C0GOASEQDDYLQY8BIRAMNQtBkAEhEAw0C0GRASEQDDMLQZIBIRAMMgtBkwEhEAwxC0GUASEQDDALQZUBIRAMLwtBlgEhEAwuC0GXASEQDC0LQZgBIRAMLAtBmQEhEAwrC0GaASEQDCoLQZsBIRAMKQtBnAEhEAwoC0GdASEQDCcLQZ4BIRAMJgtBnwEhEAwlC0GgASEQDCQLQaEBIRAMIwtBogEhEAwiC0GjASEQDCELQaQBIRAMIAtBpQEhEAwfC0GmASEQDB4LQacBIRAMHQtBqAEhEAwcC0GpASEQDBsLQaoBIRAMGgtBqwEhEAwZC0GsASEQDBgLQa0BIRAMFwtBrgEhEAwWC0EBIRAMFQtBrwEhEAwUC0GwASEQDBMLQbEBIRAMEgtBswEhEAwRC0GyASEQDBALQbQBIRAMDwtBtQEhEAwOC0G2ASEQDA0LQbcBIRAMDAtBuAEhEAwLC0G5ASEQDAoLQboBIRAMCQtBuwEhEAwIC0HGASEQDAcLQbwBIRAMBgtBvQEhEAwFC0G+ASEQDAQLQb8BIRAMAwtBwAEhEAwCC0HCASEQDAELQcEBIRALA0ACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkAC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FCAAIBA2AgxBACEQDLIBCyAAKAIEIRAgAEEANgIEAkAgACAQIAEQp4CAgAAiEA0AIAEhAQxNCyAAQdMANgIcIAAgATYCFCAAIBA2AgxBACEQDLEBCyAAKAIEIRAgAEEANgIEAkAgACAQIAEQp4CAgAAiEA0AIAEhAQxRCyAAQeUANgIcIAAgATYCFCAAIBA2AgxBACEQDLABCyAAQQA2AhwgACABNgIUIABBxoqAgAA2AhAgAEEHNgIMQQAhEAyvAQsgACgCBCEQIABBADYCBAJAIAAgECABEKeAgIAAIhANACABIQEMSQsgAEHSADYCHCAAIAE2AhQgACAQNgIMQQAhEAyuAQsgACgCBCEQIABBADYCBAJAIAAgECABEKeAgIAAIhANACABIQEMSQsgAEHTADYCHCAAIAE2AhQgACAQNgIMQQAhEAytAQsgACgCBCEQIABBADYCBAJAIAAgECABEKeAgIAAIhANACABIQEMTQsgAEHlADYCHCAAIAE2AhQgACAQNgIMQQAhEAysAQsgAEEANgIcIAAgATYCFCAAQdyIgIAANgIQIABBBzYCDEEAIRAMqwELIBBBP0cNASABQQFqIQELQQUhEAyQAQtBACEQIABBADYCHCAAIAE2AhQgAEH9koCAADYCECAAQQc2AgwMqAELIAAoAgQhECAAQQA2AgQCQCAAIBAgARCngICAACIQDQAgASEBDEILIABB0gA2AhwgACABNgIUIAAgEDYCDEEAIRAMpwELIAAoAgQhECAAQQA2AgQCQCAAIBAgARCngICAACIQDQAgASEBDEILIABB0wA2AhwgACABNgIUIAAgEDYCDEEAIRAMpgELIAAoAgQhECAAQQA2AgQCQCAAIBAgARCngICAACIQDQAgASEBDEYLIABB5QA2AhwgACABNgIUIAAgEDYCDEEAIRAMpQELIAAoAgQhASAAQQA2AgQCQCAAIAEgFBCngICAACIBDQAgFCEBDD8LIABB0gA2AhwgACAUNgIUIAAgATYCDEEAIRAMpAELIAAoAgQhASAAQQA2AgQCQCAAIAEgFBCngICAACIBDQAgFCEBDD8LIABB0wA2AhwgACAUNgIUIAAgATYCDEEAIRAMowELIAAoAgQhASAAQQA2AgQCQCAAIAEgFBCngICAACIBDQAgFCEBDEMLIABB5QA2AhwgACAUNgIUIAAgATYCDEEAIRAMogELIABBADYCHCAAIBQ2AhQgAEHDj4CAADYCECAAQQc2AgxBACEQDKEBCyAAQQA2AhwgACABNgIUIABBw4+AgAA2AhAgAEEHNgIMQQAhEAygAQtBACEQIABBADYCHCAAIBQ2AhQgAEGMnICAADYCECAAQQc2AgwMnwELIABBADYCHCAAIBQ2AhQgAEGMnICAADYCECAAQQc2AgxBACEQDJ4BCyAAQQA2AhwgACAUNgIUIABB/pGAgAA2AhAgAEEHNgIMQQAhEAydAQsgAEEANgIcIAAgATYCFCAAQY6bgIAANgIQIABBBjYCDEEAIRAMnAELIBBBFUYNVyAAQQA2AhwgACABNgIUIABBzI6AgAA2AhAgAEEgNgIMQQAhEAybAQsgAEEANgIAIBBBAWohAUEkIRALIAAgEDoAKSAAKAIEIRAgAEEANgIEIAAgECABEKuAgIAAIhANVCABIQEMPgsgAEEANgIAC0EAIRAgAEEANgIcIAAgBDYCFCAAQfGbgIAANgIQIABBBjYCDAyXAQsgAUEVRg1QIABBADYCHCAAIAU2AhQgAEHwjICAADYCECAAQRs2AgxBACEQDJYBCyAAKAIEIQUgAEEANgIEIAAgBSAQEKmAgIAAIgUNASAQQQFqIQULQa0BIRAMewsgAEHBATYCHCAAIAU2AgwgACAQQQFqNgIUQQAhEAyTAQsgACgCBCEGIABBADYCBCAAIAYgEBCpgICAACIGDQEgEEEBaiEGC0GuASEQDHgLIABBwgE2AhwgACAGNgIMIAAgEEEBajYCFEEAIRAMkAELIABBADYCHCAAIAc2AhQgAEGXi4CAADYCECAAQQ02AgxBACEQDI8BCyAAQQA2AhwgACAINgIUIABB45CAgAA2AhAgAEEJNgIMQQAhEAyOAQsgAEEANgIcIAAgCDYCFCAAQZSNgIAANgIQIABBITYCDEEAIRAMjQELQQEhFkEAIRdBACEUQQEhEAsgACAQOgArIAlBAWohCAJAAkAgAC0ALUEQcQ0AAkACQAJAIAAtACoOAwEAAgQLIBZFDQMMAgsgFA0BDAILIBdFDQELIAAoAgQhECAAQQA2AgQgACAQIAgQrYCAgAAiEEUNPSAAQckBNgIcIAAgCDYCFCAAIBA2AgxBACEQDIwBCyAAKAIEIQQgAEEANgIEIAAgBCAIEK2AgIAAIgRFDXYgAEHKATYCHCAAIAg2AhQgACAENgIMQQAhEAyLAQsgACgCBCEEIABBADYCBCAAIAQgCRCtgICAACIERQ10IABBywE2AhwgACAJNgIUIAAgBDYCDEEAIRAMigELIAAoAgQhBCAAQQA2AgQgACAEIAoQrYCAgAAiBEUNciAAQc0BNgIcIAAgCjYCFCAAIAQ2AgxBACEQDIkBCwJAIAstAABBUGoiEEH/AXFBCk8NACAAIBA6ACogC0EBaiEKQbYBIRAMcAsgACgCBCEEIABBADYCBCAAIAQgCxCtgICAACIERQ1wIABBzwE2AhwgACALNgIUIAAgBDYCDEEAIRAMiAELIABBADYCHCAAIAQ2AhQgAEGQs4CAADYCECAAQQg2AgwgAEEANgIAQQAhEAyHAQsgAUEVRg0/IABBADYCHCAAIAw2AhQgAEHMjoCAADYCECAAQSA2AgxBACEQDIYBCyAAQYEEOwEoIAAoAgQhECAAQgA3AwAgACAQIAxBAWoiDBCrgICAACIQRQ04IABB0wE2AhwgACAMNgIUIAAgEDYCDEEAIRAMhQELIABBADYCAAtBACEQIABBADYCHCAAIAQ2AhQgAEHYm4CAADYCECAAQQg2AgwMgwELIAAoAgQhECAAQgA3AwAgACAQIAtBAWoiCxCrgICAACIQDQFBxgEhEAxpCyAAQQI6ACgMVQsgAEHVATYCHCAAIAs2AhQgACAQNgIMQQAhEAyAAQsgEEEVRg03IABBADYCHCAAIAQ2AhQgAEGkjICAADYCECAAQRA2AgxBACEQDH8LIAAtADRBAUcNNCAAIAQgAhC8gICAACIQRQ00IBBBFUcNNSAAQdwBNgIcIAAgBDYCFCAAQdWWgIAANgIQIABBFTYCDEEAIRAMfgtBACEQIABBADYCHCAAQa+LgIAANgIQIABBAjYCDCAAIBRBAWo2AhQMfQtBACEQDGMLQQIhEAxiC0ENIRAMYQtBDyEQDGALQSUhEAxfC0ETIRAMXgtBFSEQDF0LQRYhEAxcC0EXIRAMWwtBGCEQDFoLQRkhEAxZC0EaIRAMWAtBGyEQDFcLQRwhEAxWC0EdIRAMVQtBHyEQDFQLQSEhEAxTC0EjIRAMUgtBxgAhEAxRC0EuIRAMUAtBLyEQDE8LQTshEAxOC0E9IRAMTQtByAAhEAxMC0HJACEQDEsLQcsAIRAMSgtBzAAhEAxJC0HOACEQDEgLQdEAIRAMRwtB1QAhEAxGC0HYACEQDEULQdkAIRAMRAtB2wAhEAxDC0HkACEQDEILQeUAIRAMQQtB8QAhEAxAC0H0ACEQDD8LQY0BIRAMPgtBlwEhEAw9C0GpASEQDDwLQawBIRAMOwtBwAEhEAw6C0G5ASEQDDkLQa8BIRAMOAtBsQEhEAw3C0GyASEQDDYLQbQBIRAMNQtBtQEhEAw0C0G6ASEQDDMLQb0BIRAMMgtBvwEhEAwxC0HBASEQDDALIABBADYCHCAAIAQ2AhQgAEHpi4CAADYCECAAQR82AgxBACEQDEgLIABB2wE2AhwgACAENgIUIABB+paAgAA2AhAgAEEVNgIMQQAhEAxHCyAAQfgANgIcIAAgDDYCFCAAQcqYgIAANgIQIABBFTYCDEEAIRAMRgsgAEHRADYCHCAAIAU2AhQgAEGwl4CAADYCECAAQRU2AgxBACEQDEULIABB+QA2AhwgACABNgIUIAAgEDYCDEEAIRAMRAsgAEH4ADYCHCAAIAE2AhQgAEHKmICAADYCECAAQRU2AgxBACEQDEMLIABB5AA2AhwgACABNgIUIABB45eAgAA2AhAgAEEVNgIMQQAhEAxCCyAAQdcANgIcIAAgATYCFCAAQcmXgIAANgIQIABBFTYCDEEAIRAMQQsgAEEANgIcIAAgATYCFCAAQbmNgIAANgIQIABBGjYCDEEAIRAMQAsgAEHCADYCHCAAIAE2AhQgAEHjmICAADYCECAAQRU2AgxBACEQDD8LIABBADYCBCAAIA8gDxCxgICAACIERQ0BIABBOjYCHCAAIAQ2AgwgACAPQQFqNgIUQQAhEAw+CyAAKAIEIQQgAEEANgIEAkAgACAEIAEQsYCAgAAiBEUNACAAQTs2AhwgACAENgIMIAAgAUEBajYCFEEAIRAMPgsgAUEBaiEBDC0LIA9BAWohAQwtCyAAQQA2AhwgACAPNgIUIABB5JKAgAA2AhAgAEEENgIMQQAhEAw7CyAAQTY2AhwgACAENgIUIAAgAjYCDEEAIRAMOgsgAEEuNgIcIAAgDjYCFCAAIAQ2AgxBACEQDDkLIABB0AA2AhwgACABNgIUIABBkZiAgAA2AhAgAEEVNgIMQQAhEAw4CyANQQFqIQEMLAsgAEEVNgIcIAAgATYCFCAAQYKZgIAANgIQIABBFTYCDEEAIRAMNgsgAEEbNgIcIAAgATYCFCAAQZGXgIAANgIQIABBFTYCDEEAIRAMNQsgAEEPNgIcIAAgATYCFCAAQZGXgIAANgIQIABBFTYCDEEAIRAMNAsgAEELNgIcIAAgATYCFCAAQZGXgIAANgIQIABBFTYCDEEAIRAMMwsgAEEaNgIcIAAgATYCFCAAQYKZgIAANgIQIABBFTYCDEEAIRAMMgsgAEELNgIcIAAgATYCFCAAQYKZgIAANgIQIABBFTYCDEEAIRAMMQsgAEEKNgIcIAAgATYCFCAAQeSWgIAANgIQIABBFTYCDEEAIRAMMAsgAEEeNgIcIAAgATYCFCAAQfmXgIAANgIQIABBFTYCDEEAIRAMLwsgAEEANgIcIAAgEDYCFCAAQdqNgIAANgIQIABBFDYCDEEAIRAMLgsgAEEENgIcIAAgATYCFCAAQbCYgIAANgIQIABBFTYCDEEAIRAMLQsgAEEANgIAIAtBAWohCwtBuAEhEAwSCyAAQQA2AgAgEEEBaiEBQfUAIRAMEQsgASEBAkAgAC0AKUEFRw0AQeMAIRAMEQtB4gAhEAwQC0EAIRAgAEEANgIcIABB5JGAgAA2AhAgAEEHNgIMIAAgFEEBajYCFAwoCyAAQQA2AgAgF0EBaiEBQcAAIRAMDgtBASEBCyAAIAE6ACwgAEEANgIAIBdBAWohAQtBKCEQDAsLIAEhAQtBOCEQDAkLAkAgASIPIAJGDQADQAJAIA8tAABBgL6AgABqLQAAIgFBAUYNACABQQJHDQMgD0EBaiEBDAQLIA9BAWoiDyACRw0AC0E+IRAMIgtBPiEQDCELIABBADoALCAPIQEMAQtBCyEQDAYLQTohEAwFCyABQQFqIQFBLSEQDAQLIAAgAToALCAAQQA2AgAgFkEBaiEBQQwhEAwDCyAAQQA2AgAgF0EBaiEBQQohEAwCCyAAQQA2AgALIABBADoALCANIQFBCSEQDAALC0EAIRAgAEEANgIcIAAgCzYCFCAAQc2QgIAANgIQIABBCTYCDAwXC0EAIRAgAEEANgIcIAAgCjYCFCAAQemKgIAANgIQIABBCTYCDAwWC0EAIRAgAEEANgIcIAAgCTYCFCAAQbeQgIAANgIQIABBCTYCDAwVC0EAIRAgAEEANgIcIAAgCDYCFCAAQZyRgIAANgIQIABBCTYCDAwUC0EAIRAgAEEANgIcIAAgATYCFCAAQc2QgIAANgIQIABBCTYCDAwTC0EAIRAgAEEANgIcIAAgATYCFCAAQemKgIAANgIQIABBCTYCDAwSC0EAIRAgAEEANgIcIAAgATYCFCAAQbeQgIAANgIQIABBCTYCDAwRC0EAIRAgAEEANgIcIAAgATYCFCAAQZyRgIAANgIQIABBCTYCDAwQC0EAIRAgAEEANgIcIAAgATYCFCAAQZeVgIAANgIQIABBDzYCDAwPC0EAIRAgAEEANgIcIAAgATYCFCAAQZeVgIAANgIQIABBDzYCDAwOC0EAIRAgAEEANgIcIAAgATYCFCAAQcCSgIAANgIQIABBCzYCDAwNC0EAIRAgAEEANgIcIAAgATYCFCAAQZWJgIAANgIQIABBCzYCDAwMC0EAIRAgAEEANgIcIAAgATYCFCAAQeGPgIAANgIQIABBCjYCDAwLC0EAIRAgAEEANgIcIAAgATYCFCAAQfuPgIAANgIQIABBCjYCDAwKC0EAIRAgAEEANgIcIAAgATYCFCAAQfGZgIAANgIQIABBAjYCDAwJC0EAIRAgAEEANgIcIAAgATYCFCAAQcSUgIAANgIQIABBAjYCDAwIC0EAIRAgAEEANgIcIAAgATYCFCAAQfKVgIAANgIQIABBAjYCDAwHCyAAQQI2AhwgACABNgIUIABBnJqAgAA2AhAgAEEWNgIMQQAhEAwGC0EBIRAMBQtB1AAhECABIgQgAkYNBCADQQhqIAAgBCACQdjCgIAAQQoQxYCAgAAgAygCDCEEIAMoAggOAwEEAgALEMqAgIAAAAsgAEEANgIcIABBtZqAgAA2AhAgAEEXNgIMIAAgBEEBajYCFEEAIRAMAgsgAEEANgIcIAAgBDYCFCAAQcqagIAANgIQIABBCTYCDEEAIRAMAQsCQCABIgQgAkcNAEEiIRAMAQsgAEGJgICAADYCCCAAIAQ2AgRBISEQCyADQRBqJICAgIAAIBALrwEBAn8gASgCACEGAkACQCACIANGDQAgBCAGaiEEIAYgA2ogAmshByACIAZBf3MgBWoiBmohBQNAAkAgAi0AACAELQAARg0AQQIhBAwDCwJAIAYNAEEAIQQgBSECDAMLIAZBf2ohBiAEQQFqIQQgAkEBaiICIANHDQALIAchBiADIQILIABBATYCACABIAY2AgAgACACNgIEDwsgAUEANgIAIAAgBDYCACAAIAI2AgQLCgAgABDHgICAAAvyNgELfyOAgICAAEEQayIBJICAgIAAAkBBACgCoNCAgAANAEEAEMuAgIAAQYDUhIAAayICQdkASQ0AQQAhAwJAQQAoAuDTgIAAIgQNAEEAQn83AuzTgIAAQQBCgICEgICAwAA3AuTTgIAAQQAgAUEIakFwcUHYqtWqBXMiBDYC4NOAgABBAEEANgL004CAAEEAQQA2AsTTgIAAC0EAIAI2AszTgIAAQQBBgNSEgAA2AsjTgIAAQQBBgNSEgAA2ApjQgIAAQQAgBDYCrNCAgABBAEF/NgKo0ICAAANAIANBxNCAgABqIANBuNCAgABqIgQ2AgAgBCADQbDQgIAAaiIFNgIAIANBvNCAgABqIAU2AgAgA0HM0ICAAGogA0HA0ICAAGoiBTYCACAFIAQ2AgAgA0HU0ICAAGogA0HI0ICAAGoiBDYCACAEIAU2AgAgA0HQ0ICAAGogBDYCACADQSBqIgNBgAJHDQALQYDUhIAAQXhBgNSEgABrQQ9xQQBBgNSEgABBCGpBD3EbIgNqIgRBBGogAkFIaiIFIANrIgNBAXI2AgBBAEEAKALw04CAADYCpNCAgABBACADNgKU0ICAAEEAIAQ2AqDQgIAAQYDUhIAAIAVqQTg2AgQLAkACQAJAAkACQAJAAkACQAJAAkACQAJAIABB7AFLDQACQEEAKAKI0ICAACIGQRAgAEETakFwcSAAQQtJGyICQQN2IgR2IgNBA3FFDQACQAJAIANBAXEgBHJBAXMiBUEDdCIEQbDQgIAAaiIDIARBuNCAgABqKAIAIgQoAggiAkcNAEEAIAZBfiAFd3E2AojQgIAADAELIAMgAjYCCCACIAM2AgwLIARBCGohAyAEIAVBA3QiBUEDcjYCBCAEIAVqIgQgBCgCBEEBcjYCBAwMCyACQQAoApDQgIAAIgdNDQECQCADRQ0AAkACQCADIAR0QQIgBHQiA0EAIANrcnEiA0EAIANrcUF/aiIDIANBDHZBEHEiA3YiBEEFdkEIcSIFIANyIAQgBXYiA0ECdkEEcSIEciADIAR2IgNBAXZBAnEiBHIgAyAEdiIDQQF2QQFxIgRyIAMgBHZqIgRBA3QiA0Gw0ICAAGoiBSADQbjQgIAAaigCACIDKAIIIgBHDQBBACAGQX4gBHdxIgY2AojQgIAADAELIAUgADYCCCAAIAU2AgwLIAMgAkEDcjYCBCADIARBA3QiBGogBCACayIFNgIAIAMgAmoiACAFQQFyNgIEAkAgB0UNACAHQXhxQbDQgIAAaiECQQAoApzQgIAAIQQCQAJAIAZBASAHQQN2dCIIcQ0AQQAgBiAIcjYCiNCAgAAgAiEIDAELIAIoAgghCAsgCCAENgIMIAIgBDYCCCAEIAI2AgwgBCAINgIICyADQQhqIQNBACAANgKc0ICAAEEAIAU2ApDQgIAADAwLQQAoAozQgIAAIglFDQEgCUEAIAlrcUF/aiIDIANBDHZBEHEiA3YiBEEFdkEIcSIFIANyIAQgBXYiA0ECdkEEcSIEciADIAR2IgNBAXZBAnEiBHIgAyAEdiIDQQF2QQFxIgRyIAMgBHZqQQJ0QbjSgIAAaigCACIAKAIEQXhxIAJrIQQgACEFAkADQAJAIAUoAhAiAw0AIAVBFGooAgAiA0UNAgsgAygCBEF4cSACayIFIAQgBSAESSIFGyEEIAMgACAFGyEAIAMhBQwACwsgACgCGCEKAkAgACgCDCIIIABGDQAgACgCCCIDQQAoApjQgIAASRogCCADNgIIIAMgCDYCDAwLCwJAIABBFGoiBSgCACIDDQAgACgCECIDRQ0DIABBEGohBQsDQCAFIQsgAyIIQRRqIgUoAgAiAw0AIAhBEGohBSAIKAIQIgMNAAsgC0EANgIADAoLQX8hAiAAQb9/Sw0AIABBE2oiA0FwcSECQQAoAozQgIAAIgdFDQBBACELAkAgAkGAAkkNAEEfIQsgAkH///8HSw0AIANBCHYiAyADQYD+P2pBEHZBCHEiA3QiBCAEQYDgH2pBEHZBBHEiBHQiBSAFQYCAD2pBEHZBAnEiBXRBD3YgAyAEciAFcmsiA0EBdCACIANBFWp2QQFxckEcaiELC0EAIAJrIQQCQAJAAkACQCALQQJ0QbjSgIAAaigCACIFDQBBACEDQQAhCAwBC0EAIQMgAkEAQRkgC0EBdmsgC0EfRht0IQBBACEIA0ACQCAFKAIEQXhxIAJrIgYgBE8NACAGIQQgBSEIIAYNAEEAIQQgBSEIIAUhAwwDCyADIAVBFGooAgAiBiAGIAUgAEEddkEEcWpBEGooAgAiBUYbIAMgBhshAyAAQQF0IQAgBQ0ACwsCQCADIAhyDQBBACEIQQIgC3QiA0EAIANrciAHcSIDRQ0DIANBACADa3FBf2oiAyADQQx2QRBxIgN2IgVBBXZBCHEiACADciAFIAB2IgNBAnZBBHEiBXIgAyAFdiIDQQF2QQJxIgVyIAMgBXYiA0EBdkEBcSIFciADIAV2akECdEG40oCAAGooAgAhAwsgA0UNAQsDQCADKAIEQXhxIAJrIgYgBEkhAAJAIAMoAhAiBQ0AIANBFGooAgAhBQsgBiAEIAAbIQQgAyAIIAAbIQggBSEDIAUNAAsLIAhFDQAgBEEAKAKQ0ICAACACa08NACAIKAIYIQsCQCAIKAIMIgAgCEYNACAIKAIIIgNBACgCmNCAgABJGiAAIAM2AgggAyAANgIMDAkLAkAgCEEUaiIFKAIAIgMNACAIKAIQIgNFDQMgCEEQaiEFCwNAIAUhBiADIgBBFGoiBSgCACIDDQAgAEEQaiEFIAAoAhAiAw0ACyAGQQA2AgAMCAsCQEEAKAKQ0ICAACIDIAJJDQBBACgCnNCAgAAhBAJAAkAgAyACayIFQRBJDQAgBCACaiIAIAVBAXI2AgRBACAFNgKQ0ICAAEEAIAA2ApzQgIAAIAQgA2ogBTYCACAEIAJBA3I2AgQMAQsgBCADQQNyNgIEIAQgA2oiAyADKAIEQQFyNgIEQQBBADYCnNCAgABBAEEANgKQ0ICAAAsgBEEIaiEDDAoLAkBBACgClNCAgAAiACACTQ0AQQAoAqDQgIAAIgMgAmoiBCAAIAJrIgVBAXI2AgRBACAFNgKU0ICAAEEAIAQ2AqDQgIAAIAMgAkEDcjYCBCADQQhqIQMMCgsCQAJAQQAoAuDTgIAARQ0AQQAoAujTgIAAIQQMAQtBAEJ/NwLs04CAAEEAQoCAhICAgMAANwLk04CAAEEAIAFBDGpBcHFB2KrVqgVzNgLg04CAAEEAQQA2AvTTgIAAQQBBADYCxNOAgABBgIAEIQQLQQAhAwJAIAQgAkHHAGoiB2oiBkEAIARrIgtxIgggAksNAEEAQTA2AvjTgIAADAoLAkBBACgCwNOAgAAiA0UNAAJAQQAoArjTgIAAIgQgCGoiBSAETQ0AIAUgA00NAQtBACEDQQBBMDYC+NOAgAAMCgtBAC0AxNOAgABBBHENBAJAAkACQEEAKAKg0ICAACIERQ0AQcjTgIAAIQMDQAJAIAMoAgAiBSAESw0AIAUgAygCBGogBEsNAwsgAygCCCIDDQALC0EAEMuAgIAAIgBBf0YNBSAIIQYCQEEAKALk04CAACIDQX9qIgQgAHFFDQAgCCAAayAEIABqQQAgA2txaiEGCyAGIAJNDQUgBkH+////B0sNBQJAQQAoAsDTgIAAIgNFDQBBACgCuNOAgAAiBCAGaiIFIARNDQYgBSADSw0GCyAGEMuAgIAAIgMgAEcNAQwHCyAGIABrIAtxIgZB/v///wdLDQQgBhDLgICAACIAIAMoAgAgAygCBGpGDQMgACEDCwJAIANBf0YNACACQcgAaiAGTQ0AAkAgByAGa0EAKALo04CAACIEakEAIARrcSIEQf7///8HTQ0AIAMhAAwHCwJAIAQQy4CAgABBf0YNACAEIAZqIQYgAyEADAcLQQAgBmsQy4CAgAAaDAQLIAMhACADQX9HDQUMAwtBACEIDAcLQQAhAAwFCyAAQX9HDQILQQBBACgCxNOAgABBBHI2AsTTgIAACyAIQf7///8HSw0BIAgQy4CAgAAhAEEAEMuAgIAAIQMgAEF/Rg0BIANBf0YNASAAIANPDQEgAyAAayIGIAJBOGpNDQELQQBBACgCuNOAgAAgBmoiAzYCuNOAgAACQCADQQAoArzTgIAATQ0AQQAgAzYCvNOAgAALAkACQAJAAkBBACgCoNCAgAAiBEUNAEHI04CAACEDA0AgACADKAIAIgUgAygCBCIIakYNAiADKAIIIgMNAAwDCwsCQAJAQQAoApjQgIAAIgNFDQAgACADTw0BC0EAIAA2ApjQgIAAC0EAIQNBACAGNgLM04CAAEEAIAA2AsjTgIAAQQBBfzYCqNCAgABBAEEAKALg04CAADYCrNCAgABBAEEANgLU04CAAANAIANBxNCAgABqIANBuNCAgABqIgQ2AgAgBCADQbDQgIAAaiIFNgIAIANBvNCAgABqIAU2AgAgA0HM0ICAAGogA0HA0ICAAGoiBTYCACAFIAQ2AgAgA0HU0ICAAGogA0HI0ICAAGoiBDYCACAEIAU2AgAgA0HQ0ICAAGogBDYCACADQSBqIgNBgAJHDQALIABBeCAAa0EPcUEAIABBCGpBD3EbIgNqIgQgBkFIaiIFIANrIgNBAXI2AgRBAEEAKALw04CAADYCpNCAgABBACADNgKU0ICAAEEAIAQ2AqDQgIAAIAAgBWpBODYCBAwCCyADLQAMQQhxDQAgBCAFSQ0AIAQgAE8NACAEQXggBGtBD3FBACAEQQhqQQ9xGyIFaiIAQQAoApTQgIAAIAZqIgsgBWsiBUEBcjYCBCADIAggBmo2AgRBAEEAKALw04CAADYCpNCAgABBACAFNgKU0ICAAEEAIAA2AqDQgIAAIAQgC2pBODYCBAwBCwJAIABBACgCmNCAgAAiCE8NAEEAIAA2ApjQgIAAIAAhCAsgACAGaiEFQcjTgIAAIQMCQAJAAkACQAJAAkACQANAIAMoAgAgBUYNASADKAIIIgMNAAwCCwsgAy0ADEEIcUUNAQtByNOAgAAhAwNAAkAgAygCACIFIARLDQAgBSADKAIEaiIFIARLDQMLIAMoAgghAwwACwsgAyAANgIAIAMgAygCBCAGajYCBCAAQXggAGtBD3FBACAAQQhqQQ9xG2oiCyACQQNyNgIEIAVBeCAFa0EPcUEAIAVBCGpBD3EbaiIGIAsgAmoiAmshAwJAIAYgBEcNAEEAIAI2AqDQgIAAQQBBACgClNCAgAAgA2oiAzYClNCAgAAgAiADQQFyNgIEDAMLAkAgBkEAKAKc0ICAAEcNAEEAIAI2ApzQgIAAQQBBACgCkNCAgAAgA2oiAzYCkNCAgAAgAiADQQFyNgIEIAIgA2ogAzYCAAwDCwJAIAYoAgQiBEEDcUEBRw0AIARBeHEhBwJAAkAgBEH/AUsNACAGKAIIIgUgBEEDdiIIQQN0QbDQgIAAaiIARhoCQCAGKAIMIgQgBUcNAEEAQQAoAojQgIAAQX4gCHdxNgKI0ICAAAwCCyAEIABGGiAEIAU2AgggBSAENgIMDAELIAYoAhghCQJAAkAgBigCDCIAIAZGDQAgBigCCCIEIAhJGiAAIAQ2AgggBCAANgIMDAELAkAgBkEUaiIEKAIAIgUNACAGQRBqIgQoAgAiBQ0AQQAhAAwBCwNAIAQhCCAFIgBBFGoiBCgCACIFDQAgAEEQaiEEIAAoAhAiBQ0ACyAIQQA2AgALIAlFDQACQAJAIAYgBigCHCIFQQJ0QbjSgIAAaiIEKAIARw0AIAQgADYCACAADQFBAEEAKAKM0ICAAEF+IAV3cTYCjNCAgAAMAgsgCUEQQRQgCSgCECAGRhtqIAA2AgAgAEUNAQsgACAJNgIYAkAgBigCECIERQ0AIAAgBDYCECAEIAA2AhgLIAYoAhQiBEUNACAAQRRqIAQ2AgAgBCAANgIYCyAHIANqIQMgBiAHaiIGKAIEIQQLIAYgBEF+cTYCBCACIANqIAM2AgAgAiADQQFyNgIEAkAgA0H/AUsNACADQXhxQbDQgIAAaiEEAkACQEEAKAKI0ICAACIFQQEgA0EDdnQiA3ENAEEAIAUgA3I2AojQgIAAIAQhAwwBCyAEKAIIIQMLIAMgAjYCDCAEIAI2AgggAiAENgIMIAIgAzYCCAwDC0EfIQQCQCADQf///wdLDQAgA0EIdiIEIARBgP4/akEQdkEIcSIEdCIFIAVBgOAfakEQdkEEcSIFdCIAIABBgIAPakEQdkECcSIAdEEPdiAEIAVyIAByayIEQQF0IAMgBEEVanZBAXFyQRxqIQQLIAIgBDYCHCACQgA3AhAgBEECdEG40oCAAGohBQJAQQAoAozQgIAAIgBBASAEdCIIcQ0AIAUgAjYCAEEAIAAgCHI2AozQgIAAIAIgBTYCGCACIAI2AgggAiACNgIMDAMLIANBAEEZIARBAXZrIARBH0YbdCEEIAUoAgAhAANAIAAiBSgCBEF4cSADRg0CIARBHXYhACAEQQF0IQQgBSAAQQRxakEQaiIIKAIAIgANAAsgCCACNgIAIAIgBTYCGCACIAI2AgwgAiACNgIIDAILIABBeCAAa0EPcUEAIABBCGpBD3EbIgNqIgsgBkFIaiIIIANrIgNBAXI2AgQgACAIakE4NgIEIAQgBUE3IAVrQQ9xQQAgBUFJakEPcRtqQUFqIgggCCAEQRBqSRsiCEEjNgIEQQBBACgC8NOAgAA2AqTQgIAAQQAgAzYClNCAgABBACALNgKg0ICAACAIQRBqQQApAtDTgIAANwIAIAhBACkCyNOAgAA3AghBACAIQQhqNgLQ04CAAEEAIAY2AszTgIAAQQAgADYCyNOAgABBAEEANgLU04CAACAIQSRqIQMDQCADQQc2AgAgA0EEaiIDIAVJDQALIAggBEYNAyAIIAgoAgRBfnE2AgQgCCAIIARrIgA2AgAgBCAAQQFyNgIEAkAgAEH/AUsNACAAQXhxQbDQgIAAaiEDAkACQEEAKAKI0ICAACIFQQEgAEEDdnQiAHENAEEAIAUgAHI2AojQgIAAIAMhBQwBCyADKAIIIQULIAUgBDYCDCADIAQ2AgggBCADNgIMIAQgBTYCCAwEC0EfIQMCQCAAQf///wdLDQAgAEEIdiIDIANBgP4/akEQdkEIcSIDdCIFIAVBgOAfakEQdkEEcSIFdCIIIAhBgIAPakEQdkECcSIIdEEPdiADIAVyIAhyayIDQQF0IAAgA0EVanZBAXFyQRxqIQMLIAQgAzYCHCAEQgA3AhAgA0ECdEG40oCAAGohBQJAQQAoAozQgIAAIghBASADdCIGcQ0AIAUgBDYCAEEAIAggBnI2AozQgIAAIAQgBTYCGCAEIAQ2AgggBCAENgIMDAQLIABBAEEZIANBAXZrIANBH0YbdCEDIAUoAgAhCANAIAgiBSgCBEF4cSAARg0DIANBHXYhCCADQQF0IQMgBSAIQQRxakEQaiIGKAIAIggNAAsgBiAENgIAIAQgBTYCGCAEIAQ2AgwgBCAENgIIDAMLIAUoAggiAyACNgIMIAUgAjYCCCACQQA2AhggAiAFNgIMIAIgAzYCCAsgC0EIaiEDDAULIAUoAggiAyAENgIMIAUgBDYCCCAEQQA2AhggBCAFNgIMIAQgAzYCCAtBACgClNCAgAAiAyACTQ0AQQAoAqDQgIAAIgQgAmoiBSADIAJrIgNBAXI2AgRBACADNgKU0ICAAEEAIAU2AqDQgIAAIAQgAkEDcjYCBCAEQQhqIQMMAwtBACEDQQBBMDYC+NOAgAAMAgsCQCALRQ0AAkACQCAIIAgoAhwiBUECdEG40oCAAGoiAygCAEcNACADIAA2AgAgAA0BQQAgB0F+IAV3cSIHNgKM0ICAAAwCCyALQRBBFCALKAIQIAhGG2ogADYCACAARQ0BCyAAIAs2AhgCQCAIKAIQIgNFDQAgACADNgIQIAMgADYCGAsgCEEUaigCACIDRQ0AIABBFGogAzYCACADIAA2AhgLAkACQCAEQQ9LDQAgCCAEIAJqIgNBA3I2AgQgCCADaiIDIAMoAgRBAXI2AgQMAQsgCCACaiIAIARBAXI2AgQgCCACQQNyNgIEIAAgBGogBDYCAAJAIARB/wFLDQAgBEF4cUGw0ICAAGohAwJAAkBBACgCiNCAgAAiBUEBIARBA3Z0IgRxDQBBACAFIARyNgKI0ICAACADIQQMAQsgAygCCCEECyAEIAA2AgwgAyAANgIIIAAgAzYCDCAAIAQ2AggMAQtBHyEDAkAgBEH///8HSw0AIARBCHYiAyADQYD+P2pBEHZBCHEiA3QiBSAFQYDgH2pBEHZBBHEiBXQiAiACQYCAD2pBEHZBAnEiAnRBD3YgAyAFciACcmsiA0EBdCAEIANBFWp2QQFxckEcaiEDCyAAIAM2AhwgAEIANwIQIANBAnRBuNKAgABqIQUCQCAHQQEgA3QiAnENACAFIAA2AgBBACAHIAJyNgKM0ICAACAAIAU2AhggACAANgIIIAAgADYCDAwBCyAEQQBBGSADQQF2ayADQR9GG3QhAyAFKAIAIQICQANAIAIiBSgCBEF4cSAERg0BIANBHXYhAiADQQF0IQMgBSACQQRxakEQaiIGKAIAIgINAAsgBiAANgIAIAAgBTYCGCAAIAA2AgwgACAANgIIDAELIAUoAggiAyAANgIMIAUgADYCCCAAQQA2AhggACAFNgIMIAAgAzYCCAsgCEEIaiEDDAELAkAgCkUNAAJAAkAgACAAKAIcIgVBAnRBuNKAgABqIgMoAgBHDQAgAyAINgIAIAgNAUEAIAlBfiAFd3E2AozQgIAADAILIApBEEEUIAooAhAgAEYbaiAINgIAIAhFDQELIAggCjYCGAJAIAAoAhAiA0UNACAIIAM2AhAgAyAINgIYCyAAQRRqKAIAIgNFDQAgCEEUaiADNgIAIAMgCDYCGAsCQAJAIARBD0sNACAAIAQgAmoiA0EDcjYCBCAAIANqIgMgAygCBEEBcjYCBAwBCyAAIAJqIgUgBEEBcjYCBCAAIAJBA3I2AgQgBSAEaiAENgIAAkAgB0UNACAHQXhxQbDQgIAAaiECQQAoApzQgIAAIQMCQAJAQQEgB0EDdnQiCCAGcQ0AQQAgCCAGcjYCiNCAgAAgAiEIDAELIAIoAgghCAsgCCADNgIMIAIgAzYCCCADIAI2AgwgAyAINgIIC0EAIAU2ApzQgIAAQQAgBDYCkNCAgAALIABBCGohAwsgAUEQaiSAgICAACADCwoAIAAQyYCAgAAL4g0BB38CQCAARQ0AIABBeGoiASAAQXxqKAIAIgJBeHEiAGohAwJAIAJBAXENACACQQNxRQ0BIAEgASgCACICayIBQQAoApjQgIAAIgRJDQEgAiAAaiEAAkAgAUEAKAKc0ICAAEYNAAJAIAJB/wFLDQAgASgCCCIEIAJBA3YiBUEDdEGw0ICAAGoiBkYaAkAgASgCDCICIARHDQBBAEEAKAKI0ICAAEF+IAV3cTYCiNCAgAAMAwsgAiAGRhogAiAENgIIIAQgAjYCDAwCCyABKAIYIQcCQAJAIAEoAgwiBiABRg0AIAEoAggiAiAESRogBiACNgIIIAIgBjYCDAwBCwJAIAFBFGoiAigCACIEDQAgAUEQaiICKAIAIgQNAEEAIQYMAQsDQCACIQUgBCIGQRRqIgIoAgAiBA0AIAZBEGohAiAGKAIQIgQNAAsgBUEANgIACyAHRQ0BAkACQCABIAEoAhwiBEECdEG40oCAAGoiAigCAEcNACACIAY2AgAgBg0BQQBBACgCjNCAgABBfiAEd3E2AozQgIAADAMLIAdBEEEUIAcoAhAgAUYbaiAGNgIAIAZFDQILIAYgBzYCGAJAIAEoAhAiAkUNACAGIAI2AhAgAiAGNgIYCyABKAIUIgJFDQEgBkEUaiACNgIAIAIgBjYCGAwBCyADKAIEIgJBA3FBA0cNACADIAJBfnE2AgRBACAANgKQ0ICAACABIABqIAA2AgAgASAAQQFyNgIEDwsgASADTw0AIAMoAgQiAkEBcUUNAAJAAkAgAkECcQ0AAkAgA0EAKAKg0ICAAEcNAEEAIAE2AqDQgIAAQQBBACgClNCAgAAgAGoiADYClNCAgAAgASAAQQFyNgIEIAFBACgCnNCAgABHDQNBAEEANgKQ0ICAAEEAQQA2ApzQgIAADwsCQCADQQAoApzQgIAARw0AQQAgATYCnNCAgABBAEEAKAKQ0ICAACAAaiIANgKQ0ICAACABIABBAXI2AgQgASAAaiAANgIADwsgAkF4cSAAaiEAAkACQCACQf8BSw0AIAMoAggiBCACQQN2IgVBA3RBsNCAgABqIgZGGgJAIAMoAgwiAiAERw0AQQBBACgCiNCAgABBfiAFd3E2AojQgIAADAILIAIgBkYaIAIgBDYCCCAEIAI2AgwMAQsgAygCGCEHAkACQCADKAIMIgYgA0YNACADKAIIIgJBACgCmNCAgABJGiAGIAI2AgggAiAGNgIMDAELAkAgA0EUaiICKAIAIgQNACADQRBqIgIoAgAiBA0AQQAhBgwBCwNAIAIhBSAEIgZBFGoiAigCACIEDQAgBkEQaiECIAYoAhAiBA0ACyAFQQA2AgALIAdFDQACQAJAIAMgAygCHCIEQQJ0QbjSgIAAaiICKAIARw0AIAIgBjYCACAGDQFBAEEAKAKM0ICAAEF+IAR3cTYCjNCAgAAMAgsgB0EQQRQgBygCECADRhtqIAY2AgAgBkUNAQsgBiAHNgIYAkAgAygCECICRQ0AIAYgAjYCECACIAY2AhgLIAMoAhQiAkUNACAGQRRqIAI2AgAgAiAGNgIYCyABIABqIAA2AgAgASAAQQFyNgIEIAFBACgCnNCAgABHDQFBACAANgKQ0ICAAA8LIAMgAkF+cTYCBCABIABqIAA2AgAgASAAQQFyNgIECwJAIABB/wFLDQAgAEF4cUGw0ICAAGohAgJAAkBBACgCiNCAgAAiBEEBIABBA3Z0IgBxDQBBACAEIAByNgKI0ICAACACIQAMAQsgAigCCCEACyAAIAE2AgwgAiABNgIIIAEgAjYCDCABIAA2AggPC0EfIQICQCAAQf///wdLDQAgAEEIdiICIAJBgP4/akEQdkEIcSICdCIEIARBgOAfakEQdkEEcSIEdCIGIAZBgIAPakEQdkECcSIGdEEPdiACIARyIAZyayICQQF0IAAgAkEVanZBAXFyQRxqIQILIAEgAjYCHCABQgA3AhAgAkECdEG40oCAAGohBAJAAkBBACgCjNCAgAAiBkEBIAJ0IgNxDQAgBCABNgIAQQAgBiADcjYCjNCAgAAgASAENgIYIAEgATYCCCABIAE2AgwMAQsgAEEAQRkgAkEBdmsgAkEfRht0IQIgBCgCACEGAkADQCAGIgQoAgRBeHEgAEYNASACQR12IQYgAkEBdCECIAQgBkEEcWpBEGoiAygCACIGDQALIAMgATYCACABIAQ2AhggASABNgIMIAEgATYCCAwBCyAEKAIIIgAgATYCDCAEIAE2AgggAUEANgIYIAEgBDYCDCABIAA2AggLQQBBACgCqNCAgABBf2oiAUF/IAEbNgKo0ICAAAsLBAAAAAtOAAJAIAANAD8AQRB0DwsCQCAAQf//A3ENACAAQX9MDQACQCAAQRB2QAAiAEF/Rw0AQQBBMDYC+NOAgABBfw8LIABBEHQPCxDKgICAAAAL8gICA38BfgJAIAJFDQAgACABOgAAIAIgAGoiA0F/aiABOgAAIAJBA0kNACAAIAE6AAIgACABOgABIANBfWogAToAACADQX5qIAE6AAAgAkEHSQ0AIAAgAToAAyADQXxqIAE6AAAgAkEJSQ0AIABBACAAa0EDcSIEaiIDIAFB/wFxQYGChAhsIgE2AgAgAyACIARrQXxxIgRqIgJBfGogATYCACAEQQlJDQAgAyABNgIIIAMgATYCBCACQXhqIAE2AgAgAkF0aiABNgIAIARBGUkNACADIAE2AhggAyABNgIUIAMgATYCECADIAE2AgwgAkFwaiABNgIAIAJBbGogATYCACACQWhqIAE2AgAgAkFkaiABNgIAIAQgA0EEcUEYciIFayICQSBJDQAgAa1CgYCAgBB+IQYgAyAFaiEBA0AgASAGNwMYIAEgBjcDECABIAY3AwggASAGNwMAIAFBIGohASACQWBqIgJBH0sNAAsLIAALC45IAQBBgAgLhkgBAAAAAgAAAAMAAAAAAAAAAAAAAAQAAAAFAAAAAAAAAAAAAAAGAAAABwAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEludmFsaWQgY2hhciBpbiB1cmwgcXVlcnkAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9ib2R5AENvbnRlbnQtTGVuZ3RoIG92ZXJmbG93AENodW5rIHNpemUgb3ZlcmZsb3cAUmVzcG9uc2Ugb3ZlcmZsb3cASW52YWxpZCBtZXRob2QgZm9yIEhUVFAveC54IHJlcXVlc3QASW52YWxpZCBtZXRob2QgZm9yIFJUU1AveC54IHJlcXVlc3QARXhwZWN0ZWQgU09VUkNFIG1ldGhvZCBmb3IgSUNFL3gueCByZXF1ZXN0AEludmFsaWQgY2hhciBpbiB1cmwgZnJhZ21lbnQgc3RhcnQARXhwZWN0ZWQgZG90AFNwYW4gY2FsbGJhY2sgZXJyb3IgaW4gb25fc3RhdHVzAEludmFsaWQgcmVzcG9uc2Ugc3RhdHVzAEludmFsaWQgY2hhcmFjdGVyIGluIGNodW5rIGV4dGVuc2lvbnMAVXNlciBjYWxsYmFjayBlcnJvcgBgb25fcmVzZXRgIGNhbGxiYWNrIGVycm9yAGBvbl9jaHVua19oZWFkZXJgIGNhbGxiYWNrIGVycm9yAGBvbl9tZXNzYWdlX2JlZ2luYCBjYWxsYmFjayBlcnJvcgBgb25fY2h1bmtfZXh0ZW5zaW9uX3ZhbHVlYCBjYWxsYmFjayBlcnJvcgBgb25fc3RhdHVzX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fdmVyc2lvbl9jb21wbGV0ZWAgY2FsbGJhY2sgZXJyb3IAYG9uX3VybF9jb21wbGV0ZWAgY2FsbGJhY2sgZXJyb3IAYG9uX2NodW5rX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25faGVhZGVyX3ZhbHVlX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fbWVzc2FnZV9jb21wbGV0ZWAgY2FsbGJhY2sgZXJyb3IAYG9uX21ldGhvZF9jb21wbGV0ZWAgY2FsbGJhY2sgZXJyb3IAYG9uX2hlYWRlcl9maWVsZF9jb21wbGV0ZWAgY2FsbGJhY2sgZXJyb3IAYG9uX2NodW5rX2V4dGVuc2lvbl9uYW1lYCBjYWxsYmFjayBlcnJvcgBVbmV4cGVjdGVkIGNoYXIgaW4gdXJsIHNlcnZlcgBJbnZhbGlkIGhlYWRlciB2YWx1ZSBjaGFyAEludmFsaWQgaGVhZGVyIGZpZWxkIGNoYXIAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl92ZXJzaW9uAEludmFsaWQgbWlub3IgdmVyc2lvbgBJbnZhbGlkIG1ham9yIHZlcnNpb24ARXhwZWN0ZWQgc3BhY2UgYWZ0ZXIgdmVyc2lvbgBFeHBlY3RlZCBDUkxGIGFmdGVyIHZlcnNpb24ASW52YWxpZCBIVFRQIHZlcnNpb24ASW52YWxpZCBoZWFkZXIgdG9rZW4AU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl91cmwASW52YWxpZCBjaGFyYWN0ZXJzIGluIHVybABVbmV4cGVjdGVkIHN0YXJ0IGNoYXIgaW4gdXJsAERvdWJsZSBAIGluIHVybABFbXB0eSBDb250ZW50LUxlbmd0aABJbnZhbGlkIGNoYXJhY3RlciBpbiBDb250ZW50LUxlbmd0aABEdXBsaWNhdGUgQ29udGVudC1MZW5ndGgASW52YWxpZCBjaGFyIGluIHVybCBwYXRoAENvbnRlbnQtTGVuZ3RoIGNhbid0IGJlIHByZXNlbnQgd2l0aCBUcmFuc2Zlci1FbmNvZGluZwBJbnZhbGlkIGNoYXJhY3RlciBpbiBjaHVuayBzaXplAFNwYW4gY2FsbGJhY2sgZXJyb3IgaW4gb25faGVhZGVyX3ZhbHVlAFNwYW4gY2FsbGJhY2sgZXJyb3IgaW4gb25fY2h1bmtfZXh0ZW5zaW9uX3ZhbHVlAEludmFsaWQgY2hhcmFjdGVyIGluIGNodW5rIGV4dGVuc2lvbnMgdmFsdWUATWlzc2luZyBleHBlY3RlZCBMRiBhZnRlciBoZWFkZXIgdmFsdWUASW52YWxpZCBgVHJhbnNmZXItRW5jb2RpbmdgIGhlYWRlciB2YWx1ZQBJbnZhbGlkIGNoYXJhY3RlciBpbiBjaHVuayBleHRlbnNpb25zIHF1b3RlIHZhbHVlAEludmFsaWQgY2hhcmFjdGVyIGluIGNodW5rIGV4dGVuc2lvbnMgcXVvdGVkIHZhbHVlAFBhdXNlZCBieSBvbl9oZWFkZXJzX2NvbXBsZXRlAEludmFsaWQgRU9GIHN0YXRlAG9uX3Jlc2V0IHBhdXNlAG9uX2NodW5rX2hlYWRlciBwYXVzZQBvbl9tZXNzYWdlX2JlZ2luIHBhdXNlAG9uX2NodW5rX2V4dGVuc2lvbl92YWx1ZSBwYXVzZQBvbl9zdGF0dXNfY29tcGxldGUgcGF1c2UAb25fdmVyc2lvbl9jb21wbGV0ZSBwYXVzZQBvbl91cmxfY29tcGxldGUgcGF1c2UAb25fY2h1bmtfY29tcGxldGUgcGF1c2UAb25faGVhZGVyX3ZhbHVlX2NvbXBsZXRlIHBhdXNlAG9uX21lc3NhZ2VfY29tcGxldGUgcGF1c2UAb25fbWV0aG9kX2NvbXBsZXRlIHBhdXNlAG9uX2hlYWRlcl9maWVsZF9jb21wbGV0ZSBwYXVzZQBvbl9jaHVua19leHRlbnNpb25fbmFtZSBwYXVzZQBVbmV4cGVjdGVkIHNwYWNlIGFmdGVyIHN0YXJ0IGxpbmUAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9jaHVua19leHRlbnNpb25fbmFtZQBJbnZhbGlkIGNoYXJhY3RlciBpbiBjaHVuayBleHRlbnNpb25zIG5hbWUAUGF1c2Ugb24gQ09OTkVDVC9VcGdyYWRlAFBhdXNlIG9uIFBSSS9VcGdyYWRlAEV4cGVjdGVkIEhUVFAvMiBDb25uZWN0aW9uIFByZWZhY2UAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9tZXRob2QARXhwZWN0ZWQgc3BhY2UgYWZ0ZXIgbWV0aG9kAFNwYW4gY2FsbGJhY2sgZXJyb3IgaW4gb25faGVhZGVyX2ZpZWxkAFBhdXNlZABJbnZhbGlkIHdvcmQgZW5jb3VudGVyZWQASW52YWxpZCBtZXRob2QgZW5jb3VudGVyZWQAVW5leHBlY3RlZCBjaGFyIGluIHVybCBzY2hlbWEAUmVxdWVzdCBoYXMgaW52YWxpZCBgVHJhbnNmZXItRW5jb2RpbmdgAFNXSVRDSF9QUk9YWQBVU0VfUFJPWFkATUtBQ1RJVklUWQBVTlBST0NFU1NBQkxFX0VOVElUWQBDT1BZAE1PVkVEX1BFUk1BTkVOVExZAFRPT19FQVJMWQBOT1RJRlkARkFJTEVEX0RFUEVOREVOQ1kAQkFEX0dBVEVXQVkAUExBWQBQVVQAQ0hFQ0tPVVQAR0FURVdBWV9USU1FT1VUAFJFUVVFU1RfVElNRU9VVABORVRXT1JLX0NPTk5FQ1RfVElNRU9VVABDT05ORUNUSU9OX1RJTUVPVVQATE9HSU5fVElNRU9VVABORVRXT1JLX1JFQURfVElNRU9VVABQT1NUAE1JU0RJUkVDVEVEX1JFUVVFU1QAQ0xJRU5UX0NMT1NFRF9SRVFVRVNUAENMSUVOVF9DTE9TRURfTE9BRF9CQUxBTkNFRF9SRVFVRVNUAEJBRF9SRVFVRVNUAEhUVFBfUkVRVUVTVF9TRU5UX1RPX0hUVFBTX1BPUlQAUkVQT1JUAElNX0FfVEVBUE9UAFJFU0VUX0NPTlRFTlQATk9fQ09OVEVOVABQQVJUSUFMX0NPTlRFTlQASFBFX0lOVkFMSURfQ09OU1RBTlQASFBFX0NCX1JFU0VUAEdFVABIUEVfU1RSSUNUAENPTkZMSUNUAFRFTVBPUkFSWV9SRURJUkVDVABQRVJNQU5FTlRfUkVESVJFQ1QAQ09OTkVDVABNVUxUSV9TVEFUVVMASFBFX0lOVkFMSURfU1RBVFVTAFRPT19NQU5ZX1JFUVVFU1RTAEVBUkxZX0hJTlRTAFVOQVZBSUxBQkxFX0ZPUl9MRUdBTF9SRUFTT05TAE9QVElPTlMAU1dJVENISU5HX1BST1RPQ09MUwBWQVJJQU5UX0FMU09fTkVHT1RJQVRFUwBNVUxUSVBMRV9DSE9JQ0VTAElOVEVSTkFMX1NFUlZFUl9FUlJPUgBXRUJfU0VSVkVSX1VOS05PV05fRVJST1IAUkFJTEdVTl9FUlJPUgBJREVOVElUWV9QUk9WSURFUl9BVVRIRU5USUNBVElPTl9FUlJPUgBTU0xfQ0VSVElGSUNBVEVfRVJST1IASU5WQUxJRF9YX0ZPUldBUkRFRF9GT1IAU0VUX1BBUkFNRVRFUgBHRVRfUEFSQU1FVEVSAEhQRV9VU0VSAFNFRV9PVEhFUgBIUEVfQ0JfQ0hVTktfSEVBREVSAE1LQ0FMRU5EQVIAU0VUVVAAV0VCX1NFUlZFUl9JU19ET1dOAFRFQVJET1dOAEhQRV9DTE9TRURfQ09OTkVDVElPTgBIRVVSSVNUSUNfRVhQSVJBVElPTgBESVNDT05ORUNURURfT1BFUkFUSU9OAE5PTl9BVVRIT1JJVEFUSVZFX0lORk9STUFUSU9OAEhQRV9JTlZBTElEX1ZFUlNJT04ASFBFX0NCX01FU1NBR0VfQkVHSU4AU0lURV9JU19GUk9aRU4ASFBFX0lOVkFMSURfSEVBREVSX1RPS0VOAElOVkFMSURfVE9LRU4ARk9SQklEREVOAEVOSEFOQ0VfWU9VUl9DQUxNAEhQRV9JTlZBTElEX1VSTABCTE9DS0VEX0JZX1BBUkVOVEFMX0NPTlRST0wATUtDT0wAQUNMAEhQRV9JTlRFUk5BTABSRVFVRVNUX0hFQURFUl9GSUVMRFNfVE9PX0xBUkdFX1VOT0ZGSUNJQUwASFBFX09LAFVOTElOSwBVTkxPQ0sAUFJJAFJFVFJZX1dJVEgASFBFX0lOVkFMSURfQ09OVEVOVF9MRU5HVEgASFBFX1VORVhQRUNURURfQ09OVEVOVF9MRU5HVEgARkxVU0gAUFJPUFBBVENIAE0tU0VBUkNIAFVSSV9UT09fTE9ORwBQUk9DRVNTSU5HAE1JU0NFTExBTkVPVVNfUEVSU0lTVEVOVF9XQVJOSU5HAE1JU0NFTExBTkVPVVNfV0FSTklORwBIUEVfSU5WQUxJRF9UUkFOU0ZFUl9FTkNPRElORwBFeHBlY3RlZCBDUkxGAEhQRV9JTlZBTElEX0NIVU5LX1NJWkUATU9WRQBDT05USU5VRQBIUEVfQ0JfU1RBVFVTX0NPTVBMRVRFAEhQRV9DQl9IRUFERVJTX0NPTVBMRVRFAEhQRV9DQl9WRVJTSU9OX0NPTVBMRVRFAEhQRV9DQl9VUkxfQ09NUExFVEUASFBFX0NCX0NIVU5LX0NPTVBMRVRFAEhQRV9DQl9IRUFERVJfVkFMVUVfQ09NUExFVEUASFBFX0NCX0NIVU5LX0VYVEVOU0lPTl9WQUxVRV9DT01QTEVURQBIUEVfQ0JfQ0hVTktfRVhURU5TSU9OX05BTUVfQ09NUExFVEUASFBFX0NCX01FU1NBR0VfQ09NUExFVEUASFBFX0NCX01FVEhPRF9DT01QTEVURQBIUEVfQ0JfSEVBREVSX0ZJRUxEX0NPTVBMRVRFAERFTEVURQBIUEVfSU5WQUxJRF9FT0ZfU1RBVEUASU5WQUxJRF9TU0xfQ0VSVElGSUNBVEUAUEFVU0UATk9fUkVTUE9OU0UAVU5TVVBQT1JURURfTUVESUFfVFlQRQBHT05FAE5PVF9BQ0NFUFRBQkxFAFNFUlZJQ0VfVU5BVkFJTEFCTEUAUkFOR0VfTk9UX1NBVElTRklBQkxFAE9SSUdJTl9JU19VTlJFQUNIQUJMRQBSRVNQT05TRV9JU19TVEFMRQBQVVJHRQBNRVJHRQBSRVFVRVNUX0hFQURFUl9GSUVMRFNfVE9PX0xBUkdFAFJFUVVFU1RfSEVBREVSX1RPT19MQVJHRQBQQVlMT0FEX1RPT19MQVJHRQBJTlNVRkZJQ0lFTlRfU1RPUkFHRQBIUEVfUEFVU0VEX1VQR1JBREUASFBFX1BBVVNFRF9IMl9VUEdSQURFAFNPVVJDRQBBTk5PVU5DRQBUUkFDRQBIUEVfVU5FWFBFQ1RFRF9TUEFDRQBERVNDUklCRQBVTlNVQlNDUklCRQBSRUNPUkQASFBFX0lOVkFMSURfTUVUSE9EAE5PVF9GT1VORABQUk9QRklORABVTkJJTkQAUkVCSU5EAFVOQVVUSE9SSVpFRABNRVRIT0RfTk9UX0FMTE9XRUQASFRUUF9WRVJTSU9OX05PVF9TVVBQT1JURUQAQUxSRUFEWV9SRVBPUlRFRABBQ0NFUFRFRABOT1RfSU1QTEVNRU5URUQATE9PUF9ERVRFQ1RFRABIUEVfQ1JfRVhQRUNURUQASFBFX0xGX0VYUEVDVEVEAENSRUFURUQASU1fVVNFRABIUEVfUEFVU0VEAFRJTUVPVVRfT0NDVVJFRABQQVlNRU5UX1JFUVVJUkVEAFBSRUNPTkRJVElPTl9SRVFVSVJFRABQUk9YWV9BVVRIRU5USUNBVElPTl9SRVFVSVJFRABORVRXT1JLX0FVVEhFTlRJQ0FUSU9OX1JFUVVJUkVEAExFTkdUSF9SRVFVSVJFRABTU0xfQ0VSVElGSUNBVEVfUkVRVUlSRUQAVVBHUkFERV9SRVFVSVJFRABQQUdFX0VYUElSRUQAUFJFQ09ORElUSU9OX0ZBSUxFRABFWFBFQ1RBVElPTl9GQUlMRUQAUkVWQUxJREFUSU9OX0ZBSUxFRABTU0xfSEFORFNIQUtFX0ZBSUxFRABMT0NLRUQAVFJBTlNGT1JNQVRJT05fQVBQTElFRABOT1RfTU9ESUZJRUQATk9UX0VYVEVOREVEAEJBTkRXSURUSF9MSU1JVF9FWENFRURFRABTSVRFX0lTX09WRVJMT0FERUQASEVBRABFeHBlY3RlZCBIVFRQLwAAXhMAACYTAAAwEAAA8BcAAJ0TAAAVEgAAORcAAPASAAAKEAAAdRIAAK0SAACCEwAATxQAAH8QAACgFQAAIxQAAIkSAACLFAAATRUAANQRAADPFAAAEBgAAMkWAADcFgAAwREAAOAXAAC7FAAAdBQAAHwVAADlFAAACBcAAB8QAABlFQAAoxQAACgVAAACFQAAmRUAACwQAACLGQAATw8AANQOAABqEAAAzhAAAAIXAACJDgAAbhMAABwTAABmFAAAVhcAAMETAADNEwAAbBMAAGgXAABmFwAAXxcAACITAADODwAAaQ4AANgOAABjFgAAyxMAAKoOAAAoFwAAJhcAAMUTAABdFgAA6BEAAGcTAABlEwAA8hYAAHMTAAAdFwAA+RYAAPMRAADPDgAAzhUAAAwSAACzEQAApREAAGEQAAAyFwAAuxMAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQIBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIDAgICAgIAAAICAAICAAICAgICAgICAgIABAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgACAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAICAgICAAACAgACAgACAgICAgICAgICAAMABAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAgACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbG9zZWVlcC1hbGl2ZQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQIBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBY2h1bmtlZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQEAAQEBAQEAAAEBAAEBAAEBAQEBAQEBAQEAAAAAAAAAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABlY3Rpb25lbnQtbGVuZ3Rob25yb3h5LWNvbm5lY3Rpb24AAAAAAAAAAAAAAAAAAAByYW5zZmVyLWVuY29kaW5ncGdyYWRlDQoNCg0KU00NCg0KVFRQL0NFL1RTUC8AAAAAAAAAAAAAAAABAgABAwAAAAAAAAAAAAAAAAAAAAAAAAQBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAAAAAAAAQIAAQMAAAAAAAAAAAAAAAAAAAAAAAAEAQEFAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAEAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAAAAAAAAAQAAAgAAAAAAAAAAAAAAAAAAAAAAAAMEAAAEBAQEBAQEBAQEBAUEBAQEBAQEBAQEBAQABAAGBwQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEAAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAEAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAABAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAIAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMAAAAAAAADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABOT1VOQ0VFQ0tPVVRORUNURVRFQ1JJQkVMVVNIRVRFQURTRUFSQ0hSR0VDVElWSVRZTEVOREFSVkVPVElGWVBUSU9OU0NIU0VBWVNUQVRDSEdFT1JESVJFQ1RPUlRSQ0hQQVJBTUVURVJVUkNFQlNDUklCRUFSRE9XTkFDRUlORE5LQ0tVQlNDUklCRUhUVFAvQURUUC8='
@@ -26060,7 +26798,7 @@ module.exports = 'AGFzbQEAAAABMAhgAX8Bf2ADf39/AX9gBH9/f38Bf2AAAGADf39/AGABfwBgAn
 
 /***/ }),
 
-/***/ 2518:
+/***/ 3742:
 /***/ ((module) => {
 
 module.exports = 'AGFzbQEAAAABMAhgAX8Bf2ADf39/AX9gBH9/f38Bf2AAAGADf39/AGABfwBgAn9/AGAGf39/f39/AALLAQgDZW52GHdhc21fb25faGVhZGVyc19jb21wbGV0ZQACA2VudhV3YXNtX29uX21lc3NhZ2VfYmVnaW4AAANlbnYLd2FzbV9vbl91cmwAAQNlbnYOd2FzbV9vbl9zdGF0dXMAAQNlbnYUd2FzbV9vbl9oZWFkZXJfZmllbGQAAQNlbnYUd2FzbV9vbl9oZWFkZXJfdmFsdWUAAQNlbnYMd2FzbV9vbl9ib2R5AAEDZW52GHdhc21fb25fbWVzc2FnZV9jb21wbGV0ZQAAA0ZFAwMEAAAFAAAAAAAABQEFAAUFBQAABgAAAAAGBgYGAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAAABAQcAAAUFAwABBAUBcAESEgUDAQACBggBfwFBgNQECwfRBSIGbWVtb3J5AgALX2luaXRpYWxpemUACRlfX2luZGlyZWN0X2Z1bmN0aW9uX3RhYmxlAQALbGxodHRwX2luaXQAChhsbGh0dHBfc2hvdWxkX2tlZXBfYWxpdmUAQQxsbGh0dHBfYWxsb2MADAZtYWxsb2MARgtsbGh0dHBfZnJlZQANBGZyZWUASA9sbGh0dHBfZ2V0X3R5cGUADhVsbGh0dHBfZ2V0X2h0dHBfbWFqb3IADxVsbGh0dHBfZ2V0X2h0dHBfbWlub3IAEBFsbGh0dHBfZ2V0X21ldGhvZAARFmxsaHR0cF9nZXRfc3RhdHVzX2NvZGUAEhJsbGh0dHBfZ2V0X3VwZ3JhZGUAEwxsbGh0dHBfcmVzZXQAFA5sbGh0dHBfZXhlY3V0ZQAVFGxsaHR0cF9zZXR0aW5nc19pbml0ABYNbGxodHRwX2ZpbmlzaAAXDGxsaHR0cF9wYXVzZQAYDWxsaHR0cF9yZXN1bWUAGRtsbGh0dHBfcmVzdW1lX2FmdGVyX3VwZ3JhZGUAGhBsbGh0dHBfZ2V0X2Vycm5vABsXbGxodHRwX2dldF9lcnJvcl9yZWFzb24AHBdsbGh0dHBfc2V0X2Vycm9yX3JlYXNvbgAdFGxsaHR0cF9nZXRfZXJyb3JfcG9zAB4RbGxodHRwX2Vycm5vX25hbWUAHxJsbGh0dHBfbWV0aG9kX25hbWUAIBJs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IAH9CwMAIABBMGogAf0LAwAgAEEgaiAB/QsDACAAQd0BNgIcQQALewEBfwJAIAAoAgwiAw0AAkAgACgCBEUNACAAIAE2AgQLAkAgACABIAIQxICAgAAiAw0AIAAoAgwPCyAAIAM2AhxBACEDIAAoAgQiAUUNACAAIAEgAiAAKAIIEYGAgIAAACIBRQ0AIAAgAjYCFCAAIAE2AgwgASEDCyADC+TzAQMOfwN+BH8jgICAgABBEGsiAySAgICAACABIQQgASEFIAEhBiABIQcgASEIIAEhCSABIQogASELIAEhDCABIQ0gASEOIAEhDwJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQCAAKAIcIhBBf2oO3QHaAQHZAQIDBAUGBwgJCgsMDQ7YAQ8Q1wEREtYBExQVFhcYGRob4AHfARwdHtUBHyAhIiMkJdQBJicoKSorLNMB0gEtLtEB0AEvMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUbbAUdISUrPAc4BS80BTMwBTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gAGBAYIBgwGEAYUBhgGHAYgBiQGKAYsBjAGNAY4BjwGQAZEBkgGTAZQBlQGWAZcBmAGZAZoBmwGcAZ0BngGfAaABoQGiAaMBpAGlAaYBpwGoAakBqgGrAawBrQGuAa8BsAGxAbIBswG0AbUBtgG3AcsBygG4AckBuQHIAboBuwG8Ab0BvgG/AcABwQHCAcMBxAHFAcYBANwBC0EAIRAMxgELQQ4hEAzFAQtBDSEQDMQBC0EPIRAMwwELQRAhEAzCAQtBEyEQDMEBC0EUIRAMwAELQRUhEAy/AQtBFiEQDL4BC0EXIRAMvQELQRghEAy8AQtBGSEQDLsBC0EaIRAMugELQRshEAy5AQtBHCEQDLgBC0EIIRAMtwELQR0hEAy2AQtBICEQDLUBC0EfIRAMtAELQQchEAyzAQtBISEQDLIBC0EiIRAMsQELQR4hEAywAQtBIyEQDK8BC0ESIRAMrgELQREhEAytAQtBJCEQDKwBC0ElIRAMqwELQSYhEAyqAQtBJyEQDKkBC0HDASEQDKgBC0EpIRAMpwELQSshEAymAQtBLCEQDKUBC0EtIRAMpAELQS4hEAyjAQtBLyEQDKIBC0HEASEQDKEBC0EwIRAMoAELQTQhEAyfAQtBDCEQDJ4BC0ExIRAMnQELQTIhEAycAQtBMyEQDJsBC0E5IRAMmgELQTUhEAyZAQtBxQEhEAyYAQtBCyEQDJcBC0E6IRAMlgELQTYhEAyVAQtBCiEQDJQBC0E3IRAMkwELQTghEAySAQtBPCEQDJEBC0E7IRAMkAELQT0hEAyPAQtBCSEQDI4BC0EoIRAMjQELQT4hEAyMAQtBPyEQDIsBC0HAACEQDIoBC0HBACEQDIkBC0HCACEQDIgBC0HDACEQDIcBC0HEACEQDIYBC0HFACEQDIUBC0HGACEQDIQBC0EqIRAMgwELQccAIRAMggELQcgAIRAMgQELQckAIRAMgAELQcoAIRAMfwtBywAhEAx+C0HNACEQDH0LQcwAIRAMfAtBzgAhEAx7C0HPACEQDHoLQdAAIRAMeQtB0QAhEAx4C0HSACEQDHcLQdMAIRAMdgtB1AAhEAx1C0HWACEQDHQLQdUAIRAMcwtBBiEQDHILQdcAIRAMcQtBBSEQDHALQdgAIRAMbwtBBCEQDG4LQdkAIRAMbQtB2gAhEAxsC0HbACEQDGsLQdwAIRAMagtBAyEQDGkLQd0AIRAMaAtB3gAhEAxnC0HfACEQDGYLQeEAIRAMZQtB4AAhEAxkC0HiACEQDGMLQeMAIRAMYgtBAiEQDGELQeQAIRAMYAtB5QAhEAxfC0HmACEQDF4LQecAIRAMXQtB6AAhEAxcC0HpACEQDFsLQeoAIRAMWgtB6wAhEAxZC0HsACEQDFgLQe0AIRAMVwtB7gAhEAxWC0HvACEQDFULQfAAIRAMVAtB8QAhEAxTC0HyACEQDFILQfMAIRAMUQtB9AAhEAxQC0H1ACEQDE8LQfYAIRAMTgtB9wAhEAxNC0H4ACEQDEwLQfkAIRAMSwtB+gAhEAxKC0H7ACEQDEkLQfwAIRAMSAtB/QAhEAxHC0H+ACEQDEYLQf8AIRAMRQtBgAEhEAxEC0GBASEQDEMLQYIBIRAMQgtBgwEhEAxBC0GEASEQDEALQYUBIRAMPwtBhgEhEAw+C0GHASEQDD0LQYgBIRAMPAtBiQEhEAw7C0GKASEQDDoLQYsBIRAMOQtBjAEhEAw4C0GNASEQDDcLQY4BIRAMNgtBjwEhEAw1C0GQASEQDDQLQZEBIRAMMwtBkgEhEAwyC0GTASEQDDELQZQBIRAMMAtBlQEhEAwvC0GWASEQDC4LQZcBIRAMLQtBmAEhEAwsC0GZASEQDCsLQZoBIRAMKgtBmwEhEAwpC0GcASEQDCgLQZ0BIRAMJwtBngEhEAwmC0GfASEQDCULQaABIRAMJAtBoQEhEAwjC0GiASEQDCILQaMBIRAMIQtBpAEhEAwgC0GlASEQDB8LQaYBIRAMHgtBpwEhEAwdC0GoASEQDBwLQakBIRAMGwtBqgEhEAwaC0GrASEQDBkLQawBIRAMGAtBrQEhEAwXC0GuASEQDBYLQQEhEAwVC0GvASEQDBQLQbABIRAMEwtBsQEhEAwSC0GzASEQDBELQbIBIRAMEAtBtAEhEAwPC0G1ASEQDA4LQbYBIRAMDQtBtwEhEAwMC0G4ASEQDAsLQbkBIRAMCgtBugEhEAwJC0G7ASEQDAgLQcYBIRAMBwtBvAEhEAwGC0G9ASEQDAULQb4BIRAMBAtBvwEhEAwDC0HAASEQDAILQcIBIRAMAQtBwQEhEAsDQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAIBAOxwEAAQID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YWNrIGVycm9yAGBvbl9jaHVua19leHRlbnNpb25fdmFsdWVgIGNhbGxiYWNrIGVycm9yAGBvbl9zdGF0dXNfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl92ZXJzaW9uX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fdXJsX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fY2h1bmtfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl9oZWFkZXJfdmFsdWVfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl9tZXNzYWdlX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fbWV0aG9kX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25faGVhZGVyX2ZpZWxkX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fY2h1bmtfZXh0ZW5zaW9uX25hbWVgIGNhbGxiYWNrIGVycm9yAFVuZXhwZWN0ZWQgY2hhciBpbiB1cmwgc2VydmVyAEludmFsaWQgaGVhZGVyIHZhbHVlIGNoYXIASW52YWxpZCBoZWFkZXIgZmllbGQgY2hhcgBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX3ZlcnNpb24ASW52YWxpZCBtaW5vciB2ZXJzaW9uAEludmFsaWQgbWFqb3IgdmVyc2lvbgBFeHBlY3RlZCBzcGFjZSBhZnRlciB2ZXJzaW9uAEV4cGVjdGVkIENSTEYgYWZ0ZXIgdmVyc2lvbgBJbnZhbGlkIEhUVFAgdmVyc2lvbgBJbnZhbGlkIGhlYWRlciB0b2tlbgBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX3VybABJbnZhbGlkIGNoYXJhY3RlcnMgaW4gdXJsAFVuZXhwZWN0ZWQgc3RhcnQgY2hhciBpbiB1cmwARG91YmxlIEAgaW4gdXJsAEVtcHR5IENvbnRlbnQtTGVuZ3RoAEludmFsaWQgY2hhcmFjdGVyIGluIENvbnRlbnQtTGVuZ3RoAER1cGxpY2F0ZSBDb250ZW50LUxlbmd0aABJbnZhbGlkIGNoYXIgaW4gdXJsIHBhdGgAQ29udGVudC1MZW5ndGggY2FuJ3QgYmUgcHJlc2VudCB3aXRoIFRyYW5zZmVyLUVuY29kaW5nAEludmFsaWQgY2hhcmFjdGVyIGluIGNodW5rIHNpemUAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9oZWFkZXJfdmFsdWUAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9jaHVua19leHRlbnNpb25fdmFsdWUASW52YWxpZCBjaGFyYWN0ZXIgaW4gY2h1bmsgZXh0ZW5zaW9ucyB2YWx1ZQBNaXNzaW5nIGV4cGVjdGVkIExGIGFmdGVyIGhlYWRlciB2YWx1ZQBJbnZhbGlkIGBUcmFuc2Zlci1FbmNvZGluZ2AgaGVhZGVyIHZhbHVlAEludmFsaWQgY2hhcmFjdGVyIGluIGNodW5rIGV4dGVuc2lvbnMgcXVvdGUgdmFsdWUASW52YWxpZCBjaGFyYWN0ZXIgaW4gY2h1bmsgZXh0ZW5zaW9ucyBxdW90ZWQgdmFsdWUAUGF1c2VkIGJ5IG9uX2hlYWRlcnNfY29tcGxldGUASW52YWxpZCBFT0Ygc3RhdGUAb25fcmVzZXQgcGF1c2UAb25fY2h1bmtfaGVhZGVyIHBhdXNlAG9uX21lc3NhZ2VfYmVnaW4gcGF1c2UAb25fY2h1bmtfZXh0ZW5zaW9uX3ZhbHVlIHBhdXNlAG9uX3N0YXR1c19jb21wbGV0ZSBwYXVzZQBvbl92ZXJzaW9uX2NvbXBsZXRlIHBhdXNlAG9uX3VybF9jb21wbGV0ZSBwYXVzZQBvbl9jaHVua19jb21wbGV0ZSBwYXVzZQBvbl9oZWFkZXJfdmFsdWVfY29tcGxldGUgcGF1c2UAb25fbWVzc2FnZV9jb21wbGV0ZSBwYXVzZQBvbl9tZXRob2RfY29tcGxldGUgcGF1c2UAb25faGVhZGVyX2ZpZWxkX2NvbXBsZXRlIHBhdXNlAG9uX2NodW5rX2V4dGVuc2lvbl9uYW1lIHBhdXNlAFVuZXhwZWN0ZWQgc3BhY2UgYWZ0ZXIgc3RhcnQgbGluZQBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX2NodW5rX2V4dGVuc2lvbl9uYW1lAEludmFsaWQgY2hhcmFjdGVyIGluIGNodW5rIGV4dGVuc2lvbnMgbmFtZQBQYXVzZSBvbiBDT05ORUNUL1VwZ3JhZGUAUGF1c2Ugb24gUFJJL1VwZ3JhZGUARXhwZWN0ZWQgSFRUUC8yIENvbm5lY3Rpb24gUHJlZmFjZQBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX21ldGhvZABFeHBlY3RlZCBzcGFjZSBhZnRlciBtZXRob2QAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9oZWFkZXJfZmllbGQAUGF1c2VkAEludmFsaWQgd29yZCBlbmNvdW50ZXJlZABJbnZhbGlkIG1ldGhvZCBlbmNvdW50ZXJlZABVbmV4cGVjdGVkIGNoYXIgaW4gdXJsIHNjaGVtYQBSZXF1ZXN0IGhhcyBpbnZhbGlkIGBUcmFuc2Zlci1FbmNvZGluZ2AAU1dJVENIX1BST1hZAFVTRV9QUk9YWQBNS0FDVElWSVRZAFVOUFJPQ0VTU0FCTEVfRU5USVRZAENPUFkATU9WRURfUEVSTUFORU5UTFkAVE9PX0VBUkxZAE5PVElGWQBGQUlMRURfREVQRU5ERU5DWQBCQURfR0FURVdBWQBQTEFZAFBVVABDSEVDS09VVABHQVRFV0FZX1RJTUVPVVQAUkVRVUVTVF9USU1FT1VUAE5FVFdPUktfQ09OTkVDVF9USU1FT1VUAENPTk5FQ1RJT05fVElNRU9VVABMT0dJTl9USU1FT1VUAE5FVFdPUktfUkVBRF9USU1FT1VUAFBPU1QATUlTRElSRUNURURfUkVRVUVTVABDTElFTlRfQ0xPU0VEX1JFUVVFU1QAQ0xJRU5UX0NMT1NFRF9MT0FEX0JBTEFOQ0VEX1JFUVVFU1QAQkFEX1JFUVVFU1QASFRUUF9SRVFVRVNUX1NFTlRfVE9fSFRUUFNfUE9SVABSRVBPUlQASU1fQV9URUFQT1QAUkVTRVRfQ09OVEVOVABOT19DT05URU5UAFBBUlRJQUxfQ09OVEVOVABIUEVfSU5WQUxJRF9DT05TVEFOVABIUEVfQ0JfUkVTRVQAR0VUAEhQRV9TVFJJQ1QAQ09ORkxJQ1QAVEVNUE9SQVJZX1JFRElSRUNUAFBFUk1BTkVOVF9SRURJUkVDVABDT05ORUNUAE1VTFRJX1NUQVRVUwBIUEVfSU5WQUxJRF9TVEFUVVMAVE9PX01BTllfUkVRVUVTVFMARUFSTFlfSElOVFMAVU5BVkFJTEFCTEVfRk9SX0xFR0FMX1JFQVNPTlMAT1BUSU9OUwBTV0lUQ0hJTkdfUFJPVE9DT0xTAFZBUklBTlRfQUxTT19ORUdPVElBVEVTAE1VTFRJUExFX0NIT0lDRVMASU5URVJOQUxfU0VSVkVSX0VSUk9SAFdFQl9TRVJWRVJfVU5LTk9XTl9FUlJPUgBSQUlMR1VOX0VSUk9SAElERU5USVRZX1BST1ZJREVSX0FVVEhFTlRJQ0FUSU9OX0VSUk9SAFNTTF9DRVJUSUZJQ0FURV9FUlJPUgBJTlZBTElEX1hfRk9SV0FSREVEX0ZPUgBTRVRfUEFSQU1FVEVSAEdFVF9QQVJBTUVURVIASFBFX1VTRVIAU0VFX09USEVSAEhQRV9DQl9DSFVOS19IRUFERVIATUtDQUxFTkRBUgBTRVRVUABXRUJfU0VSVkVSX0lTX0RPV04AVEVBUkRPV04ASFBFX0NMT1NFRF9DT05ORUNUSU9OAEhFVVJJU1RJQ19FWFBJUkFUSU9OAERJU0NPTk5FQ1RFRF9PUEVSQVRJT04ATk9OX0FVVEhPUklUQVRJVkVfSU5GT1JNQVRJT04ASFBFX0lOVkFMSURfVkVSU0lPTgBIUEVfQ0JfTUVTU0FHRV9CRUdJTgBTSVRFX0lTX0ZST1pFTgBIUEVfSU5WQUxJRF9IRUFERVJfVE9LRU4ASU5WQUxJRF9UT0tFTgBGT1JCSURERU4ARU5IQU5DRV9ZT1VSX0NBTE0ASFBFX0lOVkFMSURfVVJMAEJMT0NLRURfQllfUEFSRU5UQUxfQ09OVFJPTABNS0NPTABBQ0wASFBFX0lOVEVSTkFMAFJFUVVFU1RfSEVBREVSX0ZJRUxEU19UT09fTEFSR0VfVU5PRkZJQ0lBTABIUEVfT0sAVU5MSU5LAFVOTE9DSwBQUkkAUkVUUllfV0lUSABIUEVfSU5WQUxJRF9DT05URU5UX0xFTkdUSABIUEVfVU5FWFBFQ1RFRF9DT05URU5UX0xFTkdUSABGTFVTSABQUk9QUEFUQ0gATS1TRUFSQ0gAVVJJX1RPT19MT05HAFBST0NFU1NJTkcATUlTQ0VMTEFORU9VU19QRVJTSVNURU5UX1dBUk5JTkcATUlTQ0VMTEFORU9VU19XQVJOSU5HAEhQRV9JTlZBTElEX1RSQU5TRkVSX0VOQ09ESU5HAEV4cGVjdGVkIENSTEYASFBFX0lOVkFMSURfQ0hVTktfU0laRQBNT1ZFAENPTlRJTlVFAEhQRV9DQl9TVEFUVVNfQ09NUExFVEUASFBFX0NCX0hFQURFUlNfQ09NUExFVEUASFBFX0NCX1ZFUlNJT05fQ09NUExFVEUASFBFX0NCX1VSTF9DT01QTEVURQBIUEVfQ0JfQ0hVTktfQ09NUExFVEUASFBFX0NCX0hFQURFUl9WQUxVRV9DT01QTEVURQBIUEVfQ0JfQ0hVTktfRVhURU5TSU9OX1ZBTFVFX0NPTVBMRVRFAEhQRV9DQl9DSFVOS19FWFRFTlNJT05fTkFNRV9DT01QTEVURQBIUEVfQ0JfTUVTU0FHRV9DT01QTEVURQBIUEVfQ0JfTUVUSE9EX0NPTVBMRVRFAEhQRV9DQl9IRUFERVJfRklFTERfQ09NUExFVEUAREVMRVRFAEhQRV9JTlZBTElEX0VPRl9TVEFURQBJTlZBTElEX1NTTF9DRVJUSUZJQ0FURQBQQVVTRQBOT19SRVNQT05TRQBVTlNVUFBPUlRFRF9NRURJQV9UWVBFAEdPTkUATk9UX0FDQ0VQVEFCTEUAU0VSVklDRV9VTkFWQUlMQUJMRQBSQU5HRV9OT1RfU0FUSVNGSUFCTEUAT1JJR0lOX0lTX1VOUkVBQ0hBQkxFAFJFU1BPTlNFX0lTX1NUQUxFAFBVUkdFAE1FUkdFAFJFUVVFU1RfSEVBREVSX0ZJRUxEU19UT09fTEFSR0UAUkVRVUVTVF9IRUFERVJfVE9PX0xBUkdFAFBBWUxPQURfVE9PX0xBUkdFAElOU1VGRklDSUVOVF9TVE9SQUdFAEhQRV9QQVVTRURfVVBHUkFERQBIUEVfUEFVU0VEX0gyX1VQR1JBREUAU09VUkNFAEFOTk9VTkNFAFRSQUNFAEhQRV9VTkVYUEVDVEVEX1NQQUNFAERFU0NSSUJFAFVOU1VCU0NSSUJFAFJFQ09SRABIUEVfSU5WQUxJRF9NRVRIT0QATk9UX0ZPVU5EAFBST1BGSU5EAFVOQklORABSRUJJTkQAVU5BVVRIT1JJWkVEAE1FVEhPRF9OT1RfQUxMT1dFRABIVFRQX1ZFUlNJT05fTk9UX1NVUFBPUlRFRABBTFJFQURZX1JFUE9SVEVEAEFDQ0VQVEVEAE5PVF9JTVBMRU1FTlRFRABMT09QX0RFVEVDVEVEAEhQRV9DUl9FWFBFQ1RFRABIUEVfTEZfRVhQRUNURUQAQ1JFQVRFRABJTV9VU0VEAEhQRV9QQVVTRUQAVElNRU9VVF9PQ0NVUkVEAFBBWU1FTlRfUkVRVUlSRUQAUFJFQ09ORElUSU9OX1JFUVVJUkVEAFBST1hZX0FVVEhFTlRJQ0FUSU9OX1JFUVVJUkVEAE5FVFdPUktfQVVUSEVOVElDQVRJT05fUkVRVUlSRUQATEVOR1RIX1JFUVVJUkVEAFNTTF9DRVJUSUZJQ0FURV9SRVFVSVJFRABVUEdSQURFX1JFUVVJUkVEAFBBR0VfRVhQSVJFRABQUkVDT05ESVRJT05fRkFJTEVEAEVYUEVDVEFUSU9OX0ZBSUxFRABSRVZBTElEQVRJT05fRkFJTEVEAFNTTF9IQU5EU0hBS0VfRkFJTEVEAExPQ0tFRABUUkFOU0ZPUk1BVElPTl9BUFBMSUVEAE5PVF9NT0RJRklFRABOT1RfRVhURU5ERUQAQkFORFdJRFRIX0xJTUlUX0VYQ0VFREVEAFNJVEVfSVNfT1ZFUkxPQURFRABIRUFEAEV4cGVjdGVkIEhUVFAvAABeEwAAJhMAADAQAADwFwAAnRMAABUSAAA5FwAA8BIAAAoQAAB1EgAArRIAAIITAABPFAAAfxAAAKAVAAAjFAAAiRIAAIsUAABNFQAA1BEAAM8UAAAQGAAAyRYAANwWAADBEQAA4BcAALsUAAB0FAAAfBUAAOUUAAAIFwAAHxAAAGUVAACjFAAAKBUAAAIVAACZFQAALBAAAIsZAABPDwAA1A4AAGoQAADOEAAAAhcAAIkOAABuEwAAHBMAAGYUAABWFwAAwRMAAM0TAABsEwAAaBcAAGYXAABfFwAAIhMAAM4PAABpDgAA2A4AAGMWAADLEwAAqg4AACgXAAAmFwAAxRMAAF0WAADoEQAAZxMAAGUTAADyFgAAcxMAAB0XAAD5FgAA8xEAAM8OAADOFQAADBIAALMRAAClEQAAYRAAADIXAAC7EwAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAgEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAgMCAgICAgAAAgIAAgIAAgICAgICAgICAgAEAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAAIAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAgICAgIAAAICAAICAAICAgICAgICAgIAAwAEAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgACAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABsb3NlZWVwLWFsaXZlAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQEBAQEBAQEBAQEBAgEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQFjaHVua2VkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQABAQEBAQAAAQEAAQEAAQEBAQEBAQEBAQAAAAAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGVjdGlvbmVudC1sZW5ndGhvbnJveHktY29ubmVjdGlvbgAAAAAAAAAAAAAAAAAAAHJhbnNmZXItZW5jb2RpbmdwZ3JhZGUNCg0KDQpTTQ0KDQpUVFAvQ0UvVFNQLwAAAAAAAAAAAAAAAAECAAEDAAAAAAAAAAAAAAAAAAAAAAAABAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAAAAAAAAAAABAgABAwAAAAAAAAAAAAAAAAAAAAAAAAQBAQUBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAAAAAAAAQAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAABAAACAAAAAAAAAAAAAAAAAAAAAAAAAwQAAAQEBAQEBAQEBAQEBQQEBAQEBAQEBAQEBAAEAAYHBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQABAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAQAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAAAAAAAAAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAEAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAgAAAAACAAAAAAAAAAAAAAAAAAAAAAADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE5PVU5DRUVDS09VVE5FQ1RFVEVDUklCRUxVU0hFVEVBRFNFQVJDSFJHRUNUSVZJVFlMRU5EQVJWRU9USUZZUFRJT05TQ0hTRUFZU1RBVENIR0VPUkRJUkVDVE9SVFJDSFBBUkFNRVRFUlVSQ0VCU0NSSUJFQVJET1dOQUNFSU5ETktDS1VCU0NSSUJFSFRUUC9BRFRQLw=='
@@ -26068,7 +26806,7 @@ module.exports = 'AGFzbQEAAAABMAhgAX8Bf2ADf39/AX9gBH9/f38Bf2AAAGADf39/AGABfwBgAn
 
 /***/ }),
 
-/***/ 9656:
+/***/ 4608:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -26090,14 +26828,14 @@ exports.enumToMap = enumToMap;
 
 /***/ }),
 
-/***/ 1793:
+/***/ 7017:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { kClients } = __nccwpck_require__(455)
-const Agent = __nccwpck_require__(2193)
+const { kClients } = __nccwpck_require__(8031)
+const Agent = __nccwpck_require__(2121)
 const {
   kAgent,
   kMockAgentSet,
@@ -26108,14 +26846,14 @@ const {
   kGetNetConnect,
   kOptions,
   kFactory
-} = __nccwpck_require__(3225)
-const MockClient = __nccwpck_require__(2065)
-const MockPool = __nccwpck_require__(4024)
-const { matchValue, buildMockOptions } = __nccwpck_require__(6081)
-const { InvalidArgumentError, UndiciError } = __nccwpck_require__(6751)
-const Dispatcher = __nccwpck_require__(6535)
-const Pluralizer = __nccwpck_require__(7925)
-const PendingInterceptorsFormatter = __nccwpck_require__(7186)
+} = __nccwpck_require__(2305)
+const MockClient = __nccwpck_require__(2361)
+const MockPool = __nccwpck_require__(6480)
+const { matchValue, buildMockOptions } = __nccwpck_require__(3193)
+const { InvalidArgumentError, UndiciError } = __nccwpck_require__(3959)
+const Dispatcher = __nccwpck_require__(303)
+const Pluralizer = __nccwpck_require__(5773)
+const PendingInterceptorsFormatter = __nccwpck_require__(5738)
 
 class FakeWeakRef {
   constructor (value) {
@@ -26269,15 +27007,15 @@ module.exports = MockAgent
 
 /***/ }),
 
-/***/ 2065:
+/***/ 2361:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 const { promisify } = __nccwpck_require__(9023)
-const Client = __nccwpck_require__(1841)
-const { buildMockDispatch } = __nccwpck_require__(6081)
+const Client = __nccwpck_require__(5513)
+const { buildMockDispatch } = __nccwpck_require__(3193)
 const {
   kDispatches,
   kMockAgent,
@@ -26286,10 +27024,10 @@ const {
   kOrigin,
   kOriginalDispatch,
   kConnected
-} = __nccwpck_require__(3225)
-const { MockInterceptor } = __nccwpck_require__(3307)
-const Symbols = __nccwpck_require__(455)
-const { InvalidArgumentError } = __nccwpck_require__(6751)
+} = __nccwpck_require__(2305)
+const { MockInterceptor } = __nccwpck_require__(5843)
+const Symbols = __nccwpck_require__(8031)
+const { InvalidArgumentError } = __nccwpck_require__(3959)
 
 /**
  * MockClient provides an API that extends the Client to influence the mockDispatches.
@@ -26336,13 +27074,13 @@ module.exports = MockClient
 
 /***/ }),
 
-/***/ 9753:
+/***/ 2673:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { UndiciError } = __nccwpck_require__(6751)
+const { UndiciError } = __nccwpck_require__(3959)
 
 class MockNotMatchedError extends UndiciError {
   constructor (message) {
@@ -26361,13 +27099,13 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3307:
+/***/ 5843:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { getResponseData, buildKey, addMockDispatch } = __nccwpck_require__(6081)
+const { getResponseData, buildKey, addMockDispatch } = __nccwpck_require__(3193)
 const {
   kDispatches,
   kDispatchKey,
@@ -26375,9 +27113,9 @@ const {
   kDefaultTrailers,
   kContentLength,
   kMockDispatch
-} = __nccwpck_require__(3225)
-const { InvalidArgumentError } = __nccwpck_require__(6751)
-const { buildURL } = __nccwpck_require__(9796)
+} = __nccwpck_require__(2305)
+const { InvalidArgumentError } = __nccwpck_require__(3959)
+const { buildURL } = __nccwpck_require__(9500)
 
 /**
  * Defines the scope API for an interceptor reply
@@ -26575,15 +27313,15 @@ module.exports.MockScope = MockScope
 
 /***/ }),
 
-/***/ 4024:
+/***/ 6480:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 const { promisify } = __nccwpck_require__(9023)
-const Pool = __nccwpck_require__(3512)
-const { buildMockDispatch } = __nccwpck_require__(6081)
+const Pool = __nccwpck_require__(4288)
+const { buildMockDispatch } = __nccwpck_require__(3193)
 const {
   kDispatches,
   kMockAgent,
@@ -26592,10 +27330,10 @@ const {
   kOrigin,
   kOriginalDispatch,
   kConnected
-} = __nccwpck_require__(3225)
-const { MockInterceptor } = __nccwpck_require__(3307)
-const Symbols = __nccwpck_require__(455)
-const { InvalidArgumentError } = __nccwpck_require__(6751)
+} = __nccwpck_require__(2305)
+const { MockInterceptor } = __nccwpck_require__(5843)
+const Symbols = __nccwpck_require__(8031)
+const { InvalidArgumentError } = __nccwpck_require__(3959)
 
 /**
  * MockPool provides an API that extends the Pool to influence the mockDispatches.
@@ -26642,7 +27380,7 @@ module.exports = MockPool
 
 /***/ }),
 
-/***/ 3225:
+/***/ 2305:
 /***/ ((module) => {
 
 "use strict";
@@ -26673,21 +27411,21 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6081:
+/***/ 3193:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { MockNotMatchedError } = __nccwpck_require__(9753)
+const { MockNotMatchedError } = __nccwpck_require__(2673)
 const {
   kDispatches,
   kMockAgent,
   kOriginalDispatch,
   kOrigin,
   kGetNetConnect
-} = __nccwpck_require__(3225)
-const { buildURL, nop } = __nccwpck_require__(9796)
+} = __nccwpck_require__(2305)
+const { buildURL, nop } = __nccwpck_require__(9500)
 const { STATUS_CODES } = __nccwpck_require__(8611)
 const {
   types: {
@@ -27032,7 +27770,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7186:
+/***/ 5738:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27080,7 +27818,7 @@ module.exports = class PendingInterceptorsFormatter {
 
 /***/ }),
 
-/***/ 7925:
+/***/ 5773:
 /***/ ((module) => {
 
 "use strict";
@@ -27117,7 +27855,7 @@ module.exports = class Pluralizer {
 
 /***/ }),
 
-/***/ 505:
+/***/ 8721:
 /***/ ((module) => {
 
 "use strict";
@@ -27242,16 +27980,16 @@ module.exports = class FixedQueue {
 
 /***/ }),
 
-/***/ 5628:
+/***/ 8804:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const DispatcherBase = __nccwpck_require__(7229)
-const FixedQueue = __nccwpck_require__(505)
-const { kConnected, kSize, kRunning, kPending, kQueued, kBusy, kFree, kUrl, kClose, kDestroy, kDispatch } = __nccwpck_require__(455)
-const PoolStats = __nccwpck_require__(1418)
+const DispatcherBase = __nccwpck_require__(2421)
+const FixedQueue = __nccwpck_require__(8721)
+const { kConnected, kSize, kRunning, kPending, kQueued, kBusy, kFree, kUrl, kClose, kDestroy, kDispatch } = __nccwpck_require__(8031)
+const PoolStats = __nccwpck_require__(9218)
 
 const kClients = Symbol('clients')
 const kNeedDrain = Symbol('needDrain')
@@ -27444,10 +28182,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1418:
+/***/ 9218:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const { kFree, kConnected, kPending, kQueued, kRunning, kSize } = __nccwpck_require__(455)
+const { kFree, kConnected, kPending, kQueued, kRunning, kSize } = __nccwpck_require__(8031)
 const kPool = Symbol('pool')
 
 class PoolStats {
@@ -27485,7 +28223,7 @@ module.exports = PoolStats
 
 /***/ }),
 
-/***/ 3512:
+/***/ 4288:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -27497,14 +28235,14 @@ const {
   kNeedDrain,
   kAddClient,
   kGetDispatcher
-} = __nccwpck_require__(5628)
-const Client = __nccwpck_require__(1841)
+} = __nccwpck_require__(8804)
+const Client = __nccwpck_require__(5513)
 const {
   InvalidArgumentError
-} = __nccwpck_require__(6751)
-const util = __nccwpck_require__(9796)
-const { kUrl, kInterceptors } = __nccwpck_require__(455)
-const buildConnector = __nccwpck_require__(3676)
+} = __nccwpck_require__(3959)
+const util = __nccwpck_require__(9500)
+const { kUrl, kInterceptors } = __nccwpck_require__(8031)
+const buildConnector = __nccwpck_require__(1332)
 
 const kOptions = Symbol('options')
 const kConnections = Symbol('connections')
@@ -27601,19 +28339,19 @@ module.exports = Pool
 
 /***/ }),
 
-/***/ 5588:
+/***/ 9276:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { kProxy, kClose, kDestroy, kInterceptors } = __nccwpck_require__(455)
+const { kProxy, kClose, kDestroy, kInterceptors } = __nccwpck_require__(8031)
 const { URL } = __nccwpck_require__(7016)
-const Agent = __nccwpck_require__(2193)
-const Pool = __nccwpck_require__(3512)
-const DispatcherBase = __nccwpck_require__(7229)
-const { InvalidArgumentError, RequestAbortedError } = __nccwpck_require__(6751)
-const buildConnector = __nccwpck_require__(3676)
+const Agent = __nccwpck_require__(2121)
+const Pool = __nccwpck_require__(4288)
+const DispatcherBase = __nccwpck_require__(2421)
+const { InvalidArgumentError, RequestAbortedError } = __nccwpck_require__(3959)
+const buildConnector = __nccwpck_require__(1332)
 
 const kAgent = Symbol('proxy agent')
 const kClient = Symbol('proxy client')
@@ -27798,7 +28536,7 @@ module.exports = ProxyAgent
 
 /***/ }),
 
-/***/ 1400:
+/***/ 2576:
 /***/ ((module) => {
 
 "use strict";
@@ -27903,27 +28641,27 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5642:
+/***/ 6114:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 const diagnosticsChannel = __nccwpck_require__(1637)
-const { uid, states } = __nccwpck_require__(9493)
+const { uid, states } = __nccwpck_require__(77)
 const {
   kReadyState,
   kSentClose,
   kByteParser,
   kReceivedClose
-} = __nccwpck_require__(961)
-const { fireEvent, failWebsocketConnection } = __nccwpck_require__(8698)
-const { CloseEvent } = __nccwpck_require__(5907)
-const { makeRequest } = __nccwpck_require__(1054)
-const { fetching } = __nccwpck_require__(3319)
-const { Headers } = __nccwpck_require__(6969)
-const { getGlobalDispatcher } = __nccwpck_require__(1521)
-const { kHeadersList } = __nccwpck_require__(455)
+} = __nccwpck_require__(7945)
+const { fireEvent, failWebsocketConnection } = __nccwpck_require__(5506)
+const { CloseEvent } = __nccwpck_require__(7115)
+const { makeRequest } = __nccwpck_require__(2630)
+const { fetching } = __nccwpck_require__(1503)
+const { Headers } = __nccwpck_require__(2801)
+const { getGlobalDispatcher } = __nccwpck_require__(1481)
+const { kHeadersList } = __nccwpck_require__(8031)
 
 const channels = {}
 channels.open = diagnosticsChannel.channel('undici:websocket:open')
@@ -28202,7 +28940,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9493:
+/***/ 77:
 /***/ ((module) => {
 
 "use strict";
@@ -28261,14 +28999,14 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5907:
+/***/ 7115:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { webidl } = __nccwpck_require__(4362)
-const { kEnumerableProperty } = __nccwpck_require__(9796)
+const { webidl } = __nccwpck_require__(4354)
+const { kEnumerableProperty } = __nccwpck_require__(9500)
 const { MessagePort } = __nccwpck_require__(8167)
 
 /**
@@ -28572,13 +29310,13 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3617:
+/***/ 2697:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { maxUnsigned16Bit } = __nccwpck_require__(9493)
+const { maxUnsigned16Bit } = __nccwpck_require__(77)
 
 /** @type {import('crypto')} */
 let crypto
@@ -28653,7 +29391,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 95:
+/***/ 3607:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -28661,10 +29399,10 @@ module.exports = {
 
 const { Writable } = __nccwpck_require__(2203)
 const diagnosticsChannel = __nccwpck_require__(1637)
-const { parserStates, opcodes, states, emptyBuffer } = __nccwpck_require__(9493)
-const { kReadyState, kSentClose, kResponse, kReceivedClose } = __nccwpck_require__(961)
-const { isValidStatusCode, failWebsocketConnection, websocketMessageReceived } = __nccwpck_require__(8698)
-const { WebsocketFrameSend } = __nccwpck_require__(3617)
+const { parserStates, opcodes, states, emptyBuffer } = __nccwpck_require__(77)
+const { kReadyState, kSentClose, kResponse, kReceivedClose } = __nccwpck_require__(7945)
+const { isValidStatusCode, failWebsocketConnection, websocketMessageReceived } = __nccwpck_require__(5506)
+const { WebsocketFrameSend } = __nccwpck_require__(2697)
 
 // This code was influenced by ws released under the MIT license.
 // Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>
@@ -29005,7 +29743,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 961:
+/***/ 7945:
 /***/ ((module) => {
 
 "use strict";
@@ -29025,15 +29763,15 @@ module.exports = {
 
 /***/ }),
 
-/***/ 8698:
+/***/ 5506:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { kReadyState, kController, kResponse, kBinaryType, kWebSocketURL } = __nccwpck_require__(961)
-const { states, opcodes } = __nccwpck_require__(9493)
-const { MessageEvent, ErrorEvent } = __nccwpck_require__(5907)
+const { kReadyState, kController, kResponse, kBinaryType, kWebSocketURL } = __nccwpck_require__(7945)
+const { states, opcodes } = __nccwpck_require__(77)
+const { MessageEvent, ErrorEvent } = __nccwpck_require__(7115)
 
 /* globals Blob */
 
@@ -29233,17 +29971,17 @@ module.exports = {
 
 /***/ }),
 
-/***/ 799:
+/***/ 551:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { webidl } = __nccwpck_require__(4362)
-const { DOMException } = __nccwpck_require__(2922)
-const { URLSerializer } = __nccwpck_require__(1638)
-const { getGlobalOrigin } = __nccwpck_require__(7640)
-const { staticPropertyDescriptors, states, opcodes, emptyBuffer } = __nccwpck_require__(9493)
+const { webidl } = __nccwpck_require__(4354)
+const { DOMException } = __nccwpck_require__(1234)
+const { URLSerializer } = __nccwpck_require__(7246)
+const { getGlobalOrigin } = __nccwpck_require__(2896)
+const { staticPropertyDescriptors, states, opcodes, emptyBuffer } = __nccwpck_require__(77)
 const {
   kWebSocketURL,
   kReadyState,
@@ -29252,13 +29990,13 @@ const {
   kResponse,
   kSentClose,
   kByteParser
-} = __nccwpck_require__(961)
-const { isEstablished, isClosing, isValidSubprotocol, failWebsocketConnection, fireEvent } = __nccwpck_require__(8698)
-const { establishWebSocketConnection } = __nccwpck_require__(5642)
-const { WebsocketFrameSend } = __nccwpck_require__(3617)
-const { ByteParser } = __nccwpck_require__(95)
-const { kEnumerableProperty, isBlobLike } = __nccwpck_require__(9796)
-const { getGlobalDispatcher } = __nccwpck_require__(1521)
+} = __nccwpck_require__(7945)
+const { isEstablished, isClosing, isValidSubprotocol, failWebsocketConnection, fireEvent } = __nccwpck_require__(5506)
+const { establishWebSocketConnection } = __nccwpck_require__(6114)
+const { WebsocketFrameSend } = __nccwpck_require__(2697)
+const { ByteParser } = __nccwpck_require__(3607)
+const { kEnumerableProperty, isBlobLike } = __nccwpck_require__(9500)
+const { getGlobalDispatcher } = __nccwpck_require__(1481)
 const { types } = __nccwpck_require__(9023)
 
 let experimentalWarned = false
@@ -29882,7 +30620,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 892:
+/***/ 7460:
 /***/ ((module) => {
 
 // Returns a wrapper function that returns a wrapped callback
@@ -29922,7 +30660,7 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 1236:
+/***/ 3018:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -29961,12 +30699,13 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(2648));
-const github = __importStar(__nccwpck_require__(3352));
-const inputs_1 = __nccwpck_require__(3067);
-const runner_1 = __nccwpck_require__(916);
-const labels_1 = __nccwpck_require__(5509);
-const pr_comment_1 = __nccwpck_require__(1476);
+const core = __importStar(__nccwpck_require__(7184));
+const github = __importStar(__nccwpck_require__(5683));
+const inputs_1 = __nccwpck_require__(1601);
+const runner_1 = __nccwpck_require__(1722);
+const labels_1 = __nccwpck_require__(875);
+const pr_comment_1 = __nccwpck_require__(5842);
+const stdout_summary_1 = __nccwpck_require__(1326);
 async function run() {
     try {
         // Parse inputs
@@ -30053,6 +30792,12 @@ async function run() {
             core.info('Outcome: ' + outcome);
             core.info('Cost: $' + result.costUsd.toFixed(4));
             core.info('Duration: ' + result.durationSeconds + 's');
+            if (result.jobStatus && result.extractedIssues && result.extractedIssues.length > 0) {
+                core.info('');
+                for (const line of (0, stdout_summary_1.renderStdoutIssues)(result.extractedIssues, result.jobStatus)) {
+                    core.info(line);
+                }
+            }
             // Handle workflow failure (skip in fire-and-forget mode)
             if (inputs.waitForResult) {
                 if (outcome === 'error' && inputs.failOnError) {
@@ -30176,7 +30921,7 @@ run();
 
 /***/ }),
 
-/***/ 3067:
+/***/ 1601:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -30218,8 +30963,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseNumberList = parseNumberList;
 exports.parseStringList = parseStringList;
 exports.parseInputs = parseInputs;
-const core = __importStar(__nccwpck_require__(2648));
-const github = __importStar(__nccwpck_require__(3352));
+const core = __importStar(__nccwpck_require__(7184));
+const github = __importStar(__nccwpck_require__(5683));
 const fs = __importStar(__nccwpck_require__(9896));
 /**
  * Parse a string that could be either JSON array or comma-separated values
@@ -30413,7 +31158,43 @@ function parseOutputSchema(input) {
 
 /***/ }),
 
-/***/ 5509:
+/***/ 4783:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.jobStatusToRenderJob = jobStatusToRenderJob;
+/**
+ * Adapt a `JobStatusResponse` (the wire shape we receive from the API)
+ * into the structural subset (`IssueRenderJob`) the shared issue-body
+ * renderer reads. Sections of the rendered body whose fields are absent
+ * on the response will be skipped — that's intentional: a partial job
+ * still produces a valid body with the sections it can fill.
+ */
+function jobStatusToRenderJob(status) {
+    if (status.description === undefined) {
+        throw new Error(`JobStatusResponse for job ${status.id} is missing 'description' — cannot render issue body`);
+    }
+    return {
+        id: status.id,
+        description: status.description,
+        augmentedDescription: status.augmentedDescription,
+        url: status.url,
+        deviceClass: status.deviceClass,
+        testDurationSeconds: status.testDurationSeconds,
+        testerAlias: status.testerAlias,
+        sessionEvents: status.testerData && {
+            screenshots: status.testerData.screenshots,
+            videoUrl: status.testerData.videoUrl,
+        },
+    };
+}
+
+
+/***/ }),
+
+/***/ 875:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -30456,7 +31237,7 @@ exports.addLabels = addLabels;
 exports.removeLabels = removeLabels;
 exports.getLabelsForOutcome = getLabelsForOutcome;
 exports.applyLabelsForOutcome = applyLabelsForOutcome;
-const core = __importStar(__nccwpck_require__(2648));
+const core = __importStar(__nccwpck_require__(7184));
 /**
  * Add labels to an issue.
  */
@@ -30551,7 +31332,7 @@ async function applyLabelsForOutcome(octokit, owner, repo, issueNumber, inputs, 
 
 /***/ }),
 
-/***/ 1476:
+/***/ 5842:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -30593,7 +31374,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.STICKY_MARKER = void 0;
 exports.renderDigestMarkdown = renderDigestMarkdown;
 exports.upsertPrDigestComment = upsertPrDigestComment;
-const core = __importStar(__nccwpck_require__(2648));
+const core = __importStar(__nccwpck_require__(7184));
+const shared_1 = __nccwpck_require__(8912);
+const job_like_adapter_1 = __nccwpck_require__(4783);
 /**
  * Hidden HTML marker used as the sticky key for the digest comment.
  * Kept per-PR (not per-job) so re-runs update in place.
@@ -30612,15 +31395,30 @@ const SEVERITY_EMOJI = {
     medium: '🟡',
     low: '🔵',
 };
+/**
+ * Synthetic minimal `IssueRenderJob` for cases where the runner didn't
+ * carry the full job-status payload through. The body still renders —
+ * only the test-target / device / media sections come back empty.
+ */
+function fallbackRenderJob(jobId) {
+    return { id: jobId ?? 'unknown-job', description: '' };
+}
 function renderDigestMarkdown(result, outcome) {
     const { emoji, label } = OUTCOME_PRESENTATION[outcome];
     const bugs = result.extractedIssues ?? [];
     const narrative = result.explanation?.trim() || '_No tester narrative was returned._';
     const duration = formatDuration(result.durationSeconds);
     const cost = `$${result.costUsd.toFixed(2)}`;
+    const renderJob = result.jobStatus
+        ? (0, job_like_adapter_1.jobStatusToRenderJob)(result.jobStatus)
+        : fallbackRenderJob(result.jobId);
+    const ctx = { jobUrl: result.jobUrl };
     const bugsSection = bugs.length === 0
         ? '**No bugs found** 🎉'
-        : [`**Bugs found (${bugs.length}):**`, ...bugs.map(renderBugLine)].join('\n');
+        : [
+            `**Bugs found (${bugs.length}):**`,
+            ...bugs.map((bug) => renderBugDetails(bug, renderJob, ctx)),
+        ].join('\n\n');
     const jobLink = result.jobUrl
         ? `[View full session (video, key moments, timeline)](${result.jobUrl})`
         : '_Job link unavailable._';
@@ -30637,9 +31435,10 @@ function renderDigestMarkdown(result, outcome) {
         jobLink,
     ].join('\n');
 }
-function renderBugLine(bug) {
-    const firstLine = bug.description.split('\n')[0].trim();
-    return `- ${SEVERITY_EMOJI[bug.severity]} **${bug.severity}** — ${bug.title}\n  ${firstLine}`;
+function renderBugDetails(bug, renderJob, ctx) {
+    const summary = `${SEVERITY_EMOJI[bug.severity]} <strong>${bug.severity}</strong> — ${bug.title}`;
+    const body = (0, shared_1.buildIssueBody)(bug, renderJob, ctx);
+    return `<details>\n<summary>${summary}</summary>\n\n${body}\n\n</details>`;
 }
 function formatDuration(seconds) {
     if (seconds < 60)
@@ -30681,7 +31480,7 @@ async function findStickyComment(octokit, owner, repo, prNumber) {
 
 /***/ }),
 
-/***/ 916:
+/***/ 1722:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -30726,9 +31525,9 @@ exports.runTestForPr = runTestForPr;
 exports.runTestWithDescription = runTestWithDescription;
 exports.runConsolidatedTest = runConsolidatedTest;
 exports.runJobWithIds = runJobWithIds;
-const core = __importStar(__nccwpck_require__(2648));
-const github = __importStar(__nccwpck_require__(3352));
-const types_1 = __nccwpck_require__(373);
+const core = __importStar(__nccwpck_require__(7184));
+const github = __importStar(__nccwpck_require__(5683));
+const types_1 = __nccwpck_require__(4539);
 // Polling configuration
 const POLL_INTERVAL_MS = 10000; // 10 seconds between polls
 const DEFAULT_MAX_WAIT_MS = 30 * 60 * 1000; // 30 minutes default
@@ -31074,6 +31873,7 @@ async function runTestForIssue(inputs, issue, analysis) {
                 status: 'completed',
                 analysis,
                 extractedIssues: finalStatus.extractedIssues,
+                jobStatus: finalStatus,
             };
         }
         if (finalStatus.status === 'abandoned') {
@@ -31164,6 +31964,7 @@ async function runTestForPr(inputs, pr, analysis) {
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'completed',
                 extractedIssues: finalStatus.extractedIssues,
+                jobStatus: finalStatus,
             };
         }
         if (finalStatus.status === 'abandoned') {
@@ -31283,6 +32084,7 @@ async function runTestWithDescription(inputs) {
                 durationSeconds: finalStatus.testDurationSeconds ?? 0,
                 status: 'completed',
                 extractedIssues: finalStatus.extractedIssues,
+                jobStatus: finalStatus,
             };
         }
         if (finalStatus.status === 'abandoned') {
@@ -31639,8 +32441,45 @@ async function runJobWithIds(inputs, prNumbers, issueNumbers) {
 
 /***/ }),
 
-/***/ 373:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ 1326:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.renderStdoutIssues = renderStdoutIssues;
+const shared_1 = __nccwpck_require__(8912);
+const job_like_adapter_1 = __nccwpck_require__(4783);
+/**
+ * Render the per-issue stdout block for the action's `qa-test` job log.
+ * One line per issue with a `--- Issue N/M ---` separator, followed by
+ * the full `buildIssueBody` body so a coding agent reading the log can
+ * see root cause / suggested fix / code references without leaving the
+ * job page or parsing the JSON output.
+ *
+ * Returns lines, not a single string — `core.info` is called once per
+ * line by the caller so the log output preserves line boundaries the
+ * way `@actions/core` expects.
+ */
+function renderStdoutIssues(issues, jobStatus) {
+    if (issues.length === 0)
+        return [];
+    const renderJob = (0, job_like_adapter_1.jobStatusToRenderJob)(jobStatus);
+    const ctx = { jobUrl: jobStatus.jobUrl };
+    const lines = [`=== Extracted Issues (${issues.length}) ===`];
+    for (const [index, issue] of issues.entries()) {
+        lines.push('');
+        lines.push(`--- Issue ${index + 1}/${issues.length} ---`);
+        lines.push((0, shared_1.buildIssueBody)(issue, renderJob, ctx));
+    }
+    return lines;
+}
+
+
+/***/ }),
+
+/***/ 4539:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
@@ -31648,12 +32487,10 @@ async function runJobWithIds(inputs, prNumbers, issueNumbers) {
  * Types for the unified Runhuman GitHub Action
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isTerminalStatus = isTerminalStatus;
+exports.isTerminalStatus = void 0;
 exports.extractSuccessFromResult = extractSuccessFromResult;
-// Helper to check terminal status
-function isTerminalStatus(status) {
-    return ['completed', 'incomplete', 'abandoned', 'rejected', 'error', 'untestable'].includes(status);
-}
+var shared_1 = __nccwpck_require__(8912);
+Object.defineProperty(exports, "isTerminalStatus", ({ enumerable: true, get: function () { return shared_1.isTerminalStatus; } }));
 /**
  * Extract the success value from an ExtractedResult.
  * If the user's output schema includes a boolean 'success' field, its value is used.
@@ -31857,7 +32694,7 @@ module.exports = require("stream/web");
 
 /***/ }),
 
-/***/ 3193:
+/***/ 5574:
 /***/ ((module) => {
 
 "use strict";
@@ -31921,7 +32758,7 @@ module.exports = require("zlib");
 
 /***/ }),
 
-/***/ 6938:
+/***/ 2034:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31930,10 +32767,10 @@ module.exports = require("zlib");
 const WritableStream = (__nccwpck_require__(7075).Writable)
 const inherits = (__nccwpck_require__(7975).inherits)
 
-const StreamSearch = __nccwpck_require__(5292)
+const StreamSearch = __nccwpck_require__(228)
 
-const PartStream = __nccwpck_require__(7448)
-const HeaderParser = __nccwpck_require__(4643)
+const PartStream = __nccwpck_require__(256)
+const HeaderParser = __nccwpck_require__(8923)
 
 const DASH = 45
 const B_ONEDASH = Buffer.from('-')
@@ -32142,7 +32979,7 @@ module.exports = Dicer
 
 /***/ }),
 
-/***/ 4643:
+/***/ 8923:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32150,9 +32987,9 @@ module.exports = Dicer
 
 const EventEmitter = (__nccwpck_require__(8474).EventEmitter)
 const inherits = (__nccwpck_require__(7975).inherits)
-const getLimit = __nccwpck_require__(8197)
+const getLimit = __nccwpck_require__(9117)
 
-const StreamSearch = __nccwpck_require__(5292)
+const StreamSearch = __nccwpck_require__(228)
 
 const B_DCRLF = Buffer.from('\r\n\r\n')
 const RE_CRLF = /\r\n/g
@@ -32250,7 +33087,7 @@ module.exports = HeaderParser
 
 /***/ }),
 
-/***/ 7448:
+/***/ 256:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32271,7 +33108,7 @@ module.exports = PartStream
 
 /***/ }),
 
-/***/ 5292:
+/***/ 228:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32507,7 +33344,7 @@ module.exports = SBMH
 
 /***/ }),
 
-/***/ 1273:
+/***/ 6257:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32515,11 +33352,11 @@ module.exports = SBMH
 
 const WritableStream = (__nccwpck_require__(7075).Writable)
 const { inherits } = __nccwpck_require__(7975)
-const Dicer = __nccwpck_require__(6938)
+const Dicer = __nccwpck_require__(2034)
 
-const MultipartParser = __nccwpck_require__(9196)
-const UrlencodedParser = __nccwpck_require__(1531)
-const parseParams = __nccwpck_require__(2261)
+const MultipartParser = __nccwpck_require__(8452)
+const UrlencodedParser = __nccwpck_require__(4499)
+const parseParams = __nccwpck_require__(8653)
 
 function Busboy (opts) {
   if (!(this instanceof Busboy)) { return new Busboy(opts) }
@@ -32600,7 +33437,7 @@ module.exports.Dicer = Dicer
 
 /***/ }),
 
-/***/ 9196:
+/***/ 8452:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -32616,12 +33453,12 @@ module.exports.Dicer = Dicer
 const { Readable } = __nccwpck_require__(7075)
 const { inherits } = __nccwpck_require__(7975)
 
-const Dicer = __nccwpck_require__(6938)
+const Dicer = __nccwpck_require__(2034)
 
-const parseParams = __nccwpck_require__(2261)
-const decodeText = __nccwpck_require__(1047)
-const basename = __nccwpck_require__(5184)
-const getLimit = __nccwpck_require__(8197)
+const parseParams = __nccwpck_require__(8653)
+const decodeText = __nccwpck_require__(3343)
+const basename = __nccwpck_require__(2600)
+const getLimit = __nccwpck_require__(9117)
 
 const RE_BOUNDARY = /^boundary$/i
 const RE_FIELD = /^form-data$/i
@@ -32914,15 +33751,15 @@ module.exports = Multipart
 
 /***/ }),
 
-/***/ 1531:
+/***/ 4499:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Decoder = __nccwpck_require__(9284)
-const decodeText = __nccwpck_require__(1047)
-const getLimit = __nccwpck_require__(8197)
+const Decoder = __nccwpck_require__(6572)
+const decodeText = __nccwpck_require__(3343)
+const getLimit = __nccwpck_require__(9117)
 
 const RE_CHARSET = /^charset$/i
 
@@ -33112,7 +33949,7 @@ module.exports = UrlEncoded
 
 /***/ }),
 
-/***/ 9284:
+/***/ 6572:
 /***/ ((module) => {
 
 "use strict";
@@ -33174,7 +34011,7 @@ module.exports = Decoder
 
 /***/ }),
 
-/***/ 5184:
+/***/ 2600:
 /***/ ((module) => {
 
 "use strict";
@@ -33196,7 +34033,7 @@ module.exports = function basename (path) {
 
 /***/ }),
 
-/***/ 1047:
+/***/ 3343:
 /***/ (function(module) {
 
 "use strict";
@@ -33318,7 +34155,7 @@ module.exports = decodeText
 
 /***/ }),
 
-/***/ 8197:
+/***/ 9117:
 /***/ ((module) => {
 
 "use strict";
@@ -33342,14 +34179,14 @@ module.exports = function getLimit (limits, name, defaultLimit) {
 
 /***/ }),
 
-/***/ 2261:
+/***/ 8653:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 /* eslint-disable object-property-newline */
 
 
-const decodeText = __nccwpck_require__(1047)
+const decodeText = __nccwpck_require__(3343)
 
 const RE_ENCODED = /%[a-fA-F0-9][a-fA-F0-9]/g
 
@@ -33544,6 +34381,5150 @@ function parseParams (str) {
 module.exports = parseParams
 
 
+/***/ }),
+
+/***/ 8912:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+// ESM COMPAT FLAG
+__nccwpck_require__.r(__webpack_exports__);
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  API_PREFIX: () => (/* reexport */ API_PREFIX),
+  APK_INSTALL_CAPABILITY: () => (/* reexport */ APK_INSTALL_CAPABILITY),
+  BASE_CHIP_GROUPS: () => (/* reexport */ BASE_CHIP_GROUPS),
+  BILLING_TIERS: () => (/* reexport */ BILLING_TIERS),
+  BILLING_TIERS_SET: () => (/* reexport */ BILLING_TIERS_SET),
+  CLAIM_ERROR_CODES: () => (/* reexport */ CLAIM_ERROR_CODES),
+  DEFAULT_DEVICE_CLASS: () => (/* reexport */ DEFAULT_DEVICE_CLASS),
+  DEFAULT_ISSUE_TEST_CONFIG: () => (/* reexport */ DEFAULT_ISSUE_TEST_CONFIG),
+  DEFAULT_JOB_PRIORITY: () => (/* reexport */ DEFAULT_JOB_PRIORITY),
+  DEFAULT_MAX_EXTENSION_COUNT: () => (/* reexport */ DEFAULT_MAX_EXTENSION_COUNT),
+  DEFAULT_MAX_EXTENSION_MINUTES: () => (/* reexport */ DEFAULT_MAX_EXTENSION_MINUTES),
+  DEFAULT_MEMBER_LIMIT: () => (/* reexport */ DEFAULT_MEMBER_LIMIT),
+  DEFAULT_TARGET_DURATION_MINUTES: () => (/* reexport */ DEFAULT_TARGET_DURATION_MINUTES),
+  DEFAULT_TESTER_NOTIFICATION_PREFERENCES: () => (/* reexport */ DEFAULT_TESTER_NOTIFICATION_PREFERENCES),
+  DEVICE_CAPABILITY: () => (/* reexport */ DEVICE_CAPABILITY),
+  DEVICE_CLASSES: () => (/* reexport */ DEVICE_CLASSES),
+  DEVICE_CLASS_LABELS: () => (/* reexport */ DEVICE_CLASS_LABELS),
+  DEVICE_CLASS_VIEWPORTS: () => (/* reexport */ DEVICE_CLASS_VIEWPORTS),
+  EXTENSION_EVENT_TYPES: () => (/* reexport */ EXTENSION_EVENT_TYPES),
+  FINE_GRAIN_CHIP_GROUPS: () => (/* reexport */ FINE_GRAIN_CHIP_GROUPS),
+  FREQUENCY_LABELS: () => (/* reexport */ FREQUENCY_LABELS),
+  JOB_ARTIFACT_TYPES: () => (/* reexport */ JOB_ARTIFACT_TYPES),
+  JOB_PRIORITIES: () => (/* reexport */ JOB_PRIORITIES),
+  JOB_STATUS: () => (/* reexport */ JOB_STATUS),
+  LANGUAGE_CAPABILITY: () => (/* reexport */ LANGUAGE_CAPABILITY),
+  MAX_ATTACHMENTS: () => (/* reexport */ MAX_ATTACHMENTS),
+  MAX_SLACK_NOTIFICATION_CHANNELS: () => (/* reexport */ MAX_SLACK_NOTIFICATION_CHANNELS),
+  MDFormParseError: () => (/* reexport */ MDFormParseError),
+  MIN_PER_EXTENSION_MINUTES: () => (/* reexport */ MIN_PER_EXTENSION_MINUTES),
+  OTHER_CHIP_LABEL: () => (/* reexport */ OTHER_CHIP_LABEL),
+  OTHER_REFERENCE_MATCHERS: () => (/* reexport */ OTHER_REFERENCE_MATCHERS),
+  PAGINATION_DEFAULTS: () => (/* reexport */ PAGINATION_DEFAULTS),
+  PRIORITY_LIFETIME_MS: () => (/* reexport */ PRIORITY_LIFETIME_MS),
+  PRIORITY_SORT_WEIGHT: () => (/* reexport */ PRIORITY_SORT_WEIGHT),
+  PUSH_NOTIFICATION_BEHAVIORS: () => (/* reexport */ PUSH_NOTIFICATION_BEHAVIORS),
+  QUARTER_HOUR_MINUTES: () => (/* reexport */ QUARTER_HOUR_MINUTES),
+  RUNHUMAN_SELF_TEST_SLACK_INSTRUCTION: () => (/* reexport */ RUNHUMAN_SELF_TEST_SLACK_INSTRUCTION),
+  SAML_PROVIDERS: () => (/* reexport */ SAML_PROVIDERS),
+  SCHEDULE_CSV_HEADER: () => (/* reexport */ SCHEDULE_CSV_HEADER),
+  SCHEDULE_CSV_KINDS: () => (/* reexport */ SCHEDULE_CSV_KINDS),
+  SCHEDULE_FREQUENCIES: () => (/* reexport */ SCHEDULE_FREQUENCIES),
+  SCHEDULE_WEEKDAYS: () => (/* reexport */ SCHEDULE_WEEKDAYS),
+  SETUP_BUFFER_MINUTES: () => (/* reexport */ SETUP_BUFFER_MINUTES),
+  SOCIAL_VIDEOS_CAPABILITY: () => (/* reexport */ SOCIAL_VIDEOS_CAPABILITY),
+  SUBSCRIPTION_ADDONS: () => (/* reexport */ SUBSCRIPTION_ADDONS),
+  SUBSCRIPTION_ADDONS_SET: () => (/* reexport */ SUBSCRIPTION_ADDONS_SET),
+  SYSTEM_MAX_SESSION_MINUTES: () => (/* reexport */ SYSTEM_MAX_SESSION_MINUTES),
+  TESTER_AUTO_AWAY_MINUTES_DEFAULT: () => (/* reexport */ TESTER_AUTO_AWAY_MINUTES_DEFAULT),
+  TESTER_AUTO_OFFLINE_MINUTES_DEFAULT: () => (/* reexport */ TESTER_AUTO_OFFLINE_MINUTES_DEFAULT),
+  TESTER_DEVICES: () => (/* reexport */ TESTER_DEVICES),
+  TESTER_INACTIVE_DAYS_DEFAULT: () => (/* reexport */ TESTER_INACTIVE_DAYS_DEFAULT),
+  TESTER_INACTIVITY_WARNING_MINUTES_DEFAULT: () => (/* reexport */ TESTER_INACTIVITY_WARNING_MINUTES_DEFAULT),
+  TESTER_LANGUAGES: () => (/* reexport */ TESTER_LANGUAGES),
+  TEST_SESSION_EVENT_TYPES: () => (/* reexport */ TEST_SESSION_EVENT_TYPES),
+  TEST_SESSION_PLATFORMS: () => (/* reexport */ TEST_SESSION_PLATFORMS),
+  TEST_SESSION_SOURCES: () => (/* reexport */ TEST_SESSION_SOURCES),
+  TIER_MEMBER_LIMITS: () => (/* reexport */ TIER_MEMBER_LIMITS),
+  TIER_ORDER: () => (/* reexport */ TIER_ORDER),
+  TIMEZONE_OPTIONS: () => (/* reexport */ TIMEZONE_OPTIONS),
+  WEEKDAY_LABELS: () => (/* reexport */ WEEKDAY_LABELS),
+  WEEKDAY_SHORT_LABELS: () => (/* reexport */ WEEKDAY_SHORT_LABELS),
+  apiRoutes: () => (/* reexport */ apiRoutes),
+  asStorageUrl: () => (/* reexport */ asStorageUrl),
+  buildChipFilter: () => (/* reexport */ buildChipFilter),
+  buildDuplicateCommentBody: () => (/* reexport */ buildDuplicateCommentBody),
+  buildIssueBody: () => (/* reexport */ buildIssueBody),
+  buildIssueTitle: () => (/* reexport */ buildIssueTitle),
+  buildJobFailedComment: () => (/* reexport */ buildJobFailedComment),
+  buildTestResultComment: () => (/* reexport */ buildTestResultComment),
+  calculateNextExecutionAt: () => (/* reexport */ calculateNextExecutionAt),
+  checkPoolRequirements: () => (/* reexport */ checkPoolRequirements),
+  claimErrorMessage: () => (/* reexport */ claimErrorMessage),
+  computeAllottedMinutes: () => (/* reexport */ computeAllottedMinutes),
+  computeExpiresAt: () => (/* reexport */ computeExpiresAt),
+  computeGrantedExtensionMinutes: () => (/* reexport */ computeGrantedExtensionMinutes),
+  computeHardCutoffTime: () => (/* reexport */ computeHardCutoffTime),
+  computeLeewayMinutes: () => (/* reexport */ computeLeewayMinutes),
+  computePerExtensionMinutes: () => (/* reexport */ computePerExtensionMinutes),
+  convertSchemaToMDForm: () => (/* reexport */ convertSchemaToMDForm),
+  decodeChipFilter: () => (/* reexport */ decodeChipFilter),
+  defineRoute: () => (/* reexport */ defineRoute),
+  describeClaimError: () => (/* reexport */ describeClaimError),
+  describeClaimErrorFromUnknown: () => (/* reexport */ describeClaimErrorFromUnknown),
+  detectAttachmentType: () => (/* reexport */ detectAttachmentType),
+  encodeChipFilter: () => (/* reexport */ encodeChipFilter),
+  exceedsLimit: () => (/* reexport */ exceedsLimit),
+  extractClaimErrorCode: () => (/* reexport */ extractClaimErrorCode),
+  extractIssueAttachments: () => (/* reexport */ extractIssueAttachments),
+  featureFlags: () => (/* reexport */ featureFlags),
+  filterQueueByCapabilities: () => (/* reexport */ filterQueueByCapabilities),
+  filterTemplates: () => (/* reexport */ filterTemplates),
+  findChipGroup: () => (/* reexport */ findChipGroup),
+  formatElapsed: () => (/* reexport */ formatElapsed),
+  formatLastSeen: () => (/* reexport */ formatLastSeen),
+  formatMemberLimit: () => (/* reexport */ formatMemberLimit),
+  formatResultValue: () => (/* reexport */ formatResultValue),
+  formatValidationError: () => (/* reexport */ formatValidationError),
+  formatVideoTime: () => (/* reexport */ formatVideoTime),
+  formatVideoTimeForLink: () => (/* reexport */ formatVideoTimeForLink),
+  getChangeDirection: () => (/* reexport */ getChangeDirection),
+  getCurrentPhase: () => (/* reexport */ getCurrentPhase),
+  getCurrentPhaseSegment: () => (/* reexport */ getCurrentPhaseSegment),
+  getCurrentSubPhase: () => (/* reexport */ getCurrentSubPhase),
+  getDeviceClassViewport: () => (/* reexport */ getDeviceClassViewport),
+  getEffectiveDescription: () => (/* reexport */ getEffectiveDescription),
+  getErrorMessage: () => (/* reexport */ getErrorMessage),
+  getIncompleteFeedback: () => (/* reexport */ getIncompleteFeedback),
+  getMemberLimit: () => (/* reexport */ getMemberLimit),
+  getPhaseDescription: () => (/* reexport */ getPhaseDescription),
+  getPresenceStatus: () => (/* reexport */ getPresenceStatus),
+  getPresenceStatusLabel: () => (/* reexport */ getPresenceStatusLabel),
+  getProgressMessage: () => (/* reexport */ getProgressMessage),
+  getScheduleLabel: () => (/* reexport */ getScheduleLabel),
+  getTierIndex: () => (/* reexport */ getTierIndex),
+  hasActiveFineGrainChip: () => (/* reexport */ hasActiveFineGrainChip),
+  hourToLegacyTimeWindow: () => (/* reexport */ hourToLegacyTimeWindow),
+  isAboveTier: () => (/* reexport */ isAboveTier),
+  isActiveStatus: () => (/* reexport */ isActiveStatus),
+  isAtOrBelowTier: () => (/* reexport */ isAtOrBelowTier),
+  isBusy: () => (/* reexport */ isBusy),
+  isClaimErrorCode: () => (/* reexport */ isClaimErrorCode),
+  isClaimableFromSurface: () => (/* reexport */ isClaimableFromSurface),
+  isDeviceClass: () => (/* reexport */ isDeviceClass),
+  isFeatureEnabled: () => (/* reexport */ isFeatureEnabled),
+  isFinalSegment: () => (/* reexport */ isFinalSegment),
+  isFineGrainLabel: () => (/* reexport */ isFineGrainLabel),
+  isInactive: () => (/* reexport */ isInactive),
+  isIncidentalIssue: () => (/* reexport */ isIncidentalIssue),
+  isJobPriority: () => (/* reexport */ isJobPriority),
+  isMissing: () => (/* reexport */ isMissing),
+  isOffScheduleAndPresent: () => (/* reexport */ isOffScheduleAndPresent),
+  isPrimaryIssue: () => (/* reexport */ isPrimaryIssue),
+  isPushNotificationBehavior: () => (/* reexport */ isPushNotificationBehavior),
+  isTelemetryOnlyIssue: () => (/* reexport */ isTelemetryOnlyIssue),
+  isTerminalStatus: () => (/* reexport */ isTerminalStatus),
+  isTesterSurfaced: () => (/* reexport */ isTesterSurfaced),
+  isValidAttachmentUrl: () => (/* reexport */ isValidAttachmentUrl),
+  isValidGithubRepo: () => (/* reexport */ isValidGithubRepo),
+  isZeroChargeTerminal: () => (/* reexport */ isZeroChargeTerminal),
+  linkify: () => (/* reexport */ linkify),
+  mapLegacyScreenSizeToDeviceClass: () => (/* reexport */ mapLegacyScreenSizeToDeviceClass),
+  normalizeAttachment: () => (/* reexport */ normalizeAttachment),
+  normalizeSchedule: () => (/* reexport */ normalizeSchedule),
+  normalizeSlackNotificationConfig: () => (/* reexport */ normalizeSlackNotificationConfig),
+  normalizeUrl: () => (/* reexport */ normalizeUrl),
+  parseMDFormToSchema: () => (/* reexport */ parseMDFormToSchema),
+  parsePaginationParams: () => (/* reexport */ parsePaginationParams),
+  parseScheduleCsv: () => (/* reexport */ parseScheduleCsv),
+  phaseDescriptions: () => (/* reexport */ phaseDescriptions),
+  priorityFromSource: () => (/* reexport */ priorityFromSource),
+  requiredClaimSurface: () => (/* reexport */ requiredClaimSurface),
+  serializeScheduleCsv: () => (/* reexport */ serializeScheduleCsv),
+  sortTemplates: () => (/* reexport */ sortTemplates),
+  subPhaseDescriptions: () => (/* reexport */ subPhaseDescriptions),
+  validateAttachment: () => (/* reexport */ validateAttachment),
+  validateAttachments: () => (/* reexport */ validateAttachments),
+  validateExtensionConfig: () => (/* reexport */ validateExtensionConfig),
+  validateFlowChartData: () => (/* reexport */ validateFlowChartData),
+  validateFlowChartZipContents: () => (/* reexport */ validateFlowChartZipContents),
+  validateGithubRepo: () => (/* reexport */ validateGithubRepo),
+  validateOutputSchema: () => (/* reexport */ validateOutputSchema),
+  validateUrl: () => (/* reexport */ validateUrl),
+  webRoutes: () => (/* reexport */ webRoutes),
+  weekdaysToLegacyWeekday: () => (/* reexport */ weekdaysToLegacyWeekday),
+  withApiPrefix: () => (/* reexport */ withApiPrefix),
+  zeroChargeLabel: () => (/* reexport */ zeroChargeLabel)
+});
+
+;// CONCATENATED MODULE: ../shared/dist/job/job-status.js
+const JOB_STATUS = {
+    PENDING: 'pending',
+    PREPARING: 'preparing',
+    QUEUED: 'queued',
+    WAITING: 'waiting',
+    WORKING: 'working',
+    COMPLETED: 'completed',
+    INCOMPLETE: 'incomplete',
+    ABANDONED: 'abandoned',
+    REJECTED: 'rejected',
+    ERROR: 'error',
+    UNTESTABLE: 'untestable',
+};
+function isTerminalStatus(status) {
+    return ['completed', 'incomplete', 'abandoned', 'rejected', 'error', 'untestable'].includes(status);
+}
+function isActiveStatus(status) {
+    return ['pending', 'preparing', 'queued', 'waiting', 'working'].includes(status);
+}
+/**
+ * Terminal states where the customer is never charged:
+ *   - `rejected`: tester or admin decided the test should not bill (tester_cancelled,
+ *     tester_invalidated, admin_terminated)
+ *   - `incomplete`: platform/AI failure (incomplete_data, ai_processing_error) — customer
+ *     gave valid instructions but we couldn't produce a verdict
+ *   - `abandoned` + `no_capacity`: platform couldn't find a tester in time
+ *
+ * Everything else (completed, abandoned/tester_unresponsive, abandoned/tester_overtime,
+ * error, untestable) bills per the pricing rules.
+ *
+ * See `docs/job-states.md` for the full mapping.
+ */
+function isZeroChargeTerminal(status, reason) {
+    if (status === 'rejected' || status === 'incomplete')
+        return true;
+    if (status === 'abandoned' && reason === 'no_capacity')
+        return true;
+    return false;
+}
+function zeroChargeLabel(status, reason) {
+    if (status === 'rejected')
+        return `tester-terminated (${reason ?? 'unknown'})`;
+    if (status === 'incomplete')
+        return `platform failure (${reason ?? 'unknown'})`;
+    if (status === 'abandoned')
+        return `platform failure (${reason ?? 'unknown'})`;
+    return `zero-charge (${status}/${reason ?? 'unknown'})`;
+}
+//# sourceMappingURL=job-status.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/schema.types.js
+/**
+ * Validate that an output schema meets OpenAI structured outputs requirements.
+ * All object types must have additionalProperties: false.
+ *
+ * @param schema The output schema to validate
+ * @returns Validation result with any errors found
+ */
+function validateOutputSchema(schema) {
+    const errors = [];
+    function checkObject(obj, path) {
+        if (typeof obj !== 'object' || obj === null)
+            return;
+        const schemaObj = obj;
+        // If this is an object type, it must have additionalProperties: false and all properties in required
+        if (schemaObj.type === 'object') {
+            if (schemaObj.additionalProperties !== false) {
+                errors.push(`${path}: Object schemas must have "additionalProperties": false for OpenAI structured outputs`);
+            }
+            // Check properties and required array
+            if (schemaObj.properties && typeof schemaObj.properties === 'object') {
+                const propertyKeys = Object.keys(schemaObj.properties);
+                const requiredArray = Array.isArray(schemaObj.required) ? schemaObj.required : [];
+                // All properties must be in required array
+                const missingFromRequired = propertyKeys.filter((key) => !requiredArray.includes(key));
+                if (missingFromRequired.length > 0) {
+                    errors.push(`${path}: All properties must be in "required" array for OpenAI structured outputs. Missing: ${missingFromRequired.join(', ')}`);
+                }
+                // Recursively check nested properties
+                for (const [key, value] of Object.entries(schemaObj.properties)) {
+                    checkObject(value, `${path}.properties.${key}`);
+                }
+            }
+        }
+        // If this is an array type, items is required by OpenAI structured outputs.
+        if (schemaObj.type === 'array') {
+            if (schemaObj.items === undefined) {
+                errors.push(`${path}: Array schemas must declare "items" for OpenAI structured outputs (e.g. { "type": "array", "items": { "type": "string" } })`);
+            }
+            else {
+                checkObject(schemaObj.items, `${path}.items`);
+            }
+        }
+    }
+    // Check each top-level field in the schema
+    for (const [fieldName, fieldSchema] of Object.entries(schema)) {
+        checkObject(fieldSchema, fieldName);
+    }
+    return {
+        valid: errors.length === 0,
+        errors,
+    };
+}
+//# sourceMappingURL=schema.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/effective-description.js
+/**
+ * Get the effective description for a job.
+ * Uses augmentedDescription (AI-generated test plan) if available, otherwise the original description.
+ */
+function getEffectiveDescription(job) {
+    return job.augmentedDescription && job.augmentedDescription.length > 0
+        ? job.augmentedDescription
+        : job.description;
+}
+//# sourceMappingURL=effective-description.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/job-filter.js
+/**
+ * Serialize a {@link JobChipFilter} for use as a query string param.
+ *
+ * Returns `undefined` when the filter is empty so callers can drop the param
+ * from the request rather than sending a no-op value.
+ */
+function encodeChipFilter(filter) {
+    if (filter.include.length === 0 && !filter.other)
+        return undefined;
+    return JSON.stringify(filter);
+}
+/**
+ * Parse a serialized {@link JobChipFilter}. Throws on malformed input — callers
+ * that receive this from untrusted sources (handler query params) must catch.
+ */
+function decodeChipFilter(encoded) {
+    const parsed = JSON.parse(encoded);
+    if (!parsed || typeof parsed !== 'object') {
+        throw new Error('chipFilter must be an object');
+    }
+    const raw = parsed;
+    const include = assertMatchers(raw.include, 'include');
+    if (raw.other === undefined)
+        return { include };
+    return { include, other: assertMatchers(raw.other, 'other') };
+}
+function assertMatchers(value, field) {
+    if (!Array.isArray(value)) {
+        throw new Error(`chipFilter.${field} must be an array`);
+    }
+    return value.map((entry, i) => assertMatcher(entry, `${field}[${i}]`));
+}
+function assertMatcher(value, path) {
+    if (!value || typeof value !== 'object') {
+        throw new Error(`chipFilter.${path} must be an object`);
+    }
+    const raw = value;
+    if (!Array.isArray(raw.statuses) || raw.statuses.length === 0 || !raw.statuses.every((s) => typeof s === 'string')) {
+        throw new Error(`chipFilter.${path}.statuses must be a non-empty string[]`);
+    }
+    if (raw.reasons !== undefined) {
+        if (!Array.isArray(raw.reasons) || raw.reasons.length === 0 || !raw.reasons.every((r) => typeof r === 'string')) {
+            throw new Error(`chipFilter.${path}.reasons must be a non-empty string[] when present`);
+        }
+        return { statuses: raw.statuses, reasons: raw.reasons };
+    }
+    return { statuses: raw.statuses };
+}
+//# sourceMappingURL=job-filter.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/chip-groups.js
+
+/** Label of the special "Other" chip — checked by identity everywhere. */
+const OTHER_CHIP_LABEL = 'Other';
+/**
+ * Default row, shared between admin and non-admin. Cancelled/Expired/Failed
+ * are intentionally broad — admins get reason-level splits via the fine-grain
+ * row, customers continue to see today's 7-chip set.
+ */
+const BASE_CHIP_GROUPS = [
+    { label: 'Pending', statuses: [JOB_STATUS.PENDING, JOB_STATUS.PREPARING] },
+    { label: 'Queued', statuses: [JOB_STATUS.QUEUED, JOB_STATUS.WAITING] },
+    { label: 'Working', statuses: [JOB_STATUS.WORKING] },
+    { label: 'Completed', statuses: [JOB_STATUS.COMPLETED] },
+    { label: 'Cancelled', statuses: [JOB_STATUS.REJECTED] },
+    { label: 'Expired', statuses: [JOB_STATUS.ABANDONED] },
+    { label: 'Failed', statuses: [JOB_STATUS.INCOMPLETE, JOB_STATUS.ERROR, JOB_STATUS.UNTESTABLE] },
+];
+/**
+ * Admin-only fine-grain chips revealed by "Show more" on the web Jobs page,
+ * and opted into via admin auth on the CLI. Reason-level chips split
+ * Cancelled/Expired into the reasons admins actually care about for triage;
+ * status-only chips split the Failed trio. The Other chip lives in this row
+ * too and catches anything NOT addressed by the other fine-grain chips
+ * (including the two well-known legacy `(status, reason)` patterns).
+ */
+const FINE_GRAIN_CHIP_GROUPS = [
+    // Cancelled reasons — status=rejected
+    { label: 'Invalidated', statuses: [JOB_STATUS.REJECTED], reasons: ['tester_invalidated'] },
+    { label: 'Cancelled by tester', statuses: [JOB_STATUS.REJECTED], reasons: ['tester_cancelled'] },
+    { label: 'Admin terminated', statuses: [JOB_STATUS.REJECTED], reasons: ['admin_terminated'] },
+    // Expired reasons — status=abandoned
+    { label: 'No capacity', statuses: [JOB_STATUS.ABANDONED], reasons: ['no_capacity'] },
+    { label: 'Never started', statuses: [JOB_STATUS.ABANDONED], reasons: ['tester_unresponsive'] },
+    { label: 'Overtime', statuses: [JOB_STATUS.ABANDONED], reasons: ['tester_overtime'] },
+    // Failure statuses — any reason
+    { label: 'Incomplete', statuses: [JOB_STATUS.INCOMPLETE] },
+    { label: 'Error', statuses: [JOB_STATUS.ERROR] },
+    { label: 'Untestable', statuses: [JOB_STATUS.UNTESTABLE] },
+];
+/**
+ * Reference set that defines "covered" for the Other chip. A terminal row that
+ * matches NONE of these matchers is surfaced by Other — notably the two
+ * legacy `(status, reason)` shapes (`rejected/invalid_instructions`,
+ * `abandoned/admin_terminated`) and any `abandoned` row missing a reason.
+ *
+ * Includes non-terminal base chips so pending/queued/working rows don't leak
+ * into Other. Excludes the basic Cancelled/Expired/Failed chips since those
+ * are superseded by the fine-grain chips in this row.
+ */
+const OTHER_REFERENCE_MATCHERS = [
+    ...BASE_CHIP_GROUPS
+        .filter((g) => g.label !== 'Cancelled' && g.label !== 'Expired' && g.label !== 'Failed')
+        .map(groupToMatcher),
+    ...FINE_GRAIN_CHIP_GROUPS.map(groupToMatcher),
+];
+function groupToMatcher(group) {
+    return group.reasons ? { statuses: group.statuses, reasons: group.reasons } : { statuses: group.statuses };
+}
+/** Resolve a chip label to its group, searching base + fine-grain. */
+function findChipGroup(label) {
+    return BASE_CHIP_GROUPS.find((g) => g.label === label)
+        ?? FINE_GRAIN_CHIP_GROUPS.find((g) => g.label === label);
+}
+/**
+ * Build the wire-format {@link JobChipFilter} from the set of active chip
+ * labels. Returns `undefined` when nothing is active so callers can omit the
+ * request param entirely (drops back to the default unfiltered list).
+ */
+function buildChipFilter(activeLabels) {
+    if (activeLabels.length === 0)
+        return undefined;
+    const otherActive = activeLabels.includes(OTHER_CHIP_LABEL);
+    const include = [];
+    for (const label of activeLabels) {
+        if (label === OTHER_CHIP_LABEL)
+            continue;
+        const group = findChipGroup(label);
+        if (group)
+            include.push(groupToMatcher(group));
+    }
+    if (otherActive)
+        return { include, other: OTHER_REFERENCE_MATCHERS };
+    return include.length > 0 ? { include } : undefined;
+}
+/** True when any currently-active chip is a fine-grain (admin-only) chip. */
+function hasActiveFineGrainChip(activeLabels) {
+    return activeLabels.some((label) => label === OTHER_CHIP_LABEL || FINE_GRAIN_CHIP_GROUPS.some((g) => g.label === label));
+}
+/** True when `label` is an admin-only fine-grain chip (incl. Other). */
+function isFineGrainLabel(label) {
+    return label === OTHER_CHIP_LABEL || FINE_GRAIN_CHIP_GROUPS.some((g) => g.label === label);
+}
+//# sourceMappingURL=chip-groups.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/job-priority.types.js
+/**
+ * Job priority configuration for the tester queue.
+ * Determines ordering in the Tester HQ priority-sorted stack.
+ */
+const JOB_PRIORITIES = ['high', 'medium', 'low'];
+const DEFAULT_JOB_PRIORITY = 'medium';
+/**
+ * Numeric weight for sorting: lower number = higher priority.
+ * Used by the API to sort within priority tiers.
+ */
+const PRIORITY_SORT_WEIGHT = {
+    high: 0,
+    medium: 1,
+    low: 2,
+};
+/**
+ * Map job source to priority tier.
+ *
+ * - high: Client-submitted tests (API, dashboard, MCP, playground)
+ * - medium: Automated tests (CI/CD, GitHub Actions, schedulers)
+ * - low: Internal/dogfood (bulk tests)
+ */
+const SOURCE_PRIORITY_MAP = {
+    'api-async': 'high',
+    'api-sync': 'high',
+    mcp: 'high',
+    dashboard: 'high',
+    playground: 'high',
+    'qa-test-action': 'medium',
+    'issue-tester-action': 'medium',
+    scheduler: 'medium',
+    otto: 'medium',
+    'bulk-test-queue': 'low',
+};
+function priorityFromSource(source) {
+    return SOURCE_PRIORITY_MAP[source];
+}
+function isJobPriority(value) {
+    return typeof value === 'string' && JOB_PRIORITIES.includes(value);
+}
+/**
+ * How long an unclaimed job stays in the queue before expiring, per priority.
+ * In the queue model, jobs sit and wait — higher priority jobs expire sooner
+ * because they're time-sensitive, while lower priority jobs can wait longer.
+ */
+const PRIORITY_LIFETIME_MS = {
+    high: 30 * 60 * 1000, // 30 minutes
+    medium: 2 * 60 * 60 * 1000, // 2 hours
+    low: 24 * 60 * 60 * 1000, // 24 hours
+};
+/**
+ * Compute the expiration timestamp for a job based on its creation time and priority.
+ */
+function computeExpiresAt(createdAt, priority) {
+    return new Date(new Date(createdAt).getTime() + PRIORITY_LIFETIME_MS[priority]).toISOString();
+}
+//# sourceMappingURL=job-priority.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/attachment.types.js
+/**
+ * Attachment types for QA test jobs
+ * Allows users to attach images, videos, and documents to job descriptions
+ */
+/**
+ * Maximum number of attachments allowed per job
+ */
+const MAX_ATTACHMENTS = 10;
+/**
+ * File extensions mapped to attachment types
+ */
+const EXTENSION_TYPE_MAP = {
+    // Images
+    jpg: 'image',
+    jpeg: 'image',
+    png: 'image',
+    gif: 'image',
+    webp: 'image',
+    svg: 'image',
+    bmp: 'image',
+    ico: 'image',
+    // Videos
+    mp4: 'video',
+    webm: 'video',
+    mov: 'video',
+    avi: 'video',
+    mkv: 'video',
+    m4v: 'video',
+    // Documents
+    pdf: 'document',
+    doc: 'document',
+    docx: 'document',
+    xls: 'document',
+    xlsx: 'document',
+    ppt: 'document',
+    pptx: 'document',
+    txt: 'document',
+    md: 'document',
+    csv: 'document',
+};
+/**
+ * Detect attachment type from URL based on file extension
+ */
+function detectAttachmentType(url) {
+    try {
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname.toLowerCase();
+        // Extract extension from pathname
+        const lastDotIndex = pathname.lastIndexOf('.');
+        if (lastDotIndex === -1 || lastDotIndex === pathname.length - 1) {
+            return 'unknown';
+        }
+        const extension = pathname.slice(lastDotIndex + 1);
+        return EXTENSION_TYPE_MAP[extension] ?? 'unknown';
+    }
+    catch {
+        return 'unknown';
+    }
+}
+/**
+ * Validate that a string is a valid URL
+ */
+function isValidAttachmentUrl(url) {
+    try {
+        const urlObj = new URL(url);
+        // Only allow http and https protocols
+        return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    }
+    catch {
+        return false;
+    }
+}
+/**
+ * Validate an attachment object
+ */
+function validateAttachment(attachment) {
+    if (typeof attachment !== 'object' || attachment === null) {
+        return false;
+    }
+    const att = attachment;
+    // URL is required and must be a valid string
+    if (typeof att.url !== 'string' || !isValidAttachmentUrl(att.url)) {
+        return false;
+    }
+    // Optional fields must be strings if present
+    if (att.title !== undefined && typeof att.title !== 'string') {
+        return false;
+    }
+    if (att.altText !== undefined && typeof att.altText !== 'string') {
+        return false;
+    }
+    // Type must be a valid AttachmentType if present
+    if (att.type !== undefined) {
+        const validTypes = ['image', 'video', 'document', 'unknown'];
+        if (!validTypes.includes(att.type)) {
+            return false;
+        }
+    }
+    return true;
+}
+/**
+ * Validate an array of attachments
+ * Returns an error message if invalid, undefined if valid
+ */
+function validateAttachments(attachments) {
+    if (!Array.isArray(attachments)) {
+        return 'attachments must be an array';
+    }
+    if (attachments.length > MAX_ATTACHMENTS) {
+        return `Maximum ${MAX_ATTACHMENTS} attachments allowed`;
+    }
+    for (let i = 0; i < attachments.length; i++) {
+        if (!validateAttachment(attachments[i])) {
+            return `Invalid attachment at index ${i}: must have a valid URL`;
+        }
+    }
+    return undefined;
+}
+/**
+ * Normalize an attachment by resolving its type if not provided
+ */
+function normalizeAttachment(attachment) {
+    return {
+        ...attachment,
+        type: attachment.type ?? detectAttachmentType(attachment.url),
+    };
+}
+//# sourceMappingURL=attachment.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/device-class.types.js
+/**
+ * Device class configuration for QA test jobs.
+ * Determines viewport dimensions and egress encoding preset.
+ */
+const DEVICE_CLASSES = ['desktop', 'mobile'];
+const DEFAULT_DEVICE_CLASS = 'desktop';
+const DEVICE_CLASS_LABELS = {
+    desktop: 'Desktop',
+    mobile: 'Mobile',
+};
+const DEVICE_CLASS_VIEWPORTS = {
+    desktop: { width: 1600, height: 900 },
+    mobile: { width: 375, height: 812 },
+};
+function isDeviceClass(value) {
+    return typeof value === 'string' && DEVICE_CLASSES.includes(value);
+}
+function getDeviceClassViewport(deviceClass) {
+    return DEVICE_CLASS_VIEWPORTS[deviceClass];
+}
+const MOBILE_SCREEN_SIZE_PRESETS = new Set(['mobile', 'tablet']);
+/**
+ * Maps a legacy screenSize value to a DeviceClass.
+ * Returns the mapped DeviceClass and a human-readable description of how it was interpreted.
+ */
+function mapLegacyScreenSizeToDeviceClass(screenSize) {
+    if (typeof screenSize === 'string') {
+        const deviceClass = MOBILE_SCREEN_SIZE_PRESETS.has(screenSize) ? 'mobile' : 'desktop';
+        return { deviceClass, interpretation: `screenSize "${screenSize}" was interpreted as deviceClass "${deviceClass}"` };
+    }
+    if (typeof screenSize === 'object' && screenSize !== null) {
+        return { deviceClass: 'desktop', interpretation: `custom screenSize object was interpreted as deviceClass "desktop"` };
+    }
+    return { deviceClass: 'desktop', interpretation: `unrecognized screenSize value was interpreted as deviceClass "desktop"` };
+}
+//# sourceMappingURL=device-class.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/claim-surface.js
+/**
+ * Derive the claim-surface requirement for a job.
+ *
+ * Order matters: dual-device self-tests (`requiresRunhumanApkInstall`) take
+ * precedence over `deviceClass`. Their job-level `deviceClass` describes the
+ * APK target (mobile), but the claim must still come from desktop because
+ * Device 1 owns the screen-share.
+ */
+function requiredClaimSurface(job) {
+    if (job.requiresRunhumanApkInstall)
+        return 'desktop-only';
+    if (job.deviceClass === 'mobile')
+        return 'mobile-only';
+    return 'any';
+}
+/**
+ * Whether a job can be claimed from the given surface.
+ *
+ * Complements `requiredClaimSurface()` — use this to filter queues in the
+ * tester-facing UI so testers never see jobs they cannot claim. The server
+ * enforces the same rule at claim time and returns `mobile_only` or
+ * `desktop_only` for violations.
+ */
+function isClaimableFromSurface(job, surface) {
+    const requirement = requiredClaimSurface(job);
+    if (requirement === 'any')
+        return true;
+    if (requirement === 'mobile-only')
+        return surface === 'mobile-app';
+    return surface === 'tester-portal';
+}
+//# sourceMappingURL=claim-surface.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/transcript-utils.js
+/**
+ * A transcript segment is "final" when its `isFinal` flag is `true` or absent.
+ * Eleven Labs marks in-flight (uncommitted) segments with `isFinal: false`;
+ * everything else — finalized commits, persisted history, manually constructed
+ * test fixtures — omits the flag and is treated as final.
+ */
+function isFinalSegment(segment) {
+    return segment.isFinal !== false;
+}
+//# sourceMappingURL=transcript-utils.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/phase-segment.types.js
+/**
+ * Phase Segment Types
+ *
+ * Tracks the timeline of phases during a test run.
+ * Each phase is a segment with startTime, endTime, and optional data.
+ * SubPhases track granular progress within a phase.
+ *
+ * This provides:
+ * - Full audit trail of test run progression
+ * - Timing data for each phase
+ * - Storage for phase-specific data (incompleteFeedback, errorMessage, etc.)
+ * - Ability to derive current phase from segments
+ */
+/**
+ * Helper to get the current (active) phase from segments
+ */
+function getCurrentPhase(segments) {
+    const activePhase = segments.find(s => s.endTime === undefined);
+    return activePhase?.phase;
+}
+/**
+ * Helper to get the current phase segment
+ */
+function getCurrentPhaseSegment(segments) {
+    return segments.find(s => s.endTime === undefined);
+}
+/**
+ * Helper to get the current sub-phase from the active phase segment
+ */
+function getCurrentSubPhase(segments) {
+    const activePhase = getCurrentPhaseSegment(segments);
+    if (!activePhase?.subPhases)
+        return undefined;
+    const activeSubPhase = activePhase.subPhases.find(s => s.endTime === undefined);
+    return activeSubPhase?.subPhase;
+}
+/**
+ * Helper to get incompleteFeedback from the most recent processing phase
+ */
+function getIncompleteFeedback(segments) {
+    // Find the most recent processing phase (search from end)
+    for (let i = segments.length - 1; i >= 0; i--) {
+        if (segments[i].phase === 'processing' && segments[i].data?.incompleteFeedback) {
+            return segments[i].data.incompleteFeedback;
+        }
+    }
+    return undefined;
+}
+/**
+ * Helper to get errorMessage from the error phase
+ */
+function getErrorMessage(segments) {
+    const errorPhase = segments.find(s => s.phase === 'error');
+    return errorPhase?.data?.errorMessage;
+}
+/**
+ * Helper to get the current progressMessage
+ */
+function getProgressMessage(segments) {
+    const activePhase = getCurrentPhaseSegment(segments);
+    if (!activePhase)
+        return undefined;
+    // Check active sub-phase first
+    const activeSubPhase = activePhase.subPhases?.find(s => s.endTime === undefined);
+    if (activeSubPhase?.data?.progressMessage) {
+        return activeSubPhase.data.progressMessage;
+    }
+    // Fall back to phase-level progressMessage
+    return activePhase.data?.progressMessage;
+}
+//# sourceMappingURL=phase-segment.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/phase-descriptions.js
+/**
+ * Human-readable descriptions for tester app phases and sub-phases.
+ * Used by the UI to display status messages during test runs.
+ */
+/** Descriptions for main phases */
+const phaseDescriptions = {
+    'testing': 'Testing in progress',
+    'processing': 'AI is analyzing your test notes...',
+    'incomplete-response': 'Please provide more details',
+    'text-review': 'Review your results',
+    'video-upload': 'Uploading video recording...',
+    'video-review': 'Review with video',
+    'submitting': 'Submitting results...',
+    'complete': 'Test complete',
+    'error': 'An error occurred',
+};
+/** Descriptions for sub-phases (more granular progress) */
+const subPhaseDescriptions = {
+    'extracting': 'Extracting test results...',
+    'analyzing-video': 'Analyzing video for key moments...',
+    'uploading-video': 'Uploading video...',
+    'uploading-screenshots': 'Uploading screenshots...',
+    'finalizing': 'Finalizing submission...',
+};
+/**
+ * Get the display message for a phase/subPhase combination.
+ * SubPhase takes priority if present.
+ */
+function getPhaseDescription(phase, subPhase) {
+    if (subPhase) {
+        return subPhaseDescriptions[subPhase];
+    }
+    return phaseDescriptions[phase];
+}
+//# sourceMappingURL=phase-descriptions.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/index.js
+
+
+
+
+
+
+
+
+
+
+
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/pagination/pagination.types.js
+const PAGINATION_DEFAULTS = {
+    limit: 50,
+    maxLimit: 100,
+    offset: 0,
+};
+function parsePaginationParams(query) {
+    const limit = Math.min(Math.max(1, parseInt(query.limit || String(PAGINATION_DEFAULTS.limit), 10) || PAGINATION_DEFAULTS.limit), PAGINATION_DEFAULTS.maxLimit);
+    const offset = Math.max(0, parseInt(query.offset || '0', 10) || 0);
+    return { limit, offset };
+}
+//# sourceMappingURL=pagination.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/pagination/index.js
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/github-issues/github-issues.types.js
+/**
+ * GitHub Issues shared types
+ */
+/**
+ * Default configuration for issue testing
+ */
+const DEFAULT_ISSUE_TEST_CONFIG = {
+    targetDurationMinutes: 30,
+    failureLabel: 'qa-failed',
+    reopenOnFailure: true,
+    removeFailureLabelOnSuccess: true,
+};
+//# sourceMappingURL=github-issues.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/github-issues/issue-media-extractor.js
+
+/**
+ * Extract media attachments from GitHub issue body and comments.
+ * Parses various markdown and HTML patterns commonly used in GitHub issues.
+ *
+ * @param issueBody - The issue body markdown
+ * @param comments - Optional array of comment bodies
+ * @returns Array of attachments (max 10)
+ */
+function extractIssueAttachments(issueBody, comments) {
+    const seenUrls = new Set();
+    const attachments = [];
+    // Combine issue body and all comments
+    const allContent = [issueBody, ...(comments || [])].filter(Boolean);
+    for (const content of allContent) {
+        const extracted = extractMediaFromMarkdown(content, seenUrls);
+        attachments.push(...extracted);
+        // Stop early if we've hit the limit
+        if (attachments.length >= MAX_ATTACHMENTS) {
+            break;
+        }
+    }
+    return attachments.slice(0, MAX_ATTACHMENTS);
+}
+/**
+ * Extract media URLs from a single markdown string
+ */
+function extractMediaFromMarkdown(content, seenUrls) {
+    const attachments = [];
+    // Pattern 1: Markdown images - ![alt text](url)
+    const markdownImageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+    for (const match of content.matchAll(markdownImageRegex)) {
+        const altText = match[1] || undefined;
+        const url = cleanUrl(match[2]);
+        addAttachment(attachments, seenUrls, url, altText);
+    }
+    // Pattern 2: HTML img tags - <img src="url" alt="...">
+    const imgTagRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+    for (const match of content.matchAll(imgTagRegex)) {
+        const url = cleanUrl(match[1]);
+        // Try to extract alt text
+        const altMatch = match[0].match(/alt=["']([^"']+)["']/i);
+        const altText = altMatch?.[1] || undefined;
+        addAttachment(attachments, seenUrls, url, altText);
+    }
+    // Pattern 3: HTML video tags - <video src="url">
+    const videoTagRegex = /<video[^>]+src=["']([^"']+)["'][^>]*>/gi;
+    for (const match of content.matchAll(videoTagRegex)) {
+        const url = cleanUrl(match[1]);
+        addAttachment(attachments, seenUrls, url);
+    }
+    // Pattern 4: GitHub user-images URLs (often directly embedded)
+    const userImagesRegex = /(https:\/\/user-images\.githubusercontent\.com\/[^\s)"'<>]+)/g;
+    for (const match of content.matchAll(userImagesRegex)) {
+        const url = cleanUrl(match[1]);
+        addAttachment(attachments, seenUrls, url);
+    }
+    // Pattern 5: GitHub assets URLs
+    const assetsRegex = /(https:\/\/github\.com\/[^/]+\/[^/]+\/assets\/[^\s)"'<>]+)/g;
+    for (const match of content.matchAll(assetsRegex)) {
+        const url = cleanUrl(match[1]);
+        addAttachment(attachments, seenUrls, url);
+    }
+    // Pattern 6: GitHub private user content (newer format)
+    const privateUserContentRegex = /(https:\/\/private-user-images\.githubusercontent\.com\/[^\s)"'<>]+)/g;
+    for (const match of content.matchAll(privateUserContentRegex)) {
+        const url = cleanUrl(match[1]);
+        addAttachment(attachments, seenUrls, url);
+    }
+    // Pattern 7: Direct video URLs (.mp4, .mov, .webm, .gif)
+    // These might appear as plain URLs in markdown
+    // Include query parameters in the capture, lookahead allows punctuation, whitespace, or end of string
+    const videoUrlRegex = /(https?:\/\/[^\s)"'<>]+\.(?:mp4|mov|webm|gif)(?:\?[^\s)"'<>]*)?)(?=[.,;:!?\s)"'<>]|$)/gi;
+    for (const match of content.matchAll(videoUrlRegex)) {
+        const url = cleanUrl(match[1]);
+        addAttachment(attachments, seenUrls, url);
+    }
+    // Pattern 8: Direct image URLs (.png, .jpg, .jpeg, .webp, .svg)
+    // These might appear as plain URLs outside of markdown image syntax
+    // Include query parameters in the capture, lookahead allows punctuation, whitespace, or end of string
+    const imageUrlRegex = /(https?:\/\/[^\s)"'<>]+\.(?:png|jpe?g|webp|svg|bmp)(?:\?[^\s)"'<>]*)?)(?=[.,;:!?\s)"'<>]|$)/gi;
+    for (const match of content.matchAll(imageUrlRegex)) {
+        const url = cleanUrl(match[1]);
+        addAttachment(attachments, seenUrls, url);
+    }
+    return attachments;
+}
+/**
+ * Clean a URL by removing trailing characters and decoding
+ */
+function cleanUrl(url) {
+    // Remove trailing punctuation that might be captured
+    return url.replace(/[,;:!?)]+$/, '').trim();
+}
+/**
+ * Add an attachment if valid and not seen before
+ */
+function addAttachment(attachments, seenUrls, url, altText) {
+    // Skip if already seen
+    if (seenUrls.has(url)) {
+        return;
+    }
+    // Skip if not a valid URL
+    if (!isValidAttachmentUrl(url)) {
+        return;
+    }
+    // Detect type and skip if unknown (we only want media)
+    const type = detectAttachmentType(url);
+    if (type === 'unknown' && !isKnownMediaHost(url)) {
+        return;
+    }
+    seenUrls.add(url);
+    attachments.push({
+        url,
+        altText,
+        type: type !== 'unknown' ? type : 'image', // Default to image for known hosts
+    });
+}
+/**
+ * Check if URL is from a known media hosting service
+ * (used to accept URLs without file extensions)
+ */
+function isKnownMediaHost(url) {
+    try {
+        const urlObj = new URL(url);
+        const host = urlObj.hostname.toLowerCase();
+        // GitHub media hosts
+        if (host === 'user-images.githubusercontent.com' ||
+            host === 'private-user-images.githubusercontent.com' ||
+            host === 'avatars.githubusercontent.com' ||
+            host === 'camo.githubusercontent.com') {
+            return true;
+        }
+        // GitHub assets (github.com/owner/repo/assets/...)
+        if (host === 'github.com' && urlObj.pathname.includes('/assets/')) {
+            return true;
+        }
+        return false;
+    }
+    catch {
+        return false;
+    }
+}
+//# sourceMappingURL=issue-media-extractor.js.map
+;// CONCATENATED MODULE: ../shared/dist/github-issues/issue-scope.js
+function isIncidentalIssue(issue) {
+    return issue.scopedToTest === false;
+}
+function isPrimaryIssue(issue) {
+    return !isIncidentalIssue(issue);
+}
+//# sourceMappingURL=issue-scope.js.map
+;// CONCATENATED MODULE: ../shared/dist/github-issues/tester-surfacing.js
+function isTelemetryOnlyIssue(issue) {
+    return issue.testerSurfaced === false;
+}
+function isTesterSurfaced(issue) {
+    return !isTelemetryOnlyIssue(issue);
+}
+//# sourceMappingURL=tester-surfacing.js.map
+;// CONCATENATED MODULE: ../shared/dist/github-issues/format-utils.js
+/**
+ * Format a video offset as [MM:SS] for prompt readability.
+ * Negative offsets (before video start) are shown as [-MM:SS].
+ */
+function formatVideoTime(seconds) {
+    const negative = seconds < 0;
+    const abs = Math.abs(Math.round(seconds));
+    const mm = String(Math.floor(abs / 60)).padStart(2, '0');
+    const ss = String(abs % 60).padStart(2, '0');
+    return negative ? `[-${mm}:${ss}]` : `[${mm}:${ss}]`;
+}
+/**
+ * Format a video offset as M:SS for display in GitHub issue links.
+ * Unlike formatVideoTime, this omits brackets and leading zeros on minutes.
+ */
+function formatVideoTimeForLink(seconds) {
+    const abs = Math.abs(Math.round(seconds));
+    const mm = Math.floor(abs / 60);
+    const ss = String(abs % 60).padStart(2, '0');
+    return `${mm}:${ss}`;
+}
+//# sourceMappingURL=format-utils.js.map
+;// CONCATENATED MODULE: ../shared/dist/github-issues/issue-body-renderer.js
+
+
+
+
+
+const DEFAULT_MAX_SCREENSHOTS = 3;
+const INCIDENTAL_DESCRIPTION_MAX = 140;
+function renderReproductionSteps(issue, ctx) {
+    return issue.reproductionSteps
+        .map((step, i) => {
+        const timecodeLink = step.videoOffsetSeconds !== undefined && ctx.jobUrl
+            ? ` [▶ ${formatVideoTimeForLink(step.videoOffsetSeconds)}](${ctx.jobUrl}?t=${step.videoOffsetSeconds})`
+            : '';
+        return `${i + 1}. ${step.text}${timecodeLink}`;
+    })
+        .join('\n');
+}
+function renderEvidenceCitations(citations, ctx) {
+    return citations
+        .map((c) => {
+        const timecodeLink = c.videoOffsetSeconds !== null && ctx.jobUrl
+            ? ` [▶ ${formatVideoTimeForLink(c.videoOffsetSeconds)}](${ctx.jobUrl}?t=${c.videoOffsetSeconds})`
+            : '';
+        return `- **[${c.source}]** ${c.summary}${timecodeLink}`;
+    })
+        .join('\n');
+}
+function renderRelatedEvidence(evidence, ctx) {
+    const byCategory = new Map();
+    for (const entry of evidence) {
+        const bucket = byCategory.get(entry.category);
+        if (bucket)
+            bucket.push(entry);
+        else
+            byCategory.set(entry.category, [entry]);
+    }
+    const sections = [];
+    for (const [category, entries] of byCategory) {
+        const items = entries
+            .map((e) => {
+            const timecodeLink = e.videoOffsetSeconds !== null && ctx.jobUrl
+                ? ` [▶ ${formatVideoTimeForLink(e.videoOffsetSeconds)}](${ctx.jobUrl}?t=${e.videoOffsetSeconds})`
+                : '';
+            return `- ${e.summary}${timecodeLink}`;
+        })
+            .join('\n');
+        sections.push(`**${category}**\n${items}`);
+    }
+    return sections.join('\n\n');
+}
+function renderSentryEventIds(eventIds) {
+    return eventIds.map((id) => `- \`${id}\``).join('\n');
+}
+function renderCodeReferences(refs) {
+    return refs
+        .map((ref) => {
+        const symbol = ref.symbol ? ` — \`${ref.symbol}\`` : '';
+        return `- \`${ref.path}\`${symbol}`;
+    })
+        .join('\n');
+}
+function buildMediaSection(job, ctx, options = {}) {
+    const { maxScreenshots = DEFAULT_MAX_SCREENSHOTS, headingLevel = 2 } = options;
+    const screenshots = job.sessionEvents?.screenshots ?? [];
+    const videoUrl = job.sessionEvents?.videoUrl;
+    if (!videoUrl && screenshots.length === 0) {
+        return '';
+    }
+    const heading = '#'.repeat(headingLevel);
+    let section = `${heading} Media\n`;
+    if (videoUrl && ctx.jobUrl) {
+        section += `[Watch Recording](${ctx.jobUrl})`;
+        if (options.videoOffsetSeconds !== undefined) {
+            const ts = formatVideoTimeForLink(options.videoOffsetSeconds);
+            section += ` | [▶ Jump to bug at ${ts}](${ctx.jobUrl}?t=${options.videoOffsetSeconds})`;
+        }
+    }
+    if (screenshots.length > 0) {
+        if (videoUrl) {
+            section += ' | ';
+        }
+        if (screenshots.length > maxScreenshots && ctx.jobUrl) {
+            section += `[View all screenshots (${screenshots.length})](${ctx.jobUrl})`;
+        }
+        section += '\n\n';
+        section += `<details>\n<summary>📸 Screenshots (${screenshots.length} captured)</summary>\n\n`;
+        const displayCount = Math.min(screenshots.length, maxScreenshots);
+        for (let i = 0; i < displayCount; i++) {
+            section += `![Screenshot ${i + 1}](${screenshots[i]})\n\n`;
+        }
+        if (screenshots.length > maxScreenshots && !ctx.jobUrl) {
+            const moreCount = screenshots.length - maxScreenshots;
+            section += `*+${moreCount} additional screenshots available*\n\n`;
+        }
+        section += '</details>';
+    }
+    else if (videoUrl) {
+        section += '\n';
+    }
+    return section;
+}
+function buildFooter(ctx) {
+    let footer = '---\n';
+    if (ctx.jobUrl) {
+        footer += `[View full details](${ctx.jobUrl}) | `;
+    }
+    footer += 'Powered by [Runhuman](https://runhuman.com)';
+    return footer;
+}
+function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+/**
+ * Build an issue title with a device class prefix derived from the job.
+ * e.g. "[Mobile] Button doesn't work" or "[Desktop] Layout breaks".
+ */
+function buildIssueTitle(title, job) {
+    if (!job.deviceClass)
+        return title;
+    return `[${capitalize(job.deviceClass)}] ${title}`;
+}
+function buildDeviceClassCallout(job) {
+    if (!job.deviceClass)
+        return null;
+    const label = job.deviceClass === 'mobile' ? '📱 Mobile' : '🖥️ Desktop';
+    return `> **Tested on: ${label}**`;
+}
+function truncate(text, max) {
+    if (text.length <= max)
+        return text;
+    return `${text.slice(0, max - 1).trimEnd()}…`;
+}
+/**
+ * Blockquote shown at the top of an issue body when the scoping stage
+ * tagged it incidental. Triagers need to see up front that this bug was
+ * a drive-by finding, not the test's focus, and why the scoping stage
+ * thought so.
+ */
+function buildIncidentalCallout(issue, job) {
+    if (!isIncidentalIssue(issue))
+        return null;
+    const goal = truncate(getEffectiveDescription(job), INCIDENTAL_DESCRIPTION_MAX);
+    const lines = [
+        `> ⚠️ **Incidental finding** — observed during a test whose goal was: _"${goal}"_.`,
+    ];
+    if (issue.scopingReason) {
+        lines.push(`> _Why it's flagged as incidental: ${issue.scopingReason}_`);
+    }
+    lines.push(`> Filed because it's a real bug, but unrelated to what the test was measuring.`);
+    return lines.join('\n');
+}
+/**
+ * Blockquote shown at the top of an issue body when the tester-surfacing
+ * stage tagged it telemetry-only. The tester did not actively flag this
+ * as a bug — it was inferred from instruments or mentioned only as a
+ * neutral observation. Useful signal for prioritisation.
+ */
+function buildTelemetryOnlyCallout(issue) {
+    if (!isTelemetryOnlyIssue(issue))
+        return null;
+    const lines = [
+        `> 📡 **Telemetry-only finding** — the tester did not flag this as a bug; it was inferred from session instruments.`,
+    ];
+    if (issue.testerSurfacingReason) {
+        lines.push(`> _Why it's flagged as telemetry-only: ${issue.testerSurfacingReason}_`);
+    }
+    return lines.join('\n');
+}
+function buildIssueBody(issue, job, ctx) {
+    const sections = [];
+    const deviceCallout = buildDeviceClassCallout(job);
+    if (deviceCallout)
+        sections.push(deviceCallout);
+    const incidentalCallout = buildIncidentalCallout(issue, job);
+    if (incidentalCallout)
+        sections.push(incidentalCallout);
+    const telemetryOnlyCallout = buildTelemetryOnlyCallout(issue);
+    if (telemetryOnlyCallout)
+        sections.push(telemetryOnlyCallout);
+    sections.push(`## Description\n${issue.description}`);
+    sections.push(`## Expected\n${issue.expectedBehavior}`);
+    sections.push(`## Actual\n${issue.actualBehavior}`);
+    sections.push(`## Where\n${issue.affectedArea}`);
+    if (issue.rootCause) {
+        sections.push(`## Root Cause\n_Confidence: ${issue.rootCause.confidence}_\n\n${issue.rootCause.explanation}`);
+    }
+    if (issue.suggestedFix) {
+        sections.push(`## Suggested Fix\n${issue.suggestedFix}`);
+    }
+    if (issue.codeReferences && issue.codeReferences.length > 0) {
+        sections.push(`## Code References\n${renderCodeReferences(issue.codeReferences)}`);
+    }
+    if (issue.reproductionSteps.length > 0) {
+        sections.push(`## Reproduction Steps\n${renderReproductionSteps(issue, ctx)}`);
+    }
+    sections.push(`## Severity\n**${issue.severity.toUpperCase()}**`);
+    if (issue.evidenceCitations.length > 0) {
+        sections.push(`## Evidence\n${renderEvidenceCitations(issue.evidenceCitations, ctx)}`);
+    }
+    if (issue.relatedEvidence && issue.relatedEvidence.length > 0) {
+        sections.push(`## Related Telemetry\n${renderRelatedEvidence(issue.relatedEvidence, ctx)}`);
+    }
+    if (issue.relatedSentryEventIds && issue.relatedSentryEventIds.length > 0) {
+        sections.push(`## Sentry\n${renderSentryEventIds(issue.relatedSentryEventIds)}`);
+    }
+    const testContextParts = [];
+    if (job.deviceClass) {
+        const viewport = DEVICE_CLASS_VIEWPORTS[job.deviceClass];
+        testContextParts.push(`**Device:** ${viewport.width}x${viewport.height} (${job.deviceClass})`);
+    }
+    if (job.testDurationSeconds) {
+        const minutes = Math.floor(job.testDurationSeconds / 60);
+        const seconds = job.testDurationSeconds % 60;
+        testContextParts.push(`**Test Duration:** ${minutes}m ${seconds}s`);
+    }
+    if (job.testerAlias) {
+        testContextParts.push(`**Tester:** ${job.testerAlias}`);
+    }
+    if (testContextParts.length > 0) {
+        sections.push(`## Test Context\n${testContextParts.join('  \n')}`);
+    }
+    if (ctx.jobUrl) {
+        sections.push(`## Runhuman Job\n**Job ID:** [\`${job.id}\`](${ctx.jobUrl})`);
+    }
+    const mediaSection = buildMediaSection(job, ctx, { videoOffsetSeconds: issue.videoOffsetSeconds });
+    if (mediaSection)
+        sections.push(mediaSection);
+    if (job.url) {
+        sections.push(`## Test URL\n${job.url}`);
+    }
+    sections.push(buildFooter(ctx));
+    return sections.join('\n\n');
+}
+function buildDuplicateCommentBody(issue, job, ctx, matchReason) {
+    const sections = [];
+    sections.push(`## Additional Report from QA Testing`);
+    const deviceCallout = buildDeviceClassCallout(job);
+    if (deviceCallout)
+        sections.push(deviceCallout);
+    sections.push(`This issue has been reported again during a recent QA test.\n\n**Match reason:** ${matchReason}`);
+    sections.push(`### Reported Issue\n**Title:** ${issue.title}\n\n${issue.description}`);
+    if (issue.reproductionSteps.length > 0) {
+        sections.push(`### Reproduction Steps\n${renderReproductionSteps(issue, ctx)}`);
+    }
+    const mediaSection = buildMediaSection(job, ctx, {
+        headingLevel: 3,
+        videoOffsetSeconds: issue.videoOffsetSeconds,
+    });
+    if (mediaSection)
+        sections.push(mediaSection);
+    sections.push(buildFooter(ctx));
+    return sections.join('\n\n');
+}
+//# sourceMappingURL=issue-body-renderer.js.map
+;// CONCATENATED MODULE: ../shared/dist/github-issues/index.js
+
+
+
+
+
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/routes/route-builder.js
+/**
+ * Type-safe route builder system
+ *
+ * Provides compile-time type checking for route parameters.
+ * Usage:
+ *   const route = defineRoute('/dashboard/:projectId/jobs/:jobId?');
+ *   route.build({ projectId: 'abc' });           // '/dashboard/abc/jobs'
+ *   route.build({ projectId: 'abc', jobId: '1' }); // '/dashboard/abc/jobs/1'
+ */
+/**
+ * API prefix for backend routes.
+ * Frontend apiClient adds this prefix automatically.
+ * Backend should use withApiPrefix() to add this to route patterns.
+ */
+const API_PREFIX = '/api';
+/**
+ * Prepends the API prefix to a route pattern.
+ * Used by backend to ensure routes match what frontend expects.
+ *
+ * @example
+ * withApiPrefix('/organizations') // => '/api/organizations'
+ * withApiPrefix(apiRoutes.organizations.pattern) // => '/api/organizations'
+ */
+function withApiPrefix(pattern) {
+    return `${API_PREFIX}${pattern}`;
+}
+/**
+ * Creates a type-safe route builder.
+ *
+ * @param pattern Route pattern with :param placeholders (e.g., '/dashboard/:projectId/jobs')
+ * @returns Route object with pattern and build function
+ *
+ * @example
+ * const route = defineRoute('/dashboard/:projectId/jobs/:jobId?');
+ * route.pattern; // '/dashboard/:projectId/jobs/:jobId?'
+ * route.build({ projectId: 'abc' }); // '/dashboard/abc/jobs'
+ * route.build({ projectId: 'abc', jobId: '123' }); // '/dashboard/abc/jobs/123'
+ */
+function defineRoute(pattern) {
+    const build = (params) => {
+        if (!params)
+            return pattern;
+        let result = pattern;
+        // Replace all :param and :param? placeholders
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined) {
+                // Replace both :param and :param? variants
+                result = result.replace(`:${key}?`, value);
+                result = result.replace(`:${key}`, value);
+            }
+        }
+        // Remove any remaining optional params that weren't provided
+        result = result.replace(/\/:[^/]+\?/g, '');
+        // Clean up any double slashes that might result from removal
+        result = result.replace(/\/+/g, '/');
+        // Remove trailing slash unless it's the root
+        if (result.length > 1 && result.endsWith('/')) {
+            result = result.slice(0, -1);
+        }
+        return result;
+    };
+    return {
+        pattern,
+        build: build,
+    };
+}
+//# sourceMappingURL=route-builder.js.map
+;// CONCATENATED MODULE: ../shared/dist/routes/web-routes.js
+/**
+ * Frontend route definitions for the web dashboard
+ */
+
+/**
+ * All frontend routes for the web application.
+ *
+ * Usage:
+ *   import { webRoutes } from '@runhuman/shared';
+ *   navigate(webRoutes.playground.build({ projectId: 'abc' }));
+ *   // => '/dashboard/abc/playground'
+ */
+const webRoutes = {
+    // ============================================
+    // Non-project routes (no projectId required)
+    // ============================================
+    /** Dashboard home page */
+    dashboard: defineRoute('/dashboard'),
+    /** Subscription management page */
+    managePlan: defineRoute('/dashboard/manage-plan'),
+    /** Plan selection / upgrade page */
+    plans: defineRoute('/dashboard/plans'),
+    /** Enterprise plan selection page */
+    enterprisePlans: defineRoute('/dashboard/plans/enterprise'),
+    /** Simple job view (redirects to full URL with projectId) */
+    jobSimple: defineRoute('/dashboard/jobs/:jobId'),
+    // ============================================
+    // Admin routes (@volter.ai only)
+    // ============================================
+    /** Admin panel home (redirects to default tab) */
+    admin: defineRoute('/admin'),
+    /** Admin Slack integration */
+    adminSlack: defineRoute('/admin/slack'),
+    /** Admin job management */
+    adminJobs: defineRoute('/admin/jobs'),
+    /** Admin deep-link to a specific job (bypasses org membership checks) */
+    adminJobDetail: defineRoute('/admin/jobs/:jobId'),
+    /** Admin running tests */
+    adminTests: defineRoute('/admin/tests'),
+    /** Admin tester approvals */
+    adminTesters: defineRoute('/admin/testers'),
+    /** Admin activity log */
+    adminActivity: defineRoute('/admin/activity'),
+    /** Admin tester schedules */
+    adminSchedules: defineRoute('/admin/schedules'),
+    /** Admin organization balances */
+    adminBalances: defineRoute('/admin/balances'),
+    /** Admin user management */
+    adminUsers: defineRoute('/admin/users'),
+    /** Admin feedback submissions */
+    adminFeedback: defineRoute('/admin/feedback'),
+    /** Admin short links */
+    adminShortLinks: defineRoute('/admin/short-links'),
+    /** Admin posts */
+    adminPosts: defineRoute('/admin/posts'),
+    /** Admin Otto channel bindings (audit / fix channel → org / project) */
+    adminOttoChannels: defineRoute('/admin/otto-channels'),
+    // ============================================
+    // Organizations routes
+    // ============================================
+    /** Organizations list page */
+    organizations: defineRoute('/dashboard/organizations'),
+    /** Organization dashboard */
+    organization: defineRoute('/dashboard/organizations/:organizationId'),
+    /** Organization members page */
+    organizationMembers: defineRoute('/dashboard/organizations/:organizationId/members'),
+    /** Organization settings page */
+    organizationSettings: defineRoute('/dashboard/organizations/:organizationId/settings'),
+    /** Organization usage/billing page */
+    organizationUsage: defineRoute('/dashboard/organizations/:organizationId/usage'),
+    /** Organization projects page */
+    organizationProjects: defineRoute('/dashboard/organizations/:organizationId/projects'),
+    /** Organization jobs page (jobs across all projects) */
+    organizationJobs: defineRoute('/dashboard/organizations/:organizationId/jobs'),
+    /** Deep-link to a specific job inside the organization jobs list */
+    organizationJob: defineRoute('/dashboard/organizations/:organizationId/jobs/:jobId'),
+    /** Organization API keys page */
+    organizationApiKeys: defineRoute('/dashboard/organizations/:organizationId/api-keys'),
+    /** Organization integrations page */
+    organizationIntegrations: defineRoute('/dashboard/organizations/:organizationId/integrations'),
+    /** Organization GitHub integrations page */
+    organizationGitHub: defineRoute('/dashboard/organizations/:organizationId/github'),
+    /** Organization SSO/SAML configuration page */
+    organizationSso: defineRoute('/dashboard/organizations/:organizationId/sso'),
+    /** Organization Slack integration page */
+    organizationSlack: defineRoute('/dashboard/organizations/:organizationId/slack'),
+    /** Organization Sentry integration page */
+    organizationSentry: defineRoute('/dashboard/organizations/:organizationId/sentry'),
+    /** Organization Otto GitHub-App integration page */
+    organizationOttoGitHub: defineRoute('/dashboard/organizations/:organizationId/otto-github'),
+    /** Organization playground (with project selector) */
+    organizationPlayground: defineRoute('/dashboard/organizations/:organizationId/playground'),
+    /** Organization templates overview (aggregated across projects) */
+    organizationTemplates: defineRoute('/dashboard/organizations/:organizationId/templates'),
+    /** Organization schedules overview */
+    organizationSchedules: defineRoute('/dashboard/organizations/:organizationId/schedules'),
+    /** Organization-wide notes (customer-facing — admins manage their org's notes) */
+    organizationNotes: defineRoute('/dashboard/organizations/:organizationId/notes'),
+    /** Import from GitHub page */
+    organizationImportGitHub: defineRoute('/dashboard/organizations/:organizationId/import'),
+    /** Agent profile/setup page (Enterprise Pro + Autonomy add-on) */
+    organizationAgentProfile: defineRoute('/dashboard/organizations/:organizationId/agent-profile'),
+    // ============================================
+    // User settings routes
+    // ============================================
+    /** Settings root (redirects to account) */
+    settings: defineRoute('/dashboard/settings'),
+    /** Account settings page */
+    settingsAccount: defineRoute('/dashboard/settings/account'),
+    /** Email notification preferences */
+    settingsNotifications: defineRoute('/dashboard/settings/notifications'),
+    // ============================================
+    // Tester portal routes
+    // ============================================
+    /** Tester dashboard/portal home */
+    tester: defineRoute('/tester'),
+    /** Tester application form */
+    testerApply: defineRoute('/tester/apply'),
+    /** Tester available jobs list */
+    testerJobs: defineRoute('/tester/jobs'),
+    /** Tester Portal home — priority-sorted queue homepage */
+    testerHome: defineRoute('/tester/home'),
+    /** Tester settings page */
+    testerSettings: defineRoute('/tester/settings'),
+    /** Tester schedule (read-only view of own schedule) */
+    testerScheduleView: defineRoute('/tester/schedule'),
+    /** Tester notes — searchable knowledge base for testing info */
+    testerNotes: defineRoute('/tester/notes'),
+    /** Tester handbook — onboarding docs, setup guides, demo test */
+    testerHandbook: defineRoute('/tester/handbook'),
+    /** Public tester intro — "What is a Runhuman Tester?" landing for prospective testers (viewable signed-out) */
+    testerIntroApplying: defineRoute('/tester-intro/applying'),
+    /** Tester completed job history */
+    testerMyJobs: defineRoute('/tester/my-jobs'),
+    /** Deep-link to a specific job the tester participated in (rich details view) */
+    testerMyJobDetail: defineRoute('/tester/my-jobs/:jobId'),
+    /** Tester active test session */
+    testerTest: defineRoute('/tester/test/:jobId'),
+    // ============================================
+    // Project routes (require projectId)
+    // ============================================
+    /** Project root (redirects to playground) */
+    project: defineRoute('/dashboard/:projectId'),
+    /** Playground page for testing */
+    playground: defineRoute('/dashboard/:projectId/playground'),
+    /** Jobs list page */
+    jobs: defineRoute('/dashboard/:projectId/jobs'),
+    /** Single job detail page */
+    job: defineRoute('/dashboard/:projectId/jobs/:jobId'),
+    /** Templates page */
+    templates: defineRoute('/dashboard/:projectId/templates'),
+    /** Single template detail (modal) */
+    template: defineRoute('/dashboard/:projectId/templates/:templateId'),
+    /** GitHub issues page */
+    issues: defineRoute('/dashboard/:projectId/issues'),
+    /** Single issue detail (modal) */
+    issue: defineRoute('/dashboard/:projectId/issues/:issueNumber'),
+    /** Issue test sessions page */
+    issueSessions: defineRoute('/dashboard/:projectId/issue-sessions'),
+    /** Single test session detail (modal) */
+    issueSession: defineRoute('/dashboard/:projectId/issue-sessions/:sessionId'),
+    /** Project settings page */
+    projectSettings: defineRoute('/dashboard/:projectId/settings'),
+    /** Schedules page */
+    schedules: defineRoute('/dashboard/:projectId/schedules'),
+    /** Project-scoped notes (customer-facing — admins manage notes for this project) */
+    notes: defineRoute('/dashboard/:projectId/notes'),
+    /** Flow charts page */
+    flowCharts: defineRoute('/dashboard/:projectId/flowcharts'),
+    /** Single flow chart detail (embedded in dashboard - deprecated, use flowChartView) */
+    flowChart: defineRoute('/dashboard/:projectId/flowcharts/:flowchartId'),
+    /** Full-page flow chart viewer (outside dashboard layout) */
+    flowChartView: defineRoute('/view/flowchart/:projectId/:flowchartId'),
+    // ============================================
+    // External/public routes
+    // ============================================
+    /** Organization invite acceptance page */
+    invite: defineRoute('/invite/:token'),
+    /** Clerk invitation landing page — exchanges ticket for session, then redirects to the org */
+    inviteAccepted: defineRoute('/invite-accepted'),
+    /** Quick start flow for new users (pre-auth) */
+    quickStart: defineRoute('/start'),
+    /** Public job view with token-secured access */
+    publicJob: defineRoute('/j/:jobId/:token'),
+    /** Public system status page */
+    statuspage: defineRoute('/statuspage'),
+    /** One-click email unsubscribe confirmation (token passed as `?token=`) */
+    unsubscribe: defineRoute('/unsubscribe'),
+    /** Documentation */
+    docs: defineRoute('/docs/setup'),
+    /** Pricing page */
+    pricing: defineRoute('/pricing'),
+    /** Home page */
+    home: defineRoute('/'),
+    /** Public updates page */
+    updates: defineRoute('/updates'),
+    /** Single update detail page */
+    updateDetail: defineRoute('/updates/:postId'),
+    // ============================================
+    // Learn Platform routes
+    // ============================================
+    /** Learn catalogue (default product) */
+    learn: defineRoute('/learn'),
+    /** Single lesson view */
+    learnLesson: defineRoute('/learn/:lessonSlug'),
+};
+//# sourceMappingURL=web-routes.js.map
+;// CONCATENATED MODULE: ../shared/dist/routes/api-routes.js
+/**
+ * API endpoint definitions
+ *
+ * These routes are used by the web frontend to call the API.
+ * Note: These are relative paths (no /api prefix for the client,
+ * which adds /api automatically via API_BASE).
+ */
+
+/**
+ * All API endpoints.
+ *
+ * Usage:
+ *   import { apiRoutes } from '@runhuman/shared';
+ *   apiClient(apiRoutes.jobs.build());
+ *   // => '/jobs'
+ */
+const apiRoutes = {
+    // ============================================
+    // Jobs endpoints
+    // ============================================
+    /** List jobs (GET) or create job (POST) */
+    jobs: defineRoute('/jobs'),
+    /** Get/update/delete specific job */
+    job: defineRoute('/jobs/:jobId'),
+    /**
+     * Cancel a job.
+     *
+     * NOTE: This route is NOT part of the customer-facing surface. Customers
+     * may not cancel their own jobs — a tester may already be engaged,
+     * infrastructure may have been reserved, and the billing + tester-
+     * coordination flow depends on jobs running through to a terminal state
+     * (completed / error / abandoned / rejected). Do NOT expose this route
+     * in the customer CLI, the customer web dashboard, the MCP server, or
+     * any customer-accessible SDK. Tester-side and admin-side paths route
+     * through `end-job.handler.ts` (`clear_and_cancel` / `save_and_cancel`
+     * intents) and the `jobManager.cancelJob` service method — which is
+     * the only supported way to terminate a job in-flight.
+     *
+     * See #3204 (closed as not-planned) for the decision trail.
+     */
+    jobCancel: defineRoute('/jobs/:jobId/cancel'),
+    /** Create a GitHub issue from an extracted finding (user-initiated) */
+    jobCreateIssue: defineRoute('/jobs/:jobId/create-issue'),
+    /** Get job status (for polling) */
+    jobStatus: defineRoute('/jobs/:jobId/status'),
+    /** Get individual job artifact by type */
+    jobArtifact: defineRoute('/jobs/:jobId/artifacts/:artifactType'),
+    /** Update job feedback and rating */
+    jobFeedback: defineRoute('/jobs/:jobId/feedback'),
+    /** Enable/disable public sharing for a job (POST = enable, DELETE = disable) */
+    jobShare: defineRoute('/jobs/:jobId/share'),
+    /** Claim a job (for testers) */
+    jobClaim: defineRoute('/jobs/:jobId/claim'),
+    /** Synchronous job execution */
+    run: defineRoute('/run'),
+    /** Get public job (no auth required, token-secured) */
+    publicJob: defineRoute('/public/jobs/:jobId/:token'),
+    // ============================================
+    // Tester App Job endpoints (secured by testerToken)
+    // ============================================
+    /** Get/update job for tester app */
+    testerJob: defineRoute('/tester/jobs/:jobId'),
+    /** Get presigned upload URLs for artifacts */
+    testerJobUploadUrls: defineRoute('/tester/jobs/:jobId/upload-urls'),
+    /** Process test results with AI */
+    testerJobProcessResults: defineRoute('/tester/jobs/:jobId/process-results'),
+    /** Get processing status */
+    testerJobProcessingStatus: defineRoute('/tester/jobs/:jobId/processing/:processingJobId'),
+    /** Extract frames from video */
+    testerJobExtractFrames: defineRoute('/tester/jobs/:jobId/extract-frames'),
+    /** Unified end-job endpoint (clear&release | clear&cancel | save&cancel) */
+    testerJobEnd: defineRoute('/tester/jobs/:jobId/end'),
+    /** Request a time extension for an in-progress job */
+    testerJobRequestExtension: defineRoute('/tester/jobs/:jobId/request-extension'),
+    /** Notify phase transition from tester app */
+    testerJobPhase: defineRoute('/tester/jobs/:jobId/phase'),
+    /** Re-transcribe a job recording (tester auth) */
+    testerJobRetranscribe: defineRoute('/tester/jobs/:jobId/retranscribe'),
+    // ============================================
+    // LiveKit endpoints (screen sharing & recording)
+    // ============================================
+    /** Start LiveKit session + get tester token (testerToken auth) */
+    livekitTesterToken: defineRoute('/tester/jobs/:jobId/livekit-token'),
+    /** End LiveKit session + stop egress (testerToken auth) */
+    livekitEndSession: defineRoute('/tester/jobs/:jobId/livekit-end'),
+    /** Save transcript entries from Web Speech API (testerToken auth) */
+    livekitTranscript: defineRoute('/tester/jobs/:jobId/livekit-transcript'),
+    /** Get presigned recording URLs for tester (testerToken auth) */
+    testerLivekitRecording: defineRoute('/tester/jobs/:jobId/livekit-recording'),
+    /** Get viewer token for live watching (Clerk JWT auth) */
+    livekitViewerToken: defineRoute('/jobs/:jobId/livekit-viewer-token'),
+    /** Check if LiveKit session is active (Clerk JWT or testerToken auth) */
+    livekitStatus: defineRoute('/jobs/:jobId/livekit-status'),
+    /** Get presigned recording URL (Clerk JWT auth) */
+    livekitRecording: defineRoute('/jobs/:jobId/livekit-recording'),
+    // ============================================
+    // API Keys endpoints
+    // ============================================
+    /** List API keys (GET) or create key (POST) */
+    keys: defineRoute('/keys'),
+    /** Get/update/delete specific key */
+    key: defineRoute('/keys/:keyId'),
+    /** Revoke an API key */
+    keyRevoke: defineRoute('/keys/:keyId/revoke'),
+    /** Get API key info from header (for authenticated requests) */
+    keyInfo: defineRoute('/key-info'),
+    // ============================================
+    // Personal Access Tokens (PATs) endpoints
+    // ============================================
+    /** List PATs (GET) or create PAT (POST) */
+    pats: defineRoute('/pats'),
+    /** Get/delete specific PAT */
+    pat: defineRoute('/pats/:patId'),
+    /** Revoke a PAT */
+    patRevoke: defineRoute('/pats/:patId/revoke'),
+    /** Get PAT info from header (for authenticated requests) */
+    patInfo: defineRoute('/pat-info'),
+    // ============================================
+    // Projects endpoints
+    // ============================================
+    /** List projects (GET) or create project (POST) */
+    projects: defineRoute('/projects'),
+    /** Get/update/delete specific project */
+    project: defineRoute('/projects/:projectId'),
+    /** Get jobs for a project */
+    projectJobs: defineRoute('/projects/:projectId/jobs'),
+    /** Get API keys for a project */
+    projectApiKeys: defineRoute('/projects/:projectId/api-keys'),
+    /** Transfer a project to another user or organization */
+    projectTransfer: defineRoute('/projects/:projectId/transfer'),
+    /** List templates for a project (GET) or create template (POST) */
+    projectTemplates: defineRoute('/projects/:projectId/templates'),
+    /** Get/update/delete specific template */
+    projectTemplate: defineRoute('/projects/:projectId/templates/:templateId'),
+    /** List flow charts for a project (GET) or upload flow chart (POST) */
+    projectFlowCharts: defineRoute('/projects/:projectId/flowcharts'),
+    /** Upload flow chart to a project */
+    projectFlowChartsUpload: defineRoute('/projects/:projectId/flowcharts/upload'),
+    /** Get/delete specific flow chart */
+    projectFlowChart: defineRoute('/projects/:projectId/flowcharts/:flowchartId'),
+    /** Get flow chart data */
+    projectFlowChartData: defineRoute('/projects/:projectId/flowcharts/:flowchartId/data'),
+    /** Chat with AI about a flow chart */
+    projectFlowChartChat: defineRoute('/projects/:projectId/flowcharts/:flowchartId/chat'),
+    /** Enable/disable public sharing for a flow chart */
+    projectFlowChartShare: defineRoute('/projects/:projectId/flowcharts/:flowchartId/share'),
+    /** List schedules for a project (GET) or create schedule (POST) */
+    projectSchedules: defineRoute('/projects/:projectId/schedules'),
+    /** Get/update/delete specific schedule */
+    projectSchedule: defineRoute('/projects/:projectId/schedules/:scheduleId'),
+    /** List execution history for a schedule */
+    projectScheduleExecutions: defineRoute('/projects/:projectId/schedules/:scheduleId/executions'),
+    /** Bulk create projects from GitHub repos */
+    bulkCreateProjects: defineRoute('/projects/bulk'),
+    // ============================================
+    // GitHub endpoints
+    // ============================================
+    /** GitHub OAuth authorize */
+    githubOAuthAuthorize: defineRoute('/github/oauth/authorize'),
+    /** GitHub OAuth callback */
+    githubCallback: defineRoute('/github/oauth/callback'),
+    /** Link GitHub account (get GitHub username via OAuth) */
+    githubLink: defineRoute('/github/link'),
+    /** List issues for a repo (by owner/repo) */
+    githubIssuesByRepo: defineRoute('/github/issues/:owner/:repo'),
+    /** Get a single issue for a repo (by owner/repo/issueNumber) */
+    githubIssueByRepo: defineRoute('/github/issues/:owner/:repo/:issueNumber'),
+    /** List issues (by projectId query param) */
+    githubIssues: defineRoute('/github/issues'),
+    /** Get a single issue */
+    githubIssue: defineRoute('/github/issues/:issueNumber'),
+    /** Get comments for an issue */
+    githubIssueComments: defineRoute('/github/issues/:issueNumber/comments'),
+    /** Get labels for a repo */
+    githubIssueLabels: defineRoute('/github/issues/labels'),
+    /** Get assignees for a repo */
+    githubIssueAssignees: defineRoute('/github/issues/assignees'),
+    /** Test a single issue */
+    githubIssueTest: defineRoute('/github/issues/test'),
+    /** Bulk test multiple issues */
+    githubIssuesBulkTest: defineRoute('/github/issues/bulk-test'),
+    /** List test sessions */
+    githubTestSessions: defineRoute('/github/issues/test-sessions'),
+    /** Get/delete a test session */
+    githubTestSession: defineRoute('/github/issues/test-sessions/:sessionId'),
+    /** Mark a test session as seen */
+    githubTestSessionSeen: defineRoute('/github/issues/test-sessions/:sessionId/seen'),
+    /** Get counts of running and unseen test sessions */
+    githubTestSessionsCounts: defineRoute('/github/issues/test-sessions/counts'),
+    /** Bulk test GitHub issues (legacy route) */
+    githubBulkTest: defineRoute('/github/bulk-test'),
+    /** GitHub App webhooks (receives issue_comment events etc.) */
+    githubWebhooks: defineRoute('/github/webhooks'),
+    /** Otto per-repo GitHub webhook receiver (issues.closed → demo-QA) */
+    ottoGithubWebhook: defineRoute('/webhooks/otto-github'),
+    /** Otto GitHub-App install authorize — issues state token + returns install URL */
+    ottoGithubAppAuthorize: defineRoute('/otto/github/install/authorize'),
+    /** Otto GitHub-App install callback — consumes state and binds org */
+    ottoGithubAppCallback: defineRoute('/otto/github/install/callback'),
+    /** Otto GitHub-App top-level webhooks (installation.created / deleted) */
+    ottoGithubAppWebhooks: defineRoute('/webhooks/otto-github-app'),
+    // ============================================
+    // Auth endpoints (Clerk-based)
+    // ============================================
+    /** Sync user data from Clerk after sign-in */
+    authSync: defineRoute('/auth/sync'),
+    /** Get current user info */
+    authMe: defineRoute('/auth/me'),
+    /** Mark user as startup (bonus tokens) */
+    authStartup: defineRoute('/auth/startup'),
+    /** Delete user account and all associated data */
+    authDeleteAccount: defineRoute('/auth/account'),
+    /** Preview account deletion impact (owned orgs, members, projects) */
+    authDeletionPreview: defineRoute('/auth/account/deletion-preview'),
+    /** Get presigned URL for account avatar upload */
+    authAvatarUploadUrl: defineRoute('/auth/avatar-upload-url'),
+    /** Update account avatar URL */
+    authAvatar: defineRoute('/auth/avatar'),
+    // ============================================
+    // Billing endpoints (Polar-based credits)
+    // ============================================
+    /** Get user's credit balance from Polar */
+    billingBalance: defineRoute('/billing/balance'),
+    /** Check if user has available credits */
+    billingHasCredits: defineRoute('/billing/has-credits'),
+    /** Get a customer portal URL for managing billing */
+    billingPortal: defineRoute('/billing/portal'),
+    /** Create a checkout session for purchasing credits */
+    billingCheckout: defineRoute('/billing/checkout'),
+    /** Get active subscription details (tier, cycle, etc.) */
+    billingSubscription: defineRoute('/billing/subscription'),
+    /** Update subscription plan (change tier/cycle) */
+    billingChangePlan: defineRoute('/billing/change-plan'),
+    /** Check if user is eligible for the Autonomy (Early Access) add-on */
+    billingEnterpriseCheck: defineRoute('/billing/enterprise-check'),
+    /** Create a checkout session for a subscription add-on (e.g. autonomous) */
+    billingAddonCheckout: defineRoute('/billing/addon/checkout'),
+    /** Cancel an active subscription add-on at the end of its current period */
+    billingAddonCancel: defineRoute('/billing/addon/cancel'),
+    /** Polar webhook events (subscription lifecycle) */
+    polarWebhooks: defineRoute('/polar/webhooks'),
+    // ============================================
+    // Other endpoints
+    // ============================================
+    /** Health check */
+    health: defineRoute('/health'),
+    /** Detailed system status */
+    status: defineRoute('/status'),
+    /** List templates */
+    templates: defineRoute('/templates'),
+    /** Issue analyzer */
+    issueAnalyzer: defineRoute('/issue-analyzer'),
+    /** PR analyzer */
+    prAnalyzer: defineRoute('/pr-analyzer'),
+    /** Logs endpoint */
+    logs: defineRoute('/logs'),
+    // ============================================
+    // Relevant Issues endpoints
+    // ============================================
+    /** Run relevant issues discovery for user */
+    relevantIssuesDiscover: defineRoute('/relevant-issues/discover'),
+    /** Get latest cached relevant issues result */
+    relevantIssuesLatest: defineRoute('/relevant-issues/latest'),
+    // ============================================
+    // Onboarding endpoints
+    // ============================================
+    /** Get/update user's onboarding state */
+    onboarding: defineRoute('/onboarding'),
+    /** Mark onboarding as complete */
+    onboardingComplete: defineRoute('/onboarding/complete'),
+    /** Check if user needs onboarding */
+    onboardingCheck: defineRoute('/onboarding/check'),
+    // ============================================
+    // Search endpoints
+    // ============================================
+    /** Global search across jobs, projects, issues, sessions */
+    search: defineRoute('/search'),
+    // ============================================
+    // Tester Profile endpoints
+    // ============================================
+    /** Apply to become a tester */
+    testerApply: defineRoute('/tester/apply'),
+    /** Get/update own tester profile */
+    testerProfile: defineRoute('/tester/profile'),
+    /** Get public tester profile */
+    testerPublicProfile: defineRoute('/testers/:testerId/profile'),
+    /**
+     * Get a tester's recent completed jobs (admin or the tester themselves).
+     * Split out from the public profile (#3285) so per-job customer URLs are
+     * never returned to anonymous viewers or other testers.
+     */
+    testerRecentJobs: defineRoute('/testers/:testerId/recent-jobs'),
+    /** Download tester app */
+    testerDownloadApp: defineRoute('/tester/download-app'),
+    /** Download browser extension */
+    testerDownloadExtension: defineRoute('/tester/download-extension'),
+    /** Download mobile tester app (Android APK). Defaults to the latest build; pass `?name=` to download a specific historical APK. */
+    testerDownloadMobileApp: defineRoute('/tester/download-mobile-app'),
+    /** List all APK builds published to the `mobile-latest` GitHub release so testers can roll back to a prior version. */
+    testerMobileAppVersions: defineRoute('/tester/mobile-app-versions'),
+    /** List available (unclaimed) jobs for testers */
+    testerAvailableJobs: defineRoute('/tester/jobs/available'),
+    /** Tester HQ priority-sorted queue (available + in-progress) */
+    testerQueue: defineRoute('/tester/queue'),
+    /** Real-time tester presence (all active testers with status) */
+    testerPresence: defineRoute('/tester/presence'),
+    /** Get tester's currently active (working) job */
+    testerActiveJob: defineRoute('/tester/active-job'),
+    /** Release tester's currently active job back to pool */
+    testerActiveJobRelease: defineRoute('/tester/active-job/release'),
+    /** Get presigned URL for avatar upload */
+    testerAvatarUploadUrl: defineRoute('/tester/profile/avatar-upload-url'),
+    /** Get tester-facing runtime configuration (inactivity thresholds, etc.) */
+    testerConfig: defineRoute('/tester/config'),
+    /** Get tester app version */
+    testerAppVersion: defineRoute('/tester/app-version'),
+    /** Get latest versions of tester tools (extension + mobile app) */
+    testerVersions: defineRoute('/tester/versions'),
+    /** List recent browser-extension and mobile-app releases + unread count (authenticated tester) */
+    testerInstallReleases: defineRoute('/tester/install-releases'),
+    /** Mark all current install releases as read for the authenticated tester */
+    testerInstallReleasesMarkRead: defineRoute('/tester/install-releases/mark-read'),
+    /** Register/unregister Expo push token for mobile notifications */
+    testerPushToken: defineRoute('/tester/push-token'),
+    /** Get/update per-priority notification preferences */
+    testerNotificationPreferences: defineRoute('/tester/notification-preferences'),
+    /** Create a demo job for testing the web testing flow */
+    testerDemoJob: defineRoute('/tester/demo-job'),
+    /** Lightweight activity ping — resets inactivity timer on navigation */
+    testerActivity: defineRoute('/tester/activity'),
+    /** Get own merged schedule (read-only, tester auth) */
+    testerSchedule: defineRoute('/tester/schedule'),
+    /** Get all active testers' merged schedules (read-only, tester auth) */
+    testerAllSchedules: defineRoute('/tester/schedules/all'),
+    /** Get any active tester's merged schedule (read-only, any authenticated user) */
+    testerPublicSchedule: defineRoute('/testers/:testerId/schedule'),
+    // ============================================
+    // Admin tester schedule endpoints
+    // ============================================
+    /** All testers' merged schedules for a date range (admin) */
+    adminTesterSchedules: defineRoute('/admin/testers/schedules'),
+    /** Single tester's recurring schedule (admin GET/PUT) */
+    adminTesterSchedule: defineRoute('/admin/testers/:testerId/schedule'),
+    /** Schedule overrides for a date range (admin GET/POST) */
+    adminTesterScheduleOverrides: defineRoute('/admin/testers/schedule-overrides'),
+    /** Single schedule override (admin DELETE) */
+    adminTesterScheduleOverride: defineRoute('/admin/testers/schedule-overrides/:overrideId'),
+    /** CSV round-trip for tester schedules (admin GET export, POST import) */
+    adminTesterScheduleCsv: defineRoute('/admin/testers/schedule-csv'),
+    // ============================================
+    // Tester Notes (knowledge base) endpoints
+    // ============================================
+    /** List/search tester notes (GET) or create note (POST) */
+    testerNotes: defineRoute('/tester/notes'),
+    /** Get/update a specific tester note */
+    testerNote: defineRoute('/tester/notes/:noteId'),
+    /** Archive a tester note (soft delete) */
+    testerNoteArchive: defineRoute('/tester/notes/:noteId/archive'),
+    /** List organizations available for note creation (ever-subscribed filter) */
+    testerNoteOrgs: defineRoute('/tester/notes/orgs'),
+    /** List projects for a given organization (for note creation picker) */
+    testerNoteProjects: defineRoute('/tester/notes/orgs/:organizationId/projects'),
+    /** Get notes relevant to a job's org+project (testerToken auth, used on test page) */
+    testerJobNotes: defineRoute('/tester/jobs/:jobId/notes'),
+    // ============================================
+    // Extension endpoints (browser extension)
+    // ============================================
+    /** List extension tokens (GET) or create token (POST) */
+    extensionTokens: defineRoute('/tester/extension-tokens'),
+    /** Revoke (DELETE) a specific extension token */
+    extensionToken: defineRoute('/tester/extension-tokens/:tokenId'),
+    /** WebSocket endpoint for extension data streaming */
+    extensionStream: defineRoute('/extension/stream'),
+    /** Correlate extension data to a test job's time window */
+    testerJobCorrelate: defineRoute('/tester/jobs/:jobId/correlate'),
+    /** Check if extension data is flowing for this tester (polling endpoint) */
+    testerJobDataStatus: defineRoute('/tester/jobs/:jobId/data-status'),
+    /** Create extension token for auto-configuring the extension from the test page */
+    testerJobExtensionToken: defineRoute('/tester/jobs/:jobId/extension-token'),
+    // ============================================
+    // Repo Templates endpoints
+    // ============================================
+    /** List templates from a GitHub repo's .runhuman/templates/ directory */
+    repoTemplates: defineRoute('/repos/:owner/:repo/templates'),
+    /** Get a single template from a GitHub repo */
+    repoTemplate: defineRoute('/repos/:owner/:repo/templates/:templateName'),
+    // ============================================
+    // Organizations endpoints
+    // ============================================
+    /** List organizations (GET) or create organization (POST) */
+    organizations: defineRoute('/organizations'),
+    /** Get/update/delete specific organization */
+    organization: defineRoute('/organizations/:organizationId'),
+    /** List organization members */
+    organizationMembers: defineRoute('/organizations/:organizationId/members'),
+    /** Invite member to organization (via Clerk) */
+    organizationInvite: defineRoute('/organizations/:organizationId/invite'),
+    /** List pending organization invitations */
+    organizationInvitations: defineRoute('/organizations/:organizationId/invitations'),
+    /** Revoke a pending organization invitation */
+    organizationInvitation: defineRoute('/organizations/:organizationId/invitations/:invitationId'),
+    /** Remove member from organization */
+    organizationMember: defineRoute('/organizations/:organizationId/members/:userId'),
+    /** Restore a suspended member to organization */
+    organizationRestoreMember: defineRoute('/organizations/:organizationId/members/:userId/restore'),
+    /** List organization projects */
+    organizationProjects: defineRoute('/organizations/:organizationId/projects'),
+    /** Get organization jobs (jobs across all projects in the organization) */
+    organizationJobs: defineRoute('/organizations/:organizationId/jobs'),
+    /** Transfer organization ownership */
+    organizationTransferOwnership: defineRoute('/organizations/:organizationId/transfer-ownership'),
+    /** List/create organization API keys */
+    organizationApiKeys: defineRoute('/organizations/:organizationId/api-keys'),
+    /** Get/revoke/delete a specific organization API key */
+    organizationApiKey: defineRoute('/organizations/:organizationId/api-keys/:keyId'),
+    /** Get GitHub installations for an organization */
+    organizationGitHubInstallations: defineRoute('/organizations/:organizationId/github/installations'),
+    /** Get/delete specific GitHub installation for an organization */
+    organizationGitHubInstallation: defineRoute('/organizations/:organizationId/github/installations/:installationId'),
+    /** List repos accessible to an organization via its GitHub installations */
+    organizationGitHubRepos: defineRoute('/organizations/:organizationId/github/repos'),
+    /** Refresh repos for an organization's GitHub installation */
+    organizationGitHubInstallationRefresh: defineRoute('/organizations/:organizationId/github/installations/:installationId/refresh'),
+    /** Check if org has access to a specific repo via its GitHub installations */
+    organizationGitHubRepoCheckAccess: defineRoute('/organizations/:organizationId/github/repos/check-access'),
+    /** List Otto GitHub-App installations bound to an organization */
+    organizationOttoGithubInstallations: defineRoute('/organizations/:organizationId/otto/github/installations'),
+    /** Find deployed URL for a repo via org's GitHub installations */
+    organizationGitHubRepoFindUrl: defineRoute('/organizations/:organizationId/github/repos/find-url'),
+    /** Get all templates across projects in the organization */
+    organizationTemplates: defineRoute('/organizations/:organizationId/templates'),
+    /** Get all schedules across projects in the organization */
+    organizationSchedules: defineRoute('/organizations/:organizationId/schedules'),
+    /** Get aggregated usage analytics for an organization */
+    organizationUsage: defineRoute('/organizations/:organizationId/usage'),
+    /** Get organization billing balance (Polar) */
+    organizationBilling: defineRoute('/organizations/:organizationId/billing'),
+    /** List repo-index status (#2892 code-context module) for the org's linked repos */
+    organizationRepoIndexes: defineRoute('/organizations/:organizationId/repo-indexes'),
+    /** Re-trigger indexing for a single (org, repo) — used by the manual "Re-index" button */
+    organizationRepoIndexReindex: defineRoute('/organizations/:organizationId/repo-indexes/reindex'),
+    // ============================================
+    // Transfers endpoints
+    // ============================================
+    /** Get pending incoming transfers for current user */
+    transfersPending: defineRoute('/transfers/pending'),
+    /** Get pending outgoing transfers (initiated by current user) */
+    transfersOutgoing: defineRoute('/transfers/outgoing'),
+    /** Accept a transfer */
+    transferAccept: defineRoute('/transfers/:transferId/accept'),
+    /** Reject a transfer */
+    transferReject: defineRoute('/transfers/:transferId/reject'),
+    /** Cancel a transfer */
+    transferCancel: defineRoute('/transfers/:transferId/cancel'),
+    // ============================================
+    // User Agreements endpoints
+    // ============================================
+    /** Record user agreement acceptance (POST) or get user's agreements (GET) */
+    agreements: defineRoute('/agreements'),
+    /** Check if user has accepted a specific agreement */
+    agreementCheck: defineRoute('/agreements/check'),
+    // ============================================
+    // Organization Slack Integration endpoints
+    // ============================================
+    /** List connected Slack workspaces for an organization */
+    organizationSlackInstallations: defineRoute('/organizations/:organizationId/slack/installations'),
+    /** Delete a Slack workspace connection */
+    organizationSlackInstallation: defineRoute('/organizations/:organizationId/slack/installations/:slackIntegrationId'),
+    /** Get Slack OAuth authorize URL */
+    organizationSlackOAuthAuthorize: defineRoute('/organizations/:organizationId/slack/oauth/authorize'),
+    /** Slack OAuth callback (fixed URL — orgId in state) */
+    slackOAuthCallback: defineRoute('/slack/oauth/callback'),
+    /** List channels in connected Slack workspace (legacy — uses first installation) */
+    organizationSlackChannels: defineRoute('/organizations/:organizationId/slack/channels'),
+    /** List channels for a specific Slack installation */
+    organizationSlackInstallationChannels: defineRoute('/organizations/:organizationId/slack/installations/:slackIntegrationId/channels'),
+    /** Update default channel for Slack integration */
+    organizationSlackDefaultChannel: defineRoute('/organizations/:organizationId/slack/installations/:slackIntegrationId/default-channel'),
+    // ============================================
+    // Organization SSO endpoints
+    // ============================================
+    /** List SSO connections for an organization (GET) or create one (POST) */
+    organizationSsoConnections: defineRoute('/organizations/:organizationId/sso/connections'),
+    /** Get/delete a specific SSO connection */
+    organizationSsoConnection: defineRoute('/organizations/:organizationId/sso/connections/:connectionId'),
+    // ============================================
+    // Enterprise endpoints
+    // ============================================
+    /** Submit enterprise contact inquiry (POST) */
+    enterpriseInquiry: defineRoute('/enterprise/inquiry'),
+    // ============================================
+    // Posts endpoints (public + authenticated)
+    // ============================================
+    /** List published posts (public) */
+    posts: defineRoute('/posts'),
+    /** Get single post by ID (public) */
+    post: defineRoute('/posts/:postId'),
+    /** Get unread post count (authenticated) */
+    postUnreadCount: defineRoute('/posts/unread-count'),
+    /** Mark posts as read (authenticated) */
+    postMarkRead: defineRoute('/posts/mark-read'),
+    // ============================================
+    // Admin Posts endpoints
+    // ============================================
+    /** List all posts (admin, GET) or create post (admin, POST) */
+    adminPosts: defineRoute('/admin/posts'),
+    /** Get/update specific post (admin) */
+    adminPost: defineRoute('/admin/posts/:postId'),
+    /** Publish a draft post (admin) */
+    adminPostPublish: defineRoute('/admin/posts/:postId/publish'),
+    /** Archive a published post (admin) */
+    adminPostArchive: defineRoute('/admin/posts/:postId/archive'),
+    /** Unarchive a post (admin) */
+    adminPostUnarchive: defineRoute('/admin/posts/:postId/unarchive'),
+    // ============================================
+    // Test Session endpoints (SDK + extension data ingestion)
+    // ============================================
+    /** Create test session (POST) — SDK calls this when a test session starts */
+    testSessions: defineRoute('/test-session/sessions'),
+    /** End test session (POST) — SDK calls this when testing completes */
+    testSessionEnd: defineRoute('/test-session/sessions/:sessionId/end'),
+    /** Submit test session event batch (POST) — SDK periodically flushes captured events */
+    testSessionEvents: defineRoute('/test-session/sessions/:sessionId/events'),
+    /** Check session status for a job (GET) — SDK polls to know when to activate */
+    testSessionJobStatus: defineRoute('/test-session/jobs/:jobId/status'),
+    /** Resolve a sensor short code to a jobId (GET) — SDK calls this when tester enters a code */
+    testSessionShortCode: defineRoute('/test-session/short-codes/:code'),
+    // ============================================
+    // Organization Sentry Integration endpoints
+    // ============================================
+    /** List/create Sentry connections for an organization */
+    organizationSentryConnections: defineRoute('/organizations/:organizationId/sentry/connections'),
+    /** Get/update/delete a specific Sentry connection */
+    organizationSentryConnection: defineRoute('/organizations/:organizationId/sentry/connections/:sentryConnectionId'),
+    /** Test a Sentry connection (validates token + org access) */
+    organizationSentryTestConnection: defineRoute('/organizations/:organizationId/sentry/connections/:sentryConnectionId/test'),
+    /** List Sentry projects available via a connection (for project mapping picker) */
+    organizationSentryProjects: defineRoute('/organizations/:organizationId/sentry/connections/:sentryConnectionId/projects'),
+    /** Get correlated Sentry events for a job */
+    jobSentryEvents: defineRoute('/jobs/:jobId/sentry-events'),
+    // ============================================
+    // Agent Profile endpoints (Enterprise Pro + Autonomy add-on)
+    // ============================================
+    /** Get or upsert the organization's agent profile */
+    organizationAgentProfile: defineRoute('/organizations/:organizationId/agent-profile'),
+    /** List GitHub repos Otto has been granted collaborator access to (for the repo picker) */
+    organizationAgentProfileAvailableRepos: defineRoute('/organizations/:organizationId/agent-profile/available-repos'),
+    /** Generate an objective string from selected repos using Otto GitHub + inference */
+    organizationAgentProfileGenerateObjectives: defineRoute('/organizations/:organizationId/agent-profile/generate-objectives'),
+    /** Rotate the per-profile runner token (user-authed, admin-only) */
+    organizationAgentProfileRunnerToken: defineRoute('/organizations/:organizationId/agent-profile/runner-token'),
+    // ============================================
+    // Autonomy Runner endpoints (bearer token auth, consumed by orchestrator)
+    // ============================================
+    /** Read + write the single agent-profile row scoped to a runner token */
+    autonomyRunnerState: defineRoute('/autonomy-runner'),
+    // ============================================
+    // Feedback Submissions endpoints
+    // ============================================
+    /** Create a feedback submission (POST) */
+    feedbackSubmissions: defineRoute('/feedback-submissions'),
+    // ============================================
+    // UTM Visitor Tracking endpoints
+    // ============================================
+    /** Record an anonymous UTM visitor (POST, unauthenticated) */
+    utmVisitors: defineRoute('/utm-visitors'),
+    // ============================================
+    // MPP (Machine Payments Protocol) endpoints
+    // ============================================
+    /** Create a job via MPP payment (POST) — returns 402 challenge if unpaid */
+    mppJobs: defineRoute('/mpp/jobs'),
+    /** Get MPP job result (GET) — free, no payment required (job ID = proof of payment) */
+    mppJobResult: defineRoute('/mpp/jobs/:jobId/result'),
+    /** Deposit funds into an MPP wallet (POST) — returns 402 challenge if unpaid */
+    mppWalletDeposit: defineRoute('/mpp/wallet/deposit'),
+    /** Check MPP wallet balance (GET) — requires wallet token */
+    mppWalletBalance: defineRoute('/mpp/wallet/balance'),
+    /** Fetch a single job with full admin detail (admin GET) */
+    adminJob: defineRoute('/admin/jobs/:jobId'),
+    /** Orchestrated reprocess: retranscribe and/or re-run processing pipeline (admin POST) */
+    adminJobReprocess: defineRoute('/admin/jobs/:jobId/reprocess'),
+    /** Poll an admin processing job's status (admin GET) */
+    adminJobProcessingStatus: defineRoute('/admin/jobs/:jobId/processing/:processingJobId'),
+    // ============================================
+    // Tester My Jobs endpoints (Clerk JWT auth)
+    // ============================================
+    /** List tester's own completed job history (paginated, filterable) */
+    testerMyJobs: defineRoute('/tester/my-jobs'),
+    /** Get detail for a specific job the tester completed */
+    testerMyJobDetail: defineRoute('/tester/my-jobs/:jobId'),
+    /** Retranscribe a job's recording — async via ProcessingJobStore (admin POST) */
+    adminJobRetranscribe: defineRoute('/admin/jobs/:jobId/retranscribe'),
+    /** Re-run the v2 processing pipeline on a completed job — synchronous (admin POST) */
+    adminJobRunProcessingPipeline: defineRoute('/admin/jobs/:jobId/run-processing-pipeline'),
+    /** Terminate a running job (admin POST) */
+    adminJobTerminate: defineRoute('/admin/jobs/:jobId/terminate'),
+    /** Reassign a job to a different API key (admin POST) */
+    adminJobReassign: defineRoute('/admin/jobs/:jobId/reassign'),
+    /**
+     * Unarchive a previously soft-deleted job (admin POST).
+     * The corresponding archive action reuses DELETE /admin/jobs/:jobId.
+     */
+    adminJobUnarchive: defineRoute('/admin/jobs/:jobId/unarchive'),
+    /** List all Otto channel bindings (admin GET) */
+    adminOttoChannelSettings: defineRoute('/admin/otto-channel-settings'),
+    /** Resolve an org/project ID to its display name for the admin form's live preview (admin GET) */
+    adminOttoChannelSettingsLookup: defineRoute('/admin/otto-channel-settings/lookup'),
+    /** Update or delete an Otto channel binding (admin PATCH / DELETE) */
+    adminOttoChannelSetting: defineRoute('/admin/otto-channel-settings/:instanceKey/:channelId'),
+    // ============================================
+    // Notification preferences & unsubscribe
+    // ============================================
+    /** Get / update the authenticated user's email notification preferences */
+    notificationPreferences: defineRoute('/notifications/preferences'),
+    /** One-click unsubscribe: POST with signed token (no auth required) */
+    notificationUnsubscribe: defineRoute('/notifications/unsubscribe'),
+    /** Preview an unsubscribe token — verify validity without mutating preferences */
+    notificationUnsubscribePreview: defineRoute('/notifications/unsubscribe/preview'),
+};
+//# sourceMappingURL=api-routes.js.map
+;// CONCATENATED MODULE: ../shared/dist/routes/index.js
+/**
+ * Type-safe route management system
+ *
+ * @example
+ * import { webRoutes, apiRoutes, defineRoute } from '@runhuman/shared/routes';
+ *
+ * // Navigate to a project page
+ * navigate(webRoutes.playground.build({ projectId: 'abc' }));
+ *
+ * // Make an API call
+ * apiClient(apiRoutes.job.build({ jobId: '123' }));
+ *
+ * // Create a custom route
+ * const customRoute = defineRoute('/custom/:id');
+ * customRoute.build({ id: 'xyz' });
+ */
+// Core route builder
+
+// Web (frontend) routes
+
+// API routes
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/issue-testing/session-events.types.js
+/**
+ * Type guard to create a StorageUrl from a string.
+ * Validates that the string is a valid HTTP(S) URL.
+ *
+ * @throws Error if the string is not a valid URL
+ */
+function asStorageUrl(url) {
+    // Allow empty strings (for optional URLs that aren't set)
+    if (!url) {
+        return '';
+    }
+    // Must be a valid HTTP(S) URL - not a local file path
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        throw new Error(`Invalid storage URL: "${url}". Expected HTTP(S) URL, got what looks like a local path. ` +
+            `Make sure you're using the uploaded URL from the storage service, not the local file path.`);
+    }
+    return url;
+}
+//# sourceMappingURL=session-events.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/issue-testing/comment-template.js
+const comment_template_DEFAULT_MAX_SCREENSHOTS = 3;
+/**
+ * Format a value for display in the results table
+ */
+function formatResultValue(value) {
+    if (value === true)
+        return 'Yes';
+    if (value === false)
+        return 'No';
+    if (value === null || value === undefined)
+        return 'N/A';
+    if (typeof value === 'object')
+        return `\`${JSON.stringify(value)}\``;
+    return String(value);
+}
+/**
+ * Build the tester info section with avatar and name
+ */
+function buildTesterSection(testResult) {
+    const { testerAlias, testerAvatarUrl } = testResult;
+    if (!testerAlias) {
+        return '';
+    }
+    if (testerAvatarUrl) {
+        return `**Tester:** <img src="${testerAvatarUrl}" width="20" height="20" style="border-radius: 50%; vertical-align: middle;" /> ${testerAlias}\n\n`;
+    }
+    return `**Tester:** ${testerAlias}\n\n`;
+}
+/**
+ * Build the media section with video and screenshots
+ */
+function comment_template_buildMediaSection(testResult, maxScreenshots = comment_template_DEFAULT_MAX_SCREENSHOTS) {
+    const { testerData, jobUrl } = testResult;
+    let section = '';
+    // Video link (comes first) - links to job page to drive traffic
+    if (testerData?.videoUrl && jobUrl) {
+        section += `[Watch Recording](${jobUrl})`;
+    }
+    // Screenshots
+    const screenshots = testerData?.screenshots || [];
+    if (screenshots.length > 0) {
+        // Add separator if video exists
+        if (section) {
+            section += ' | ';
+        }
+        // Link to view all screenshots if there are more than max
+        if (screenshots.length > maxScreenshots && jobUrl) {
+            section += `[View all screenshots (${screenshots.length})](${jobUrl})`;
+        }
+        section += '\n\n';
+        // Embed limited screenshots
+        const displayCount = Math.min(screenshots.length, maxScreenshots);
+        for (let i = 0; i < displayCount; i++) {
+            section += `![Screenshot ${i + 1}](${screenshots[i]})\n\n`;
+        }
+        // Note about additional screenshots
+        if (screenshots.length > maxScreenshots && !jobUrl) {
+            const moreCount = screenshots.length - maxScreenshots;
+            section += `*+${moreCount} additional screenshots available*\n\n`;
+        }
+    }
+    else if (section) {
+        section += '\n\n';
+    }
+    return section;
+}
+/**
+ * Build the test results table
+ */
+function buildResultsTable(testResult) {
+    if (!testResult.result?.data || Object.keys(testResult.result.data).length === 0) {
+        return '';
+    }
+    let table = '| Field | Value |\n|-------|-------|\n';
+    for (const [key, value] of Object.entries(testResult.result.data)) {
+        const displayValue = formatResultValue(value);
+        table += `| ${key} | ${displayValue} |\n`;
+    }
+    table += '\n';
+    return table;
+}
+/**
+ * Build a markdown comment for posting test results to a GitHub issue
+ * Used when job status is 'completed' (test ran successfully)
+ */
+function buildTestResultComment(testResult, analysis) {
+    // issueResolved is the primary signal for issue tests (always in schema).
+    // Falls back to data.success for non-issue test contexts.
+    const issueResolvedValue = testResult.result?.data?.issueResolved;
+    const hasPassField = issueResolvedValue !== undefined;
+    const passed = hasPassField ? Boolean(issueResolvedValue) : true;
+    const statusIcon = hasPassField ? (passed ? '✓' : '✗') : '✓';
+    const statusText = hasPassField ? (passed ? 'Passed' : 'Failed') : 'Completed';
+    let comment = `## QA Test ${statusIcon} ${statusText}
+
+### Test Request
+**URL:** ${analysis.testUrl || 'N/A'}
+**Instructions:**
+> ${analysis.testInstructions}
+
+### Test Results
+${buildTesterSection(testResult)}**Findings:**
+> ${testResult.result?.explanation || 'No explanation provided'}
+
+${buildResultsTable(testResult)}${comment_template_buildMediaSection(testResult)}### Action Taken
+${hasPassField
+        ? (passed ? 'Test passed. Issue confirmed as resolved.' : 'This issue has been reopened because the QA test failed.')
+        : 'Test completed. Review the findings above.'}
+
+---
+`;
+    // Footer with job link
+    if (testResult.jobUrl) {
+        comment += `[View full details](${testResult.jobUrl}) | `;
+    }
+    comment += `Powered by [Runhuman](https://runhuman.com)`;
+    return comment;
+}
+/**
+ * Get human-readable status description for failed jobs
+ */
+function getFailedJobStatusDescription(status, reason) {
+    switch (status) {
+        case 'abandoned':
+            return {
+                title: 'Expired',
+                description: reason || 'No tester was available to complete this test within the time limit.',
+            };
+        case 'error':
+            return {
+                title: 'Error',
+                description: reason || 'An error occurred while processing the test.',
+            };
+        case 'incomplete':
+            return {
+                title: 'Incomplete',
+                description: reason || 'The test could not be completed with the available information.',
+            };
+        default:
+            return {
+                title: 'Failed',
+                description: reason || 'The test job could not be completed.',
+            };
+    }
+}
+/**
+ * Build a markdown comment for failed jobs (abandoned, error, incomplete)
+ * These are different from failed tests - the job itself didn't complete
+ */
+function buildJobFailedComment(testResult, analysis) {
+    const { title, description } = getFailedJobStatusDescription(testResult.status, testResult.error);
+    let comment = `## QA Test Could Not Be Completed
+
+### Test Request
+**URL:** ${analysis.testUrl || 'N/A'}
+**Instructions:**
+> ${analysis.testInstructions}
+
+### What Happened
+**Status:** ${title}
+**Reason:** ${description}
+
+This test was not successfully completed. The issue state has not been changed.
+
+---
+`;
+    // Footer with job link
+    if (testResult.jobUrl) {
+        comment += `[View details](${testResult.jobUrl}) | `;
+    }
+    comment += `Powered by [Runhuman](https://runhuman.com)`;
+    return comment;
+}
+//# sourceMappingURL=comment-template.js.map
+;// CONCATENATED MODULE: ../shared/dist/template/template-filter-sort.js
+function filterTemplates(items, criteria) {
+    let result = [...items];
+    if (!criteria.includeDefaults) {
+        result = result.filter((t) => !t.isUnmodifiedDefault || t.hasActiveSchedule);
+    }
+    if (criteria.search) {
+        const query = criteria.search.toLowerCase();
+        result = result.filter((t) => t.name.toLowerCase().includes(query) ||
+            (t.testDescription !== undefined && t.testDescription.toLowerCase().includes(query)));
+    }
+    if (criteria.devices && criteria.devices.length > 0) {
+        const devices = criteria.devices;
+        result = result.filter((t) => t.deviceClass !== undefined && devices.includes(t.deviceClass));
+    }
+    if (criteria.sources && criteria.sources.length > 0) {
+        const sources = criteria.sources;
+        result = result.filter((t) => {
+            const source = t.source === 'repo' ? 'repo' : 'project';
+            return sources.includes(source);
+        });
+    }
+    if (criteria.hasSchema) {
+        result = result.filter((t) => t.outputSchema !== undefined && Object.keys(t.outputSchema).length > 0);
+    }
+    return result;
+}
+function sortTemplates(items, sort) {
+    const dir = sort.direction === 'asc' ? 1 : -1;
+    return [...items].sort((a, b) => {
+        switch (sort.field) {
+            case 'name':
+                return dir * a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+            case 'duration': {
+                const aDur = a.targetDurationMinutes === undefined ? Infinity : a.targetDurationMinutes;
+                const bDur = b.targetDurationMinutes === undefined ? Infinity : b.targetDurationMinutes;
+                return dir * (aDur - bDur);
+            }
+        }
+    });
+}
+//# sourceMappingURL=template-filter-sort.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/tester.types.js
+/**
+ * Tester profile types
+ * Represents testers who can claim and complete test jobs
+ */
+/**
+ * Device types a tester can test on
+ */
+const TESTER_DEVICES = ['ios', 'android', 'pc', 'mac'];
+/**
+ * Languages a tester can communicate in
+ */
+const TESTER_LANGUAGES = ['english', 'spanish'];
+/**
+ * Default inactivity threshold: an `online` tester auto-promotes to `away`
+ * after this many minutes of no mutating API interactions.
+ *
+ * Used only as the Zod default for `env.TESTER_AUTO_AWAY_MINUTES` on the server.
+ * Clients MUST fetch the effective runtime value from GET /api/tester/config.
+ */
+const TESTER_AUTO_AWAY_MINUTES_DEFAULT = 30;
+/**
+ * Default offline threshold: any non-offline tester auto-demotes to `offline`
+ * after this many minutes of no mutating API interactions. (e.g. an `away`
+ * tester finally gets dropped to `offline`.)
+ *
+ * Used only as the Zod default for `env.TESTER_AUTO_OFFLINE_MINUTES` on the server.
+ * Clients MUST fetch the effective runtime value from GET /api/tester/config.
+ */
+const TESTER_AUTO_OFFLINE_MINUTES_DEFAULT = 120;
+/**
+ * Default inactive-tester threshold: testers whose `lastActiveAt` is older than
+ * this are surfaced under the "Inactive" presence section (derived state — not
+ * stored).
+ *
+ * Used only as the Zod default for `env.TESTER_INACTIVE_DAYS` on the server.
+ * Clients MUST fetch the effective runtime value from GET /api/tester/config.
+ */
+const TESTER_INACTIVE_DAYS_DEFAULT = 10;
+/**
+ * Default warning threshold: toast + browser notification shown when this many
+ * minutes remain before the auto-Away transition.
+ *
+ * Used only as the Zod default for `env.TESTER_INACTIVITY_WARNING_MINUTES` on the server.
+ * Clients MUST fetch the effective runtime value from GET /api/tester/config.
+ */
+const TESTER_INACTIVITY_WARNING_MINUTES_DEFAULT = 5;
+//# sourceMappingURL=tester.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/capability-registry.js
+/**
+ * Centralized capability registry — single source of truth for all tester pool dimensions.
+ *
+ * Every consumer (validation, Slack display, UI, MCP, CLI) imports from here
+ * instead of maintaining its own label maps. To add a new capability dimension:
+ * 1. Define it here
+ * 2. Add TS fields to TesterPoolRequirements + TesterProfile + JobCreationParams
+ * 3. Add a DB migration
+ * 4. TypeScript compiler guides the rest
+ */
+
+// ============================================================================
+// Multi-Select Dimensions
+// ============================================================================
+const DEVICE_CAPABILITY = {
+    type: 'multi-select',
+    matchMode: 'any',
+    values: TESTER_DEVICES,
+    labels: { ios: 'iOS', android: 'Android', pc: 'PC', mac: 'Mac' },
+    slackLabels: { ios: 'iOS', android: 'Android', pc: 'PC', mac: 'Mac' },
+    categoryName: 'device',
+    sectionLabel: 'Device',
+    tooltip: 'Tester must have at least one of the selected devices',
+};
+const LANGUAGE_CAPABILITY = {
+    type: 'multi-select',
+    matchMode: 'all',
+    values: TESTER_LANGUAGES,
+    labels: { english: 'English', spanish: 'Spanish' },
+    slackLabels: { english: 'English speaker', spanish: 'Spanish speaker' },
+    categoryName: 'language',
+    sectionLabel: 'Language',
+    tooltip: 'Tester must speak all selected languages',
+};
+// ============================================================================
+// Boolean Dimensions
+// ============================================================================
+const SOCIAL_VIDEOS_CAPABILITY = {
+    type: 'boolean',
+    slackLabel: 'Social video creator',
+    missingMessage: 'Social video creation required',
+    uiLabel: 'Require social video creation capability',
+};
+const APK_INSTALL_CAPABILITY = {
+    type: 'boolean',
+    slackLabel: 'APK installer',
+    missingMessage: 'APK installation capability required',
+    uiLabel: 'Require APK installation capability',
+};
+/**
+ * Slack instruction appended only for Runhuman dual-device self-tests
+ * (jobs with `requiresRunhumanApkInstall: true`). Generic APK-install jobs
+ * do NOT get this line — their flow is single-device.
+ */
+const RUNHUMAN_SELF_TEST_SLACK_INSTRUCTION = ':iphone: *Dual-device test:* Claim on your computer, test on your Android device';
+//# sourceMappingURL=capability-registry.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/pool-requirements.js
+/**
+ * Pool requirements checking logic.
+ * Used by both Slack claim path and REST API claim path.
+ */
+
+/**
+ * Check a multi-select dimension using the capability's match mode:
+ * - 'any': tester needs at least one of the required values (OR)
+ * - 'all': tester needs every required value (AND)
+ */
+function checkMultiSelect(required, has, capability) {
+    if (!required || required.length === 0)
+        return null;
+    if (capability.matchMode === 'any') {
+        const hasAny = required.some(v => has.includes(v));
+        if (hasAny)
+            return null;
+        const labels = required.map(v => capability.labels[v]);
+        return `Missing ${capability.categoryName}(s): ${labels.join(', ')}`;
+    }
+    const missing = required.filter(v => !has.includes(v));
+    if (missing.length === 0)
+        return null;
+    const labels = missing.map(v => capability.labels[v]);
+    return `Missing ${capability.categoryName}(s): ${labels.join(', ')}`;
+}
+/**
+ * Check whether a tester's capabilities satisfy the job's pool requirements.
+ * Returns eligible: true when all requirements are met, or a list of missing requirements.
+ */
+function checkPoolRequirements(requirements, profile) {
+    const missingRequirements = [];
+    const deviceCheck = checkMultiSelect(requirements.requiredDevices, profile.devices, DEVICE_CAPABILITY);
+    if (deviceCheck)
+        missingRequirements.push(deviceCheck);
+    const languageCheck = checkMultiSelect(requirements.requiredLanguages, profile.languages, LANGUAGE_CAPABILITY);
+    if (languageCheck)
+        missingRequirements.push(languageCheck);
+    if (requirements.requireSocialVideos && !profile.canCreateSocialVideos) {
+        missingRequirements.push(SOCIAL_VIDEOS_CAPABILITY.missingMessage);
+    }
+    if (requirements.requireApkInstall && !profile.canInstallApk) {
+        missingRequirements.push(APK_INSTALL_CAPABILITY.missingMessage);
+    }
+    return {
+        eligible: missingRequirements.length === 0,
+        missingRequirements,
+    };
+}
+//# sourceMappingURL=pool-requirements.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/queue-filter.js
+/**
+ * Queue filtering logic for tester job queue.
+ * Filters jobs based on tester capabilities, reusing the pool requirements validation.
+ */
+
+/**
+ * Check whether a job has any pool requirements at all.
+ * Jobs with no requirements are open to everyone and always shown.
+ */
+function hasAnyRequirements(job) {
+    return ((Array.isArray(job.requiredDevices) && job.requiredDevices.length > 0) ||
+        (Array.isArray(job.requiredLanguages) && job.requiredLanguages.length > 0) ||
+        job.requireSocialVideos === true ||
+        job.requireApkInstall === true);
+}
+/**
+ * Filter a list of jobs by tester capabilities.
+ *
+ * - Jobs with NO requirements always pass (open to everyone).
+ * - Jobs WITH requirements pass only if the filter state satisfies them,
+ *   using the same logic as claim-time validation (`checkPoolRequirements`).
+ */
+function filterQueueByCapabilities(jobs, filters) {
+    return jobs.filter((job) => {
+        if (!hasAnyRequirements(job))
+            return true;
+        const requirements = {
+            requiredDevices: job.requiredDevices,
+            requiredLanguages: job.requiredLanguages,
+            requireSocialVideos: job.requireSocialVideos,
+            requireApkInstall: job.requireApkInstall,
+        };
+        const result = checkPoolRequirements(requirements, {
+            devices: [...filters.devices],
+            languages: [...filters.languages],
+            canCreateSocialVideos: filters.canCreateSocialVideos,
+            canInstallApk: filters.canInstallApk,
+        });
+        return result.eligible;
+    });
+}
+//# sourceMappingURL=queue-filter.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/notification-preferences.types.js
+/**
+ * Per-priority notification preferences for testers.
+ * Controls how testers are alerted based on job priority level.
+ */
+/**
+ * How a tester wants to be notified for a given priority tier.
+ *
+ * - `push_sound`: Full push notification with audible alert
+ * - `silent`: Silent push (badge update only, no sound)
+ * - `off`: No notification at all (job visible in queue only)
+ */
+const PUSH_NOTIFICATION_BEHAVIORS = ['push_sound', 'silent', 'off'];
+/**
+ * Default preferences for new testers:
+ * - High priority: push with sound
+ * - Medium priority: silent (badge only)
+ * - Low priority: off (queue only)
+ */
+const DEFAULT_TESTER_NOTIFICATION_PREFERENCES = {
+    high: 'push_sound',
+    medium: 'silent',
+    low: 'off',
+};
+function isPushNotificationBehavior(value) {
+    return typeof value === 'string' && PUSH_NOTIFICATION_BEHAVIORS.includes(value);
+}
+//# sourceMappingURL=notification-preferences.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/claim-errors.js
+/**
+ * Claim error codes + tester-facing message mapping.
+ *
+ * Single source of truth for how claim failures are surfaced to testers.
+ * Both the web portal and the mobile app render messages from
+ * `describeClaimError(code, details?)` so testers see identical wording
+ * regardless of where they tried to claim from.
+ *
+ * The server emits a stable machine-readable `code` in the error response
+ * body (see `claim-job.handler.ts`). Clients detect it via `isClaimErrorCode`
+ * and render the mapped message — never the raw server `error` string,
+ * which is intentionally terse and developer-oriented.
+ */
+/**
+ * Stable machine-readable identifiers for every reason a claim can fail.
+ * Kept as a const tuple so we can derive both the union type and the runtime
+ * `isClaimErrorCode` guard without duplication.
+ */
+const CLAIM_ERROR_CODES = [
+    'tester_not_found',
+    'tester_not_active',
+    'tester_has_active_job',
+    'job_not_found',
+    'job_already_claimed',
+    'job_not_available',
+    'pool_requirements_not_met',
+    'mobile_only',
+    'desktop_only',
+    'version_conflict',
+];
+const CLAIM_ERROR_CODE_SET = new Set(CLAIM_ERROR_CODES);
+/** Narrow an unknown value to a `ClaimErrorCode`. */
+function isClaimErrorCode(value) {
+    return typeof value === 'string' && CLAIM_ERROR_CODE_SET.has(value);
+}
+/**
+ * Validate and unwrap a server-emitted claim error payload (`{ code, details }`
+ * on `err.data`). The shape comes across the network as `unknown`, so the
+ * step-by-step narrowing here is input validation at a system boundary, not
+ * defensive programming on internal data.
+ */
+function readClaimErrorPayload(err) {
+    if (err === null || typeof err !== 'object')
+        return null;
+    const data = err.data;
+    if (data === null || typeof data !== 'object')
+        return null;
+    const code = data.code;
+    if (!isClaimErrorCode(code))
+        return null;
+    const rawDetails = data.details;
+    const details = Array.isArray(rawDetails)
+        ? rawDetails.filter((entry) => typeof entry === 'string')
+        : undefined;
+    return { code, details };
+}
+/**
+ * Pull the machine-readable `ClaimErrorCode` out of a thrown value, or `null`
+ * when the throw is not a recognized server claim-error envelope. Use this
+ * when callers need to branch on a specific code (e.g. routing
+ * `tester_has_active_job` to a confirmation dialog) rather than just
+ * surfacing the mapped message.
+ */
+function extractClaimErrorCode(err) {
+    const payload = readClaimErrorPayload(err);
+    if (payload === null)
+        return null;
+    return payload.code;
+}
+/**
+ * Extract a tester-facing message from any thrown value that may carry a
+ * server-emitted claim error payload (`{ code, details }` on `err.data`).
+ *
+ * Returns the mapped message when a recognized `ClaimErrorCode` is found,
+ * otherwise `null` so callers can fall back to their generic error
+ * rendering. Both the web portal and the mobile app use this so the same
+ * message surfaces regardless of which client reported the failure.
+ */
+function describeClaimErrorFromUnknown(err) {
+    const payload = readClaimErrorPayload(err);
+    if (payload === null)
+        return null;
+    return describeClaimError(payload.code, payload.details);
+}
+/**
+ * Resolve a tester-facing claim-failure message from any thrown value.
+ *
+ * Preference order: shared code-mapped message → raw `Error.message` →
+ * caller-supplied fallback. Used by both the web portal and mobile app so
+ * claim-error rendering is DRY across clients.
+ */
+function claimErrorMessage(err, fallback) {
+    const mapped = describeClaimErrorFromUnknown(err);
+    if (mapped)
+        return mapped;
+    if (err instanceof Error)
+        return err.message;
+    return fallback;
+}
+/**
+ * Map a claim error code to a tester-facing explanation.
+ *
+ * For `pool_requirements_not_met`, pass the server-supplied `details` array
+ * (e.g. `['Missing Device(s): iOS']`) so the message names the missing
+ * capabilities. Without details we fall back to a generic line.
+ */
+function describeClaimError(code, details) {
+    switch (code) {
+        case 'mobile_only':
+            return 'This test must be claimed from the Runhuman mobile app. Open it on your phone to pick up this job.';
+        case 'desktop_only':
+            return 'This test must be claimed from a computer. Open the Runhuman tester portal in your browser.';
+        case 'pool_requirements_not_met':
+            if (details && details.length > 0) {
+                return `You don't match this job's requirements — ${details.join('; ')}.`;
+            }
+            return "You don't match this job's tester-pool requirements.";
+        case 'tester_has_active_job':
+            return 'You already have an active job. Finish or release it before claiming another.';
+        case 'job_already_claimed':
+            return 'Another tester claimed this job first.';
+        case 'version_conflict':
+            return 'Another tester claimed this job first.';
+        case 'job_not_available':
+            return 'This job is no longer available to claim.';
+        case 'job_not_found':
+            return 'This job no longer exists.';
+        case 'tester_not_found':
+            return 'We could not find your tester profile. Please re-sign-in and try again.';
+        case 'tester_not_active':
+            return 'Your tester profile is not currently active. Contact Runhuman if you believe this is a mistake.';
+    }
+}
+//# sourceMappingURL=claim-errors.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/presence-derivations.js
+const STATUS_LABELS = {
+    online: 'Online',
+    busy: 'Busy',
+    away: 'Away',
+    missing: 'Missing',
+    offline: 'Offline',
+    inactive: 'Inactive',
+};
+const SCHEDULE_LABELS = {
+    'on-shift': 'On shift',
+    'off-schedule': 'Off schedule',
+    excused: 'Excused',
+};
+function getPresenceStatusLabel(status) {
+    return STATUS_LABELS[status];
+}
+function getScheduleLabel(state) {
+    return SCHEDULE_LABELS[state];
+}
+// ── Derived predicates ───────────────────────────────────────────────
+/**
+ * The tester is currently working a job. Derived purely from `activeJob` —
+ * no stored `availability` value carries this meaning anymore.
+ */
+function isBusy(tester) {
+    return tester.activeJob !== null;
+}
+/**
+ * The tester hasn't shown any activity for a long time. Surfaces them in
+ * the "Inactive" sidebar section so they aren't conflated with testers who
+ * just stepped away today.
+ */
+function isInactive(tester, ctx) {
+    const lastActive = new Date(tester.lastActiveAt).getTime();
+    const cutoff = ctx.nowMs - ctx.inactiveThresholdDays * 24 * 60 * 60 * 1000;
+    return lastActive < cutoff;
+}
+/**
+ * The tester is scheduled to be on-shift right now, but they aren't
+ * actively working a job and haven't shown activity in the missing
+ * window — they should be here, but they aren't. Renders in the
+ * "Missing" sidebar section as an overlay over Away/Offline.
+ */
+function isMissing(tester, ctx) {
+    if (tester.scheduleState !== 'on-shift')
+        return false;
+    if (tester.activeJob)
+        return false;
+    const lastActive = new Date(tester.lastActiveAt).getTime();
+    const cutoff = ctx.nowMs - ctx.missingThresholdMinutes * 60 * 1000;
+    return lastActive < cutoff;
+}
+/**
+ * The tester isn't scheduled, but they're around anyway — worth rendering
+ * with a dimmer treatment so the roster visually prioritizes on-shift testers.
+ */
+function isOffScheduleAndPresent(tester) {
+    return tester.scheduleState === 'off-schedule' && tester.availability !== 'offline';
+}
+// ── Bucket assignment ────────────────────────────────────────────────
+/**
+ * Assigns a tester to exactly one of the six sidebar buckets.
+ *
+ * Priority order (first match wins):
+ *   1. `busy`     — active job overrides everything else (you're working)
+ *   2. `inactive` — past the long-staleness window
+ *   3. `missing`  — on-shift but absent (overrides the underlying Away/Offline)
+ *   4. `away`     — stored availability
+ *   5. `offline`  — stored availability
+ *   6. `online`   — fallback (stored availability)
+ *
+ * The derived buckets all sit *above* the stored ones in priority because the
+ * sidebar wants the most informative label — a busy tester is "Busy", not
+ * "Online and busy"; a long-stale offline tester is "Inactive", not "Offline".
+ */
+function getPresenceStatus(tester, ctx) {
+    if (isBusy(tester))
+        return 'busy';
+    if (isInactive(tester, ctx))
+        return 'inactive';
+    if (isMissing(tester, ctx))
+        return 'missing';
+    return tester.availability;
+}
+// ── Time helpers ─────────────────────────────────────────────────────
+/**
+ * Human-readable elapsed duration since an ISO timestamp.
+ * Used by the presence bar to show "how long has this tester been on this job".
+ */
+function formatElapsed(claimedAt) {
+    const elapsedMs = Date.now() - new Date(claimedAt).getTime();
+    const minutes = Math.floor(elapsedMs / 60_000);
+    if (minutes < 1)
+        return 'just now';
+    if (minutes < 60)
+        return `${minutes}m elapsed`;
+    const hours = Math.floor(minutes / 60);
+    const remainder = minutes % 60;
+    return remainder === 0 ? `${hours}h elapsed` : `${hours}h ${remainder}m elapsed`;
+}
+//# sourceMappingURL=presence-derivations.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/index.js
+
+
+
+
+
+
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/utils/url-validation.js
+/**
+ * URL validation utilities shared across all packages
+ */
+/**
+ * Normalizes a URL by adding https:// prefix if missing
+ */
+function normalizeUrl(url) {
+    const trimmed = url.trim();
+    if (!trimmed)
+        return '';
+    return trimmed.startsWith('http://') || trimmed.startsWith('https://')
+        ? trimmed
+        : `https://${trimmed}`;
+}
+/**
+ * Validates a URL and returns detailed error message if invalid
+ */
+function validateUrl(url) {
+    const trimmed = url.trim();
+    // Check if URL is empty
+    if (!trimmed) {
+        return {
+            isValid: false,
+            error: 'Please enter a URL',
+        };
+    }
+    // Normalize URL
+    const normalized = normalizeUrl(trimmed);
+    // Try parsing the URL
+    let parsed;
+    try {
+        parsed = new URL(normalized);
+    }
+    catch {
+        return {
+            isValid: false,
+            error: 'Please enter a valid URL (e.g., example.com)',
+        };
+    }
+    // Check for localhost/127.0.0.1 (testers need publicly accessible URLs)
+    if (parsed.hostname === 'localhost' ||
+        parsed.hostname === '127.0.0.1' ||
+        parsed.hostname.startsWith('192.168.') ||
+        parsed.hostname.startsWith('10.') ||
+        parsed.hostname.endsWith('.local')) {
+        return {
+            isValid: false,
+            error: 'Localhost URLs cannot be tested by remote testers',
+        };
+    }
+    // Check for authentication credentials in URL
+    if (parsed.username || parsed.password || normalized.includes('@')) {
+        return {
+            isValid: false,
+            error: 'URLs with authentication credentials are not supported',
+        };
+    }
+    // Check for valid domain structure
+    const hostname = parsed.hostname;
+    // Must contain at least one dot
+    if (!hostname.includes('.')) {
+        return {
+            isValid: false,
+            error: 'Please enter a valid domain (e.g., example.com)',
+        };
+    }
+    // Must not start or end with a dot
+    if (hostname.startsWith('.') || hostname.endsWith('.')) {
+        return {
+            isValid: false,
+            error: 'Please enter a valid domain (e.g., example.com)',
+        };
+    }
+    // Check for valid TLD (last part after final dot)
+    const parts = hostname.split('.');
+    const tld = parts[parts.length - 1];
+    // TLD must be at least 2 characters and contain only letters
+    if (!tld || tld.length < 2 || !/^[a-zA-Z]+$/.test(tld)) {
+        return {
+            isValid: false,
+            error: 'Please enter a valid domain (e.g., example.com)',
+        };
+    }
+    // Check for consecutive dots
+    if (hostname.includes('..')) {
+        return {
+            isValid: false,
+            error: 'Please enter a valid domain (e.g., example.com)',
+        };
+    }
+    return { isValid: true };
+}
+//# sourceMappingURL=url-validation.js.map
+;// CONCATENATED MODULE: ../shared/dist/utils/github-validation.js
+/**
+ * GitHub repository validation utilities shared across all packages
+ */
+/**
+ * Regular expression for validating GitHub repository format (owner/repo)
+ * - Owner: 1-39 characters, alphanumeric or hyphens, cannot start/end with hyphen
+ * - Repo: 1-100 characters, alphanumeric, hyphens, underscores, or dots
+ */
+const GITHUB_REPO_REGEX = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?\/[a-zA-Z0-9._-]{1,100}$/;
+/**
+ * Validates a GitHub repository reference (owner/repo format)
+ */
+function validateGithubRepo(repo) {
+    const trimmed = repo.trim();
+    if (!trimmed) {
+        return {
+            isValid: false,
+            error: 'GitHub repository cannot be empty',
+        };
+    }
+    // Check for basic format (must contain exactly one slash)
+    const slashCount = (trimmed.match(/\//g) || []).length;
+    if (slashCount !== 1) {
+        return {
+            isValid: false,
+            error: 'GitHub repository must be in "owner/repo" format',
+        };
+    }
+    const [owner, repoName] = trimmed.split('/');
+    // Validate owner
+    if (!owner || owner.length === 0) {
+        return {
+            isValid: false,
+            error: 'GitHub repository owner cannot be empty',
+        };
+    }
+    if (owner.length > 39) {
+        return {
+            isValid: false,
+            error: 'GitHub repository owner cannot exceed 39 characters',
+        };
+    }
+    if (owner.startsWith('-') || owner.endsWith('-')) {
+        return {
+            isValid: false,
+            error: 'GitHub repository owner cannot start or end with a hyphen',
+        };
+    }
+    if (!/^[a-zA-Z0-9-]+$/.test(owner)) {
+        return {
+            isValid: false,
+            error: 'GitHub repository owner can only contain alphanumeric characters and hyphens',
+        };
+    }
+    // Validate repo name
+    if (!repoName || repoName.length === 0) {
+        return {
+            isValid: false,
+            error: 'GitHub repository name cannot be empty',
+        };
+    }
+    if (repoName.length > 100) {
+        return {
+            isValid: false,
+            error: 'GitHub repository name cannot exceed 100 characters',
+        };
+    }
+    if (!/^[a-zA-Z0-9._-]+$/.test(repoName)) {
+        return {
+            isValid: false,
+            error: 'GitHub repository name can only contain alphanumeric characters, hyphens, underscores, and dots',
+        };
+    }
+    // Full regex validation as final check
+    if (!GITHUB_REPO_REGEX.test(trimmed)) {
+        return {
+            isValid: false,
+            error: 'Invalid GitHub repository format. Expected "owner/repo"',
+        };
+    }
+    return { isValid: true };
+}
+/**
+ * Type guard to check if a string is a valid GitHub repo format
+ */
+function isValidGithubRepo(repo) {
+    return validateGithubRepo(repo).isValid;
+}
+//# sourceMappingURL=github-validation.js.map
+;// CONCATENATED MODULE: ../shared/dist/utils/linkify.js
+/**
+ * Parse a free-text string into a sequence of plain-text and URL segments.
+ *
+ * Used by tester-facing surfaces (web testing page, tester portal, mobile app)
+ * to render hyperlinks inside job descriptions while leaving the raw stored
+ * description untouched.
+ *
+ * Design notes:
+ * - We deliberately require an `http://` or `https://` scheme — bare domains
+ *   ("example.com") would be too aggressive and would misclassify prose like
+ *   "e.g." or "etc." as links.
+ * - Trailing sentence punctuation (`.`, `,`, `;`, `:`, `!`, `?`) is moved back
+ *   to the text segment, since authors almost never mean to include it in
+ *   the link (and including it breaks the URL).
+ * - An unbalanced closing bracket at the end of a match (common when prose
+ *   wraps a URL in parens) is also moved to the text segment, while balanced
+ *   brackets inside the URL (e.g. Wikipedia `Foo_(bar)`) are preserved.
+ */
+const URL_REGEX = /https?:\/\/[^\s]+/g;
+const TRAILING_PUNCTUATION = new Set(['.', ',', ';', ':', '!', '?', "'", '"']);
+const CLOSING_TO_OPENING = {
+    ')': '(',
+    ']': '[',
+    '}': '{',
+    '>': '<',
+};
+function trimTrailingPunctuation(url) {
+    let end = url.length;
+    while (end > 0) {
+        const ch = url[end - 1];
+        if (TRAILING_PUNCTUATION.has(ch)) {
+            end -= 1;
+            continue;
+        }
+        const opener = CLOSING_TO_OPENING[ch];
+        if (opener !== undefined) {
+            const inside = url.slice(0, end);
+            const openerCount = countChar(inside, opener);
+            const closerCount = countChar(inside, ch);
+            if (closerCount > openerCount) {
+                end -= 1;
+                continue;
+            }
+        }
+        break;
+    }
+    return url.slice(0, end);
+}
+function countChar(s, ch) {
+    let n = 0;
+    for (const c of s) {
+        if (c === ch)
+            n += 1;
+    }
+    return n;
+}
+function linkify(text) {
+    if (text === '')
+        return [];
+    const segments = [];
+    let lastIndex = 0;
+    for (const match of text.matchAll(URL_REGEX)) {
+        const matchStart = match.index;
+        const rawUrl = match[0];
+        const trimmedUrl = trimTrailingPunctuation(rawUrl);
+        if (matchStart > lastIndex) {
+            segments.push({ type: 'text', content: text.slice(lastIndex, matchStart) });
+        }
+        segments.push({ type: 'url', content: trimmedUrl });
+        lastIndex = matchStart + trimmedUrl.length;
+    }
+    if (lastIndex < text.length) {
+        segments.push({ type: 'text', content: text.slice(lastIndex) });
+    }
+    return segments;
+}
+//# sourceMappingURL=linkify.js.map
+;// CONCATENATED MODULE: ../shared/dist/utils/format-last-seen.js
+const ONE_MINUTE_MS = 60 * 1000;
+const THIRTY_MINUTES_MS = 30 * ONE_MINUTE_MS;
+const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
+const ONE_DAY_MS = 24 * ONE_HOUR_MS;
+const TEN_DAYS_MS = 10 * ONE_DAY_MS;
+/**
+ * Render a "last seen" timestamp for human consumption.
+ *
+ * Thresholds:
+ * - Less than 30 minutes ago (or in the future via clock skew): "Now"
+ * - 30 minutes – 10 days ago: relative form ("45 minutes ago", "1 hour ago", "5 days ago")
+ * - More than 10 days ago: short date ("Jan 8" same year, "Nov 3, 2024" otherwise)
+ */
+function formatLastSeen(timestamp, now = new Date()) {
+    const then = new Date(timestamp);
+    const diffMs = now.getTime() - then.getTime();
+    if (diffMs < THIRTY_MINUTES_MS)
+        return 'Now';
+    if (diffMs >= TEN_DAYS_MS)
+        return formatShortDate(then, now);
+    if (diffMs < ONE_HOUR_MS) {
+        const minutes = Math.floor(diffMs / ONE_MINUTE_MS);
+        return `${minutes} minutes ago`;
+    }
+    if (diffMs < ONE_DAY_MS) {
+        const hours = Math.floor(diffMs / ONE_HOUR_MS);
+        return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    }
+    const days = Math.floor(diffMs / ONE_DAY_MS);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+function formatShortDate(date, now) {
+    const sameYear = date.getUTCFullYear() === now.getUTCFullYear();
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC',
+        ...(sameYear ? {} : { year: 'numeric' }),
+    });
+}
+//# sourceMappingURL=format-last-seen.js.map
+;// CONCATENATED MODULE: ../shared/dist/utils/schedule-csv.js
+/**
+ * CSV (de)serialization for the admin tester schedule import/export feature.
+ *
+ * One row per scheduled hour. A row is either a recurring weekly slot
+ * (populated day_of_week, empty date) or a date-specific override
+ * (empty day_of_week, populated date).
+ */
+const SCHEDULE_CSV_HEADER = [
+    'tester_email',
+    'kind',
+    'day_of_week',
+    'date',
+    'hour_utc',
+];
+const SCHEDULE_CSV_KINDS = ['recurring', 'override_add', 'override_remove'];
+// ---- Serialization ----
+function serializeScheduleCsv(rows) {
+    const lines = [SCHEDULE_CSV_HEADER.join(',')];
+    for (const row of rows) {
+        lines.push([
+            escapeCsvField(row.testerEmail),
+            row.kind,
+            row.dayOfWeek === null ? '' : String(row.dayOfWeek),
+            row.date === null ? '' : row.date,
+            String(row.hourUtc),
+        ].join(','));
+    }
+    return lines.join('\n') + '\n';
+}
+function escapeCsvField(value) {
+    if (/[",\r\n]/.test(value)) {
+        return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+}
+// ---- Parsing ----
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+function parseScheduleCsv(text) {
+    const stripped = text.replace(/^\uFEFF/, '');
+    const lines = stripped.split(/\r?\n/);
+    const errors = [];
+    const rows = [];
+    const headerLine = lines[0];
+    if (headerLine === undefined || headerLine.trim() === '') {
+        return { rows: [], errors: [{ line: 1, message: 'CSV is empty; expected a header row' }] };
+    }
+    const headerFields = parseCsvLine(headerLine).map((f) => f.trim().toLowerCase());
+    const columnIndex = new Map();
+    headerFields.forEach((name, i) => columnIndex.set(name, i));
+    for (const required of SCHEDULE_CSV_HEADER) {
+        if (!columnIndex.has(required)) {
+            errors.push({ line: 1, message: `Header is missing required column: ${required}` });
+        }
+    }
+    if (errors.length > 0) {
+        return { rows: [], errors };
+    }
+    const expectedColumnCount = headerFields.length;
+    for (let i = 1; i < lines.length; i++) {
+        const raw = lines[i];
+        if (raw === '' || raw.trim() === '')
+            continue;
+        const lineNumber = i + 1;
+        const fields = parseCsvLine(raw);
+        if (fields.length !== expectedColumnCount) {
+            errors.push({
+                line: lineNumber,
+                message: `expected ${expectedColumnCount} columns, got ${fields.length}`,
+            });
+            continue;
+        }
+        const row = buildRow(fields, columnIndex, lineNumber, errors);
+        if (row !== null)
+            rows.push(row);
+    }
+    if (errors.length > 0) {
+        return { rows: [], errors };
+    }
+    return { rows, errors: [] };
+}
+function buildRow(fields, columnIndex, lineNumber, errors) {
+    const get = (name) => fields[columnIndex.get(name)].trim();
+    const testerEmail = get('tester_email');
+    const kindRaw = get('kind');
+    const dayOfWeekRaw = get('day_of_week');
+    const dateRaw = get('date');
+    const hourUtcRaw = get('hour_utc');
+    let hasError = false;
+    if (testerEmail === '') {
+        errors.push({ line: lineNumber, message: 'tester_email is required' });
+        hasError = true;
+    }
+    const kind = SCHEDULE_CSV_KINDS.includes(kindRaw)
+        ? kindRaw
+        : null;
+    if (kind === null) {
+        errors.push({
+            line: lineNumber,
+            message: `kind must be one of ${SCHEDULE_CSV_KINDS.join(', ')} (got "${kindRaw}")`,
+        });
+        hasError = true;
+    }
+    const hourUtc = parseIntStrict(hourUtcRaw);
+    if (hourUtc === null || hourUtc < 0 || hourUtc > 23) {
+        errors.push({
+            line: lineNumber,
+            message: `hour_utc must be an integer 0-23 (got "${hourUtcRaw}")`,
+        });
+        hasError = true;
+    }
+    let dayOfWeek = null;
+    let date = null;
+    if (kind === 'recurring') {
+        if (dayOfWeekRaw === '') {
+            errors.push({ line: lineNumber, message: 'day_of_week is required when kind=recurring' });
+            hasError = true;
+        }
+        else {
+            const parsed = parseIntStrict(dayOfWeekRaw);
+            if (parsed === null || parsed < 0 || parsed > 6) {
+                errors.push({
+                    line: lineNumber,
+                    message: `day_of_week must be an integer 0-6 (got "${dayOfWeekRaw}")`,
+                });
+                hasError = true;
+            }
+            else {
+                dayOfWeek = parsed;
+            }
+        }
+    }
+    else if (kind === 'override_add' || kind === 'override_remove') {
+        if (dateRaw === '') {
+            errors.push({ line: lineNumber, message: `date is required when kind=${kind}` });
+            hasError = true;
+        }
+        else if (!DATE_PATTERN.test(dateRaw)) {
+            errors.push({
+                line: lineNumber,
+                message: `date must be formatted YYYY-MM-DD (got "${dateRaw}")`,
+            });
+            hasError = true;
+        }
+        else {
+            date = dateRaw;
+        }
+    }
+    if (hasError || kind === null || hourUtc === null)
+        return null;
+    return { testerEmail, kind, dayOfWeek, date, hourUtc };
+}
+function parseIntStrict(raw) {
+    if (!/^-?\d+$/.test(raw))
+        return null;
+    const n = Number.parseInt(raw, 10);
+    return Number.isFinite(n) ? n : null;
+}
+function parseCsvLine(line) {
+    const fields = [];
+    let current = '';
+    let inQuotes = false;
+    let i = 0;
+    while (i < line.length) {
+        const ch = line[i];
+        if (inQuotes) {
+            if (ch === '"') {
+                if (line[i + 1] === '"') {
+                    current += '"';
+                    i += 2;
+                    continue;
+                }
+                inQuotes = false;
+                i += 1;
+                continue;
+            }
+            current += ch;
+            i += 1;
+            continue;
+        }
+        if (ch === '"' && current === '') {
+            inQuotes = true;
+            i += 1;
+            continue;
+        }
+        if (ch === ',') {
+            fields.push(current);
+            current = '';
+            i += 1;
+            continue;
+        }
+        current += ch;
+        i += 1;
+    }
+    fields.push(current);
+    return fields;
+}
+//# sourceMappingURL=schedule-csv.js.map
+;// CONCATENATED MODULE: ../shared/dist/utils/index.js
+
+
+
+
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/api/job-api.types.js
+/**
+ * API Contract Types for Job Operations
+ *
+ * These types define the request/response contracts for job-related API endpoints.
+ * All packages (api, web, mcp-server, cli) should import from here.
+ */
+/**
+ * Valid artifact types for the GET /jobs/:jobId/artifacts/:artifactType endpoint.
+ */
+const JOB_ARTIFACT_TYPES = [
+    'structured-output',
+    'transcript',
+    'console-logs',
+    'network-requests',
+    'conversation',
+    'events',
+    'key-moments',
+];
+//# sourceMappingURL=job-api.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/mdform/mdform-to-schema.js
+class MDFormParseError extends Error {
+    line;
+    column;
+    constructor(message, line, column) {
+        super(message);
+        this.line = line;
+        this.column = column;
+        this.name = 'MDFormParseError';
+    }
+}
+function getIndentLevel(line) {
+    const match = line.match(/^(\s*)/);
+    if (!match)
+        return 0;
+    const spaces = match[1];
+    // Count spaces, treating 4 spaces or 1 tab as one level
+    return Math.floor(spaces.replace(/\t/g, '    ').length / 4);
+}
+function trimIndent(line, level) {
+    const indent = '    '.repeat(level);
+    if (line.startsWith(indent)) {
+        return line.slice(indent.length);
+    }
+    // Handle tabs
+    const tabIndent = '\t'.repeat(level);
+    if (line.startsWith(tabIndent)) {
+        return line.slice(tabIndent.length);
+    }
+    return line;
+}
+function labelToFieldName(label) {
+    // Convert "Field Name" to "field_name"
+    return label
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+}
+function extractDescription(value) {
+    // Extract description after " - " separator
+    // Example: "___ - User's full name" -> { valueWithoutDesc: "___", description: "User's full name" }
+    // Example: "- User's full name" -> { valueWithoutDesc: "", description: "User's full name" } (description only)
+    // Check for description-only format: "- Description text"
+    const descOnlyMatch = value.match(/^-\s+(.+)$/);
+    if (descOnlyMatch) {
+        return {
+            valueWithoutDesc: '',
+            description: descOnlyMatch[1].trim(),
+        };
+    }
+    // Check for value + description format: "value - Description text"
+    const descMatch = value.match(/^(.+?)\s+-\s+(.+)$/);
+    if (descMatch) {
+        return {
+            valueWithoutDesc: descMatch[1].trim(),
+            description: descMatch[2].trim(),
+        };
+    }
+    return { valueWithoutDesc: value, description: '' };
+}
+function parseFieldType(value) {
+    const trimmed = value.trim();
+    // Number type
+    if (trimmed.startsWith('#___')) {
+        return 'number';
+    }
+    // Boolean checkbox (standalone, not in array context)
+    if (trimmed.match(/^\[\s*\]$/) || trimmed.match(/^\*\s*\[\s*\]/)) {
+        return 'boolean';
+    }
+    // String type (default)
+    if (trimmed.startsWith('___')) {
+        return 'string';
+    }
+    // Array indicator
+    if (trimmed === '...') {
+        return 'array';
+    }
+    return 'string'; // Default fallback
+}
+function parseInlineObject(value) {
+    const properties = {};
+    // Parse inline properties: "Name: ___ - desc, Age: #___ - desc"
+    // We need to be careful about commas in descriptions
+    // Split by looking for pattern: ", FieldName: "
+    const parts = [];
+    let currentPart = '';
+    let i = 0;
+    while (i < value.length) {
+        // Look for comma followed by a field pattern (word chars/spaces followed by colon)
+        if (value[i] === ',' && i + 1 < value.length) {
+            // Look ahead to see if this is a field separator
+            const remaining = value.slice(i + 1).trim();
+            const fieldPattern = /^([a-zA-Z0-9\s]+):\s*/;
+            if (fieldPattern.test(remaining)) {
+                // This comma separates fields
+                parts.push(currentPart.trim());
+                currentPart = '';
+                i++; // Skip the comma
+                continue;
+            }
+        }
+        currentPart += value[i];
+        i++;
+    }
+    // Add the last part
+    if (currentPart.trim()) {
+        parts.push(currentPart.trim());
+    }
+    for (const part of parts) {
+        if (!part)
+            continue;
+        const colonIndex = part.indexOf(':');
+        if (colonIndex === -1)
+            continue;
+        const label = part.slice(0, colonIndex).trim();
+        const valueStr = part.slice(colonIndex + 1).trim();
+        const fieldName = labelToFieldName(label);
+        const { valueWithoutDesc, description } = extractDescription(valueStr);
+        const type = parseFieldType(valueWithoutDesc);
+        properties[fieldName] = {
+            type,
+            description,
+        };
+    }
+    return properties;
+}
+function parseInlineEnum(value) {
+    // Parse: (option1 | option2 | option3)
+    const match = value.match(/^\(([^)]+)\)$/);
+    if (!match)
+        return [];
+    return match[1]
+        .split('|')
+        .map(opt => opt.trim())
+        .filter(opt => opt.length > 0);
+}
+function parseMultilineEnum(ctx, baseIndent) {
+    const options = [];
+    while (ctx.index < ctx.lines.length) {
+        const line = ctx.lines[ctx.index];
+        const indent = getIndentLevel(line);
+        if (indent < baseIndent)
+            break;
+        if (indent > baseIndent) {
+            ctx.index++;
+            continue;
+        }
+        const trimmed = trimIndent(line, baseIndent).trim();
+        // Single-select enum: * ( ) option
+        const singleMatch = trimmed.match(/^\*\s*\(\s*\)\s*(.+)$/);
+        if (singleMatch) {
+            options.push(singleMatch[1].trim());
+            ctx.index++;
+            continue;
+        }
+        // Multi-select (treated as array of booleans, not enum)
+        const multiMatch = trimmed.match(/^\*\s*\[\s*\]\s*(.+)$/);
+        if (multiMatch) {
+            options.push(multiMatch[1].trim());
+            ctx.index++;
+            continue;
+        }
+        break;
+    }
+    return options;
+}
+function parseArrayItems(ctx, baseIndent) {
+    const firstLine = ctx.lines[ctx.index];
+    const trimmed = trimIndent(firstLine, baseIndent).trim();
+    // Check if it's a primitive array or object array
+    if (trimmed.startsWith('* ___')) {
+        // String array
+        ctx.index++;
+        // Check for ... continuation
+        if (ctx.index < ctx.lines.length) {
+            const nextLine = ctx.lines[ctx.index];
+            const nextIndent = getIndentLevel(nextLine);
+            const nextTrimmed = trimIndent(nextLine, baseIndent).trim();
+            if (nextIndent === baseIndent && nextTrimmed === '* ...') {
+                ctx.index++;
+            }
+        }
+        return { type: 'string' };
+    }
+    if (trimmed.startsWith('* #___')) {
+        // Number array
+        ctx.index++;
+        // Check for ... continuation
+        if (ctx.index < ctx.lines.length) {
+            const nextLine = ctx.lines[ctx.index];
+            const nextIndent = getIndentLevel(nextLine);
+            const nextTrimmed = trimIndent(nextLine, baseIndent).trim();
+            if (nextIndent === baseIndent && nextTrimmed === '* ...') {
+                ctx.index++;
+            }
+        }
+        return { type: 'number' };
+    }
+    // Object array: parse properties
+    const properties = {};
+    while (ctx.index < ctx.lines.length) {
+        const line = ctx.lines[ctx.index];
+        const indent = getIndentLevel(line);
+        if (indent < baseIndent)
+            break;
+        const lineTrimmed = trimIndent(line, baseIndent).trim();
+        // Check for ... terminator
+        if (lineTrimmed === '* ...') {
+            ctx.index++;
+            break;
+        }
+        // Parse object property line starting with *
+        if (indent === baseIndent && lineTrimmed.startsWith('* ')) {
+            const propLine = lineTrimmed.slice(2).trim();
+            // Check if inline: * Field1: ___, Field2: #___
+            if (propLine.includes(',')) {
+                const inlineProps = parseInlineObject(propLine);
+                Object.assign(properties, inlineProps);
+                ctx.index++;
+                continue;
+            }
+            // Single property: * Field1: ___
+            const colonIndex = propLine.indexOf(':');
+            if (colonIndex !== -1) {
+                const label = propLine.slice(0, colonIndex).trim();
+                const valueStr = propLine.slice(colonIndex + 1).trim();
+                const fieldName = labelToFieldName(label);
+                const { valueWithoutDesc, description } = extractDescription(valueStr);
+                const type = parseFieldType(valueWithoutDesc);
+                properties[fieldName] = {
+                    type,
+                    description,
+                };
+            }
+            ctx.index++;
+            continue;
+        }
+        // Expanded format: indented properties under *
+        // These are additional properties of the same array item
+        // The indent will be >= baseIndent but NOT starting with *
+        if (indent >= baseIndent && !lineTrimmed.startsWith('*')) {
+            const propTrimmed = line.trim();
+            const colonIndex = propTrimmed.indexOf(':');
+            if (colonIndex !== -1) {
+                const label = propTrimmed.slice(0, colonIndex).trim();
+                const valueStr = propTrimmed.slice(colonIndex + 1).trim();
+                const fieldName = labelToFieldName(label);
+                const { valueWithoutDesc, description } = extractDescription(valueStr);
+                const type = parseFieldType(valueWithoutDesc);
+                properties[fieldName] = {
+                    type,
+                    description,
+                };
+            }
+            ctx.index++;
+            continue;
+        }
+        break;
+    }
+    return {
+        type: 'object',
+        properties,
+        required: Object.keys(properties),
+        additionalProperties: false,
+    };
+}
+function parseField(ctx, baseIndent) {
+    if (ctx.index >= ctx.lines.length)
+        return null;
+    const line = ctx.lines[ctx.index];
+    const indent = getIndentLevel(line);
+    if (indent < baseIndent)
+        return null;
+    if (indent > baseIndent) {
+        ctx.index++;
+        return null;
+    }
+    const trimmed = trimIndent(line, baseIndent).trim();
+    if (!trimmed || trimmed.startsWith('#')) {
+        ctx.index++;
+        return null;
+    }
+    const colonIndex = trimmed.indexOf(':');
+    if (colonIndex === -1) {
+        ctx.index++;
+        return null;
+    }
+    let label = trimmed.slice(0, colonIndex).trim();
+    const optional = label.endsWith('?');
+    if (optional) {
+        label = label.slice(0, -1).trim();
+    }
+    // Check for array shorthand syntax: FieldName[]
+    const isArrayShorthand = label.endsWith('[]');
+    if (isArrayShorthand) {
+        label = label.slice(0, -2).trim();
+    }
+    const valueStr = trimmed.slice(colonIndex + 1).trim();
+    const fieldName = labelToFieldName(label);
+    ctx.index++;
+    // Check for inline object FIRST (before extracting description)
+    // Inline objects have format: Field1: ___, Field2: ___
+    // Look for comma followed by a field pattern
+    // eslint-disable-next-line no-useless-escape
+    if (valueStr.includes(',') && /[a-zA-Z0-9\s]+:\s*[#_\[\(]/.test(valueStr)) {
+        const properties = parseInlineObject(valueStr);
+        return [
+            fieldName,
+            {
+                type: 'object',
+                properties,
+                required: Object.keys(properties),
+                description: '',
+                additionalProperties: false,
+            },
+        ];
+    }
+    // Extract description from value string (for non-inline-objects)
+    const { valueWithoutDesc, description } = extractDescription(valueStr);
+    // Handle array shorthand syntax: FieldName[]: value or FieldName[]:
+    if (isArrayShorthand) {
+        // Check if next line has nested properties FIRST (before checking valueWithoutDesc)
+        // This handles cases like: Features[]: - Description\n    Name: ___
+        const nextIndent = baseIndent + 1;
+        if (ctx.index < ctx.lines.length) {
+            const nextLine = ctx.lines[ctx.index];
+            const nextLineIndent = getIndentLevel(nextLine);
+            const nextTrimmed = trimIndent(nextLine, nextIndent).trim();
+            // Object properties (check this before simple arrays)
+            if (nextLineIndent === nextIndent && nextTrimmed.includes(':')) {
+                const properties = {};
+                while (ctx.index < ctx.lines.length) {
+                    const propLine = ctx.lines[ctx.index];
+                    const propIndent = getIndentLevel(propLine);
+                    if (propIndent < nextIndent)
+                        break;
+                    if (propIndent > nextIndent) {
+                        ctx.index++;
+                        continue;
+                    }
+                    const propTrimmed = trimIndent(propLine, nextIndent).trim();
+                    const propColonIndex = propTrimmed.indexOf(':');
+                    if (propColonIndex !== -1) {
+                        const propLabel = propTrimmed.slice(0, propColonIndex).trim();
+                        const propValueStr = propTrimmed.slice(propColonIndex + 1).trim();
+                        const propFieldName = labelToFieldName(propLabel);
+                        const { valueWithoutDesc, description: propDesc } = extractDescription(propValueStr);
+                        // Check if it's an enum
+                        if (valueWithoutDesc.match(/^\([^)]+\)$/)) {
+                            const enumValues = parseInlineEnum(valueWithoutDesc);
+                            properties[propFieldName] = {
+                                type: 'string',
+                                description: propDesc,
+                                enum: enumValues,
+                            };
+                        }
+                        else {
+                            const propType = parseFieldType(valueWithoutDesc);
+                            properties[propFieldName] = {
+                                type: propType,
+                                description: propDesc,
+                            };
+                        }
+                    }
+                    ctx.index++;
+                }
+                return [
+                    fieldName,
+                    {
+                        type: 'array',
+                        description,
+                        items: {
+                            type: 'object',
+                            properties,
+                            required: Object.keys(properties),
+                            additionalProperties: false,
+                        },
+                    },
+                ];
+            }
+        }
+        // Simple array: Tags[]: ___ or Scores[]: #___
+        if (valueWithoutDesc) {
+            const itemType = parseFieldType(valueWithoutDesc);
+            return [
+                fieldName,
+                {
+                    type: 'array',
+                    description,
+                    items: { type: itemType },
+                },
+            ];
+        }
+        // Empty array (no item type specified)
+        return [
+            fieldName,
+            {
+                type: 'array',
+                description,
+                items: {},
+            },
+        ];
+    }
+    // Inline enum: Role?: (editor | reviewer) or Role?: (editor | reviewer) - Description
+    if (valueWithoutDesc.match(/^\([^)]+\)$/)) {
+        const enumValues = parseInlineEnum(valueWithoutDesc);
+        return [
+            fieldName,
+            {
+                type: 'string',
+                description,
+                enum: enumValues,
+            },
+        ];
+    }
+    // Simple field
+    if (valueWithoutDesc) {
+        const type = parseFieldType(valueWithoutDesc);
+        return [
+            fieldName,
+            {
+                type,
+                description,
+            },
+        ];
+    }
+    // Multiline content follows
+    const nextIndent = baseIndent + 1;
+    // Check if next line is array items
+    if (ctx.index < ctx.lines.length) {
+        const nextLine = ctx.lines[ctx.index];
+        const nextLineIndent = getIndentLevel(nextLine);
+        const nextTrimmed = trimIndent(nextLine, nextIndent).trim();
+        // Multiline enum options (check BEFORE arrays, as * ( ) starts with * )
+        if (nextLineIndent === nextIndent && nextTrimmed.match(/^\*\s*\(\s*\)/)) {
+            const enumValues = parseMultilineEnum(ctx, nextIndent);
+            return [
+                fieldName,
+                {
+                    type: 'string',
+                    description: '',
+                    enum: enumValues,
+                },
+            ];
+        }
+        // Array of items
+        if (nextLineIndent === nextIndent && nextTrimmed.startsWith('* ')) {
+            const items = parseArrayItems(ctx, nextIndent);
+            return [
+                fieldName,
+                {
+                    type: 'array',
+                    description: '',
+                    items,
+                },
+            ];
+        }
+        // Object properties
+        if (nextLineIndent === nextIndent && nextTrimmed.includes(':')) {
+            const properties = {};
+            while (ctx.index < ctx.lines.length) {
+                const propLine = ctx.lines[ctx.index];
+                const propIndent = getIndentLevel(propLine);
+                if (propIndent < nextIndent)
+                    break;
+                if (propIndent > nextIndent) {
+                    ctx.index++;
+                    continue;
+                }
+                const propTrimmed = trimIndent(propLine, nextIndent).trim();
+                const propColonIndex = propTrimmed.indexOf(':');
+                if (propColonIndex !== -1) {
+                    const propLabel = propTrimmed.slice(0, propColonIndex).trim();
+                    const propValueStr = propTrimmed.slice(propColonIndex + 1).trim();
+                    const propFieldName = labelToFieldName(propLabel);
+                    const { valueWithoutDesc, description } = extractDescription(propValueStr);
+                    // Check if it's an enum
+                    if (valueWithoutDesc.match(/^\([^)]+\)$/)) {
+                        const enumValues = parseInlineEnum(valueWithoutDesc);
+                        properties[propFieldName] = {
+                            type: 'string',
+                            description,
+                            enum: enumValues,
+                        };
+                    }
+                    else {
+                        const propType = parseFieldType(valueWithoutDesc);
+                        properties[propFieldName] = {
+                            type: propType,
+                            description,
+                        };
+                    }
+                }
+                ctx.index++;
+            }
+            return [
+                fieldName,
+                {
+                    type: 'object',
+                    properties,
+                    required: Object.keys(properties),
+                    description: '',
+                    additionalProperties: false,
+                },
+            ];
+        }
+    }
+    // Default to string if no content specified
+    return [
+        fieldName,
+        {
+            type: 'string',
+            description: '',
+        },
+    ];
+}
+function parseMDFormToSchema(markdown) {
+    const lines = markdown.split('\n');
+    const ctx = {
+        lines,
+        index: 0,
+        indentLevel: 0,
+    };
+    const schema = {};
+    while (ctx.index < lines.length) {
+        const result = parseField(ctx, 0);
+        if (result) {
+            const [fieldName, fieldDef] = result;
+            // Cast to OutputSchema value type (JSONSchema7 is compatible at runtime)
+            schema[fieldName] = fieldDef;
+        }
+    }
+    return schema;
+}
+//# sourceMappingURL=mdform-to-schema.js.map
+;// CONCATENATED MODULE: ../shared/dist/mdform/schema-to-mdform.js
+/**
+ * Convert JSON Schema to MDForm markdown representation
+ *
+ * Generates canonical MDForm syntax from OutputSchema
+ */
+// Type guards
+function isJSONSchema7(def) {
+    return typeof def === 'object' && def !== null && !Array.isArray(def);
+}
+function getSchemaType(schema) {
+    if (Array.isArray(schema.type))
+        return schema.type[0];
+    return schema.type;
+}
+function getItemsSchema(schema) {
+    if (!schema.items)
+        return undefined;
+    if (isJSONSchema7(schema.items))
+        return schema.items;
+    if (Array.isArray(schema.items) && schema.items.length > 0) {
+        const first = schema.items[0];
+        if (isJSONSchema7(first))
+            return first;
+    }
+    return undefined;
+}
+function getProperties(schema) {
+    if (!schema.properties)
+        return undefined;
+    const result = {};
+    for (const [key, value] of Object.entries(schema.properties)) {
+        if (isJSONSchema7(value)) {
+            result[key] = value;
+        }
+    }
+    return result;
+}
+function fieldNameToLabel(fieldName) {
+    // Convert "field_name" to "Field Name"
+    return fieldName
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+function fieldTypeToSyntax(type) {
+    switch (type) {
+        case 'string':
+            return '___';
+        case 'number':
+        case 'integer':
+            return '#___';
+        case 'boolean':
+            return '[ ]';
+        default:
+            return '___';
+    }
+}
+function appendDescription(value, description) {
+    if (description && description.trim()) {
+        return `${value} - ${description.trim()}`;
+    }
+    return value;
+}
+function convertFieldDefinition(fieldName, fieldDef, level = 0) {
+    const label = fieldNameToLabel(fieldName);
+    const indentation = '    '.repeat(level);
+    const fieldType = getSchemaType(fieldDef);
+    // Enum type (JSONSchema7 uses type: "string" with enum property)
+    if (fieldDef.enum && fieldDef.enum.length > 0) {
+        const enumValues = fieldDef.enum.map(v => String(v));
+        // Use inline format for enums: Role: (editor | reviewer | admin)
+        const enumStr = `(${enumValues.join(' | ')})`;
+        const withDescription = appendDescription(enumStr, fieldDef.description);
+        return `${indentation}${label}: ${withDescription}`;
+    }
+    // Simple primitive types
+    if (fieldType === 'string' || fieldType === 'number' || fieldType === 'integer' || fieldType === 'boolean') {
+        const syntax = fieldTypeToSyntax(fieldType);
+        const withDescription = appendDescription(syntax, fieldDef.description);
+        return `${indentation}${label}: ${withDescription}`;
+    }
+    // Array type
+    if (fieldType === 'array') {
+        const lines = [`${indentation}${label}:`];
+        const itemsSchema = getItemsSchema(fieldDef);
+        if (!itemsSchema) {
+            lines.push(`${indentation}    * ___`);
+            lines.push(`${indentation}    * ...`);
+            return lines.join('\n');
+        }
+        const itemsType = getSchemaType(itemsSchema);
+        const itemsProperties = getProperties(itemsSchema);
+        // Array of primitives
+        if (itemsType === 'string' || itemsType === 'number' || itemsType === 'integer' || itemsType === 'boolean') {
+            const itemSyntax = fieldTypeToSyntax(itemsType);
+            lines.push(`${indentation}    * ${itemSyntax}`);
+            lines.push(`${indentation}    * ...`);
+            return lines.join('\n');
+        }
+        // Array of objects
+        if (itemsType === 'object' && itemsProperties) {
+            const propKeys = Object.keys(itemsProperties);
+            if (propKeys.length === 0) {
+                // Empty object array
+                lines.push(`${indentation}    * ...`);
+                return lines.join('\n');
+            }
+            // Check if we can use inline format (all primitives, max 3 properties)
+            const allPrimitives = propKeys.every(key => {
+                const propType = getSchemaType(itemsProperties[key]);
+                return propType === 'string' || propType === 'number' || propType === 'integer' || propType === 'boolean';
+            });
+            if (allPrimitives && propKeys.length <= 3) {
+                // Inline format: * Prop1: ___, Prop2: #___
+                const inlineProps = propKeys
+                    .map(key => {
+                    const propLabel = fieldNameToLabel(key);
+                    const propSyntax = fieldTypeToSyntax(getSchemaType(itemsProperties[key]));
+                    const withDesc = appendDescription(propSyntax, itemsProperties[key].description);
+                    return `${propLabel}: ${withDesc}`;
+                })
+                    .join(', ');
+                lines.push(`${indentation}    * ${inlineProps}`);
+                lines.push(`${indentation}    * ...`);
+                return lines.join('\n');
+            }
+            // Expanded format: multiple lines
+            const firstProp = propKeys[0];
+            const firstSyntax = fieldTypeToSyntax(getSchemaType(itemsProperties[firstProp]));
+            const firstWithDesc = appendDescription(firstSyntax, itemsProperties[firstProp].description);
+            lines.push(`${indentation}    * ${fieldNameToLabel(firstProp)}: ${firstWithDesc}`);
+            for (let i = 1; i < propKeys.length; i++) {
+                const propName = propKeys[i];
+                const propLabel = fieldNameToLabel(propName);
+                const propSyntax = fieldTypeToSyntax(getSchemaType(itemsProperties[propName]));
+                const withDesc = appendDescription(propSyntax, itemsProperties[propName].description);
+                lines.push(`${indentation}      ${propLabel}: ${withDesc}`);
+            }
+            lines.push(`${indentation}    * ...`);
+            return lines.join('\n');
+        }
+        // Fallback for unknown item type
+        lines.push(`${indentation}    * ___`);
+        lines.push(`${indentation}    * ...`);
+        return lines.join('\n');
+    }
+    // Object type
+    if (fieldType === 'object') {
+        const properties = getProperties(fieldDef);
+        if (!properties || Object.keys(properties).length === 0) {
+            return `${indentation}${label}:`;
+        }
+        const propKeys = Object.keys(properties);
+        const lines = [`${indentation}${label}:`];
+        // Check if we can use inline format
+        const allPrimitives = propKeys.every(key => {
+            const propType = getSchemaType(properties[key]);
+            return propType === 'string' || propType === 'number' || propType === 'integer' || propType === 'boolean';
+        });
+        if (allPrimitives && propKeys.length <= 3) {
+            // Inline format: Field1: ___, Field2: #___
+            const inlineProps = propKeys
+                .map(key => {
+                const propLabel = fieldNameToLabel(key);
+                const propSyntax = fieldTypeToSyntax(getSchemaType(properties[key]));
+                const withDesc = appendDescription(propSyntax, properties[key].description);
+                return `${propLabel}: ${withDesc}`;
+            })
+                .join(', ');
+            return `${indentation}${label}: ${inlineProps}`;
+        }
+        // Expanded format
+        for (const propName of propKeys) {
+            const propDef = properties[propName];
+            const propLabel = fieldNameToLabel(propName);
+            const propType = getSchemaType(propDef);
+            if (propType === 'object' || propType === 'array') {
+                // Nested complex type - recurse
+                lines.push(convertFieldDefinition(propName, propDef, level + 1));
+            }
+            else {
+                // Simple property
+                const propSyntax = fieldTypeToSyntax(propType);
+                const withDesc = appendDescription(propSyntax, propDef.description);
+                lines.push(`${indentation}    ${propLabel}: ${withDesc}`);
+            }
+        }
+        return lines.join('\n');
+    }
+    // Fallback
+    return `${indentation}${label}: ___`;
+}
+function convertSchemaToMDForm(schema) {
+    const fieldNames = Object.keys(schema);
+    if (fieldNames.length === 0) {
+        return '';
+    }
+    const lines = [];
+    for (const fieldName of fieldNames) {
+        const fieldDef = schema[fieldName];
+        const mdform = convertFieldDefinition(fieldName, fieldDef, 0);
+        lines.push(mdform);
+    }
+    return lines.join('\n');
+}
+//# sourceMappingURL=schema-to-mdform.js.map
+;// CONCATENATED MODULE: ../shared/dist/mdform/index.js
+
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/config/feature-flags.js
+/**
+ * Feature Flags Module
+ *
+ * Centralized, type-safe feature flag system with hardcoded values.
+ * All packages use the same flag values at compile time.
+ *
+ * To change a flag: modify the value here, rebuild @runhuman/shared, and redeploy.
+ *
+ * Usage:
+ *   import { isFeatureEnabled } from '@runhuman/shared';
+ *   if (isFeatureEnabled('keyMoments')) { ... }
+ */
+/**
+ * Feature flags configuration
+ *
+ * IMPORTANT: These values are hardcoded and apply to ALL packages.
+ * To toggle a feature, change the value here and rebuild shared.
+ */
+const featureFlags = {
+    keyMoments: false,
+    videoTrim: false,
+};
+/**
+ * Check if a feature flag is enabled
+ *
+ * @param flag - The feature flag name (type-safe, only accepts valid flag names)
+ * @returns true if the feature is enabled, false otherwise
+ *
+ * @example
+ * if (isFeatureEnabled('keyMoments')) {
+ *   // Key moments feature is enabled
+ * }
+ */
+function isFeatureEnabled(flag) {
+    return featureFlags[flag];
+}
+//# sourceMappingURL=feature-flags.js.map
+;// CONCATENATED MODULE: ../shared/dist/config/timing.js
+/**
+ * Timing and extension system constants.
+ * Shared between frontend (validation) and backend (enforcement).
+ */
+/** Default total extension time in minutes */
+const DEFAULT_MAX_EXTENSION_MINUTES = 15;
+/** Default number of extensions a tester can request */
+const DEFAULT_MAX_EXTENSION_COUNT = 3;
+/** Minimum per-extension duration in minutes (maxExtensionMinutes / maxExtensionCount must be >= this) */
+const MIN_PER_EXTENSION_MINUTES = 5;
+/** Maximum allowed total session time in minutes (targetDurationMinutes + maxExtensionMinutes) */
+const SYSTEM_MAX_SESSION_MINUTES = 120;
+/** Setup buffer in minutes added to session time for tester orientation */
+const SETUP_BUFFER_MINUTES = 3;
+/** Default target duration for a test job (minutes) */
+const DEFAULT_TARGET_DURATION_MINUTES = 30;
+/**
+ * Compute per-extension duration in minutes.
+ * Uses Math.floor to ensure consistent rounding across frontend and backend.
+ */
+function computePerExtensionMinutes(maxExtensionMinutes, maxExtensionCount) {
+    if (maxExtensionCount <= 0)
+        return 0;
+    return Math.floor(maxExtensionMinutes / maxExtensionCount);
+}
+/**
+ * Compute the total granted extension time in minutes based on how many extensions were used.
+ */
+function computeGrantedExtensionMinutes(maxExtensionMinutes, maxExtensionCount, extensionsUsed) {
+    return extensionsUsed * computePerExtensionMinutes(maxExtensionMinutes, maxExtensionCount);
+}
+/**
+ * Compute the total allotted time in minutes (base + granted extensions).
+ * Used for late submission billing to charge for the full allowed window.
+ */
+function computeAllottedMinutes(targetDurationMinutes, maxExtensionMinutes, maxExtensionCount, extensionsUsed) {
+    return targetDurationMinutes + computeGrantedExtensionMinutes(maxExtensionMinutes, maxExtensionCount, extensionsUsed);
+}
+/**
+ * Compute the secret leeway in minutes (half of one extension chunk).
+ * Not counted toward the system limit — only used for hard cutoff grace period.
+ */
+function computeLeewayMinutes(maxExtensionMinutes, maxExtensionCount) {
+    const perExtension = computePerExtensionMinutes(maxExtensionMinutes, maxExtensionCount);
+    return Math.floor(perExtension / 2);
+}
+/**
+ * Compute the absolute hard cutoff time for a session.
+ * Returns a Date representing when recording must stop.
+ */
+function computeHardCutoffTime(claimedAt, targetDurationMinutes, maxExtensionMinutes, maxExtensionCount) {
+    const leeway = computeLeewayMinutes(maxExtensionMinutes, maxExtensionCount);
+    const totalMinutes = SETUP_BUFFER_MINUTES + targetDurationMinutes + maxExtensionMinutes + leeway;
+    return new Date(new Date(claimedAt).getTime() + totalMinutes * 60 * 1000);
+}
+/**
+ * Validate extension configuration.
+ * Returns an array of errors (empty = valid).
+ */
+function validateExtensionConfig(targetDurationMinutes, maxExtensionMinutes, maxExtensionCount) {
+    const errors = [];
+    if (targetDurationMinutes + maxExtensionMinutes > SYSTEM_MAX_SESSION_MINUTES) {
+        errors.push({
+            field: 'systemLimit',
+            message: `Total session time cannot exceed ${SYSTEM_MAX_SESSION_MINUTES} minutes (${targetDurationMinutes} + ${maxExtensionMinutes} = ${targetDurationMinutes + maxExtensionMinutes})`,
+        });
+    }
+    if (maxExtensionCount > 0) {
+        const perExtension = computePerExtensionMinutes(maxExtensionMinutes, maxExtensionCount);
+        if (perExtension < MIN_PER_EXTENSION_MINUTES) {
+            errors.push({
+                field: 'perExtensionMinimum',
+                message: `Each extension must be at least ${MIN_PER_EXTENSION_MINUTES} minutes (${maxExtensionMinutes} / ${maxExtensionCount} = ${perExtension})`,
+            });
+        }
+    }
+    return errors;
+}
+//# sourceMappingURL=timing.js.map
+;// CONCATENATED MODULE: ../shared/dist/config/index.js
+
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/organization/sso.types.js
+/**
+ * SSO/SAML types for Enterprise Pro organizations.
+ *
+ * Shared between frontend and backend to ensure type-safe API contracts.
+ * Clerk handles all SAML protocol details — these types model our self-service UI layer.
+ */
+/** Display metadata for each supported provider */
+const SAML_PROVIDERS = {
+    saml_okta: { name: 'Okta', icon: 'fa-solid fa-shield-halved' },
+    saml_microsoft: { name: 'Microsoft Entra ID', icon: 'fa-brands fa-microsoft' },
+    saml_google: { name: 'Google Workspace', icon: 'fa-brands fa-google' },
+    saml_custom: { name: 'Custom SAML', icon: 'fa-solid fa-key' },
+};
+//# sourceMappingURL=sso.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/organization/index.js
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/extension/extension-event.types.js
+/**
+ * Extension event types for browser data streaming.
+ *
+ * These define the shape of events stored in the extension_events table.
+ * The event `data` field contains the actual capture data, which reuses
+ * existing SessionEvents sub-types for seamless AI pipeline compatibility.
+ */
+const EXTENSION_EVENT_TYPES = [
+    'console',
+    'network',
+    'event',
+    'error',
+    'page_snapshot',
+    'screenshot',
+    'tab_change',
+];
+//# sourceMappingURL=extension-event.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/slack-integration/slack-integration.types.js
+/**
+ * Customer-facing Slack Integration Types
+ *
+ * These types are used across frontend and backend for the customer-facing
+ * Slack notification integration (separate from the internal tester Slack bot).
+ */
+/** Max channels per notification config (prevents Slack API rate limit issues) */
+const MAX_SLACK_NOTIFICATION_CHANNELS = 10;
+//# sourceMappingURL=slack-integration.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/slack-integration/normalize-slack-config.js
+/**
+ * Normalizes a SlackNotificationConfig to always use the `channels` array format.
+ *
+ * Handles three cases:
+ * 1. New format: `channels` is present and non-empty — returned as-is
+ * 2. Legacy format: `channelId` is present — converted to a single-element `channels` array
+ * 3. No channels: neither present — returns empty `channels` (triggers default fallback)
+ */
+function normalizeSlackNotificationConfig(config, fallbackInstallationId) {
+    if (config.channels && config.channels.length > 0) {
+        return { ...config, channels: config.channels };
+    }
+    if (config.channelId) {
+        return {
+            ...config,
+            channels: [{
+                    installationId: fallbackInstallationId ?? '',
+                    channelId: config.channelId,
+                    channelName: config.channelName ?? '',
+                }],
+        };
+    }
+    return { ...config, channels: [] };
+}
+//# sourceMappingURL=normalize-slack-config.js.map
+;// CONCATENATED MODULE: ../shared/dist/schedule/schedule.types.js
+// ============================================================================
+// Constants
+// ============================================================================
+/** All valid schedule frequencies */
+const SCHEDULE_FREQUENCIES = [
+    'daily',
+    'weekly',
+    'biweekly',
+    'monthly',
+    'once',
+];
+/** Human-readable labels for schedule frequencies */
+const FREQUENCY_LABELS = {
+    daily: 'Daily',
+    weekly: 'Weekly',
+    biweekly: 'Biweekly',
+    monthly: 'Monthly',
+    once: 'One-time',
+};
+/** Human-readable labels for weekdays */
+const WEEKDAY_LABELS = {
+    0: 'Sunday',
+    1: 'Monday',
+    2: 'Tuesday',
+    3: 'Wednesday',
+    4: 'Thursday',
+    5: 'Friday',
+    6: 'Saturday',
+};
+/** Short labels for weekday toggle buttons */
+const WEEKDAY_SHORT_LABELS = {
+    0: 'Sun',
+    1: 'Mon',
+    2: 'Tue',
+    3: 'Wed',
+    4: 'Thu',
+    5: 'Fri',
+    6: 'Sat',
+};
+/** All valid weekdays for iteration */
+const SCHEDULE_WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
+/** Timezone options covering all 24 UTC offsets plus half-hour zones, west-to-east */
+const TIMEZONE_OPTIONS = [
+    // UTC-12 to UTC-9
+    { value: 'Etc/GMT+12', label: 'Baker Island (UTC-12)' },
+    { value: 'Pacific/Pago_Pago', label: 'American Samoa (UTC-11)' },
+    { value: 'Pacific/Honolulu', label: 'Hawaii (HST)' },
+    { value: 'Pacific/Marquesas', label: 'Marquesas Islands (UTC-9:30)' },
+    { value: 'America/Anchorage', label: 'Alaska (AKST)' },
+    // UTC-8 to UTC-5
+    { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
+    { value: 'America/Denver', label: 'Mountain Time (MT)' },
+    { value: 'America/Chicago', label: 'Central Time (CT)' },
+    { value: 'America/New_York', label: 'Eastern Time (ET)' },
+    // UTC-4 to UTC-2
+    { value: 'America/Halifax', label: 'Atlantic Canada (AST)' },
+    { value: 'America/St_Johns', label: "Newfoundland (NST, UTC-3:30)" },
+    { value: 'America/Sao_Paulo', label: 'Brasilia (BRT)' },
+    { value: 'America/Argentina/Buenos_Aires', label: 'Buenos Aires (ART)' },
+    { value: 'Atlantic/South_Georgia', label: 'South Georgia (UTC-2)' },
+    // UTC-1 to UTC+1
+    { value: 'Atlantic/Cape_Verde', label: 'Cape Verde (UTC-1)' },
+    { value: 'Atlantic/Reykjavik', label: 'Iceland (GMT)' },
+    { value: 'Europe/London', label: 'London (GMT/BST)' },
+    { value: 'Europe/Paris', label: 'Central Europe (CET)' },
+    // UTC+2 to UTC+4
+    { value: 'Europe/Helsinki', label: 'Eastern Europe (EET)' },
+    { value: 'Africa/Nairobi', label: 'East Africa (EAT)' },
+    { value: 'Asia/Tehran', label: 'Iran (IRST, UTC+3:30)' },
+    { value: 'Asia/Dubai', label: 'Dubai (GST)' },
+    { value: 'Asia/Kabul', label: 'Afghanistan (UTC+4:30)' },
+    // UTC+5 to UTC+7
+    { value: 'Asia/Karachi', label: 'Pakistan (PKT)' },
+    { value: 'Asia/Kolkata', label: 'India (IST, UTC+5:30)' },
+    { value: 'Asia/Kathmandu', label: 'Nepal (UTC+5:45)' },
+    { value: 'Asia/Dhaka', label: 'Bangladesh (BST)' },
+    { value: 'Asia/Yangon', label: 'Myanmar (UTC+6:30)' },
+    { value: 'Asia/Bangkok', label: 'Indochina (ICT)' },
+    // UTC+8 to UTC+10
+    { value: 'Asia/Shanghai', label: 'China (CST)' },
+    { value: 'Asia/Tokyo', label: 'Japan (JST)' },
+    { value: 'Australia/Adelaide', label: 'Adelaide (ACST, UTC+9:30)' },
+    { value: 'Australia/Sydney', label: 'Sydney (AEST)' },
+    // UTC+11 to UTC+14
+    { value: 'Pacific/Norfolk', label: 'Norfolk Island (UTC+11)' },
+    { value: 'Pacific/Auckland', label: 'New Zealand (NZST)' },
+    { value: 'Pacific/Chatham', label: 'Chatham Islands (UTC+12:45)' },
+    { value: 'Pacific/Tongatapu', label: 'Tonga (UTC+13)' },
+    { value: 'Pacific/Kiritimati', label: 'Line Islands (UTC+14)' },
+];
+/** Valid quarter-hour minutes */
+const QUARTER_HOUR_MINUTES = [0, 15, 30, 45];
+// ============================================================================
+// Legacy Compatibility
+// ============================================================================
+// The old schema used a `time_window` label (morning/afternoon/evening/overnight)
+// and a single `weekday` column. The new schema uses `scheduled_hour`,
+// `scheduled_minute`, and a `weekdays` array.
+//
+// Both column sets coexist in the database with a bi-directional sync trigger
+// (see migration 20260402000001). However, if the trigger somehow misses a
+// case, or data is manipulated directly, the application read path also
+// normalizes: it prefers new columns but derives from old columns when the
+// new columns look like untouched defaults.
+//
+// A follow-up migration will drop the old columns + trigger once the new
+// schema is validated in production.
+/** Maps time_window label → hour. Used by both trigger (SQL) and app (TS). */
+const TIME_WINDOW_TO_HOUR = {
+    morning: 9,
+    afternoon: 12,
+    evening: 17,
+    overnight: 22,
+    anytime: 9,
+};
+/** Maps a scheduled hour to the closest legacy time_window label */
+function hourToLegacyTimeWindow(hour) {
+    if (hour < 12)
+        return 'morning';
+    if (hour < 17)
+        return 'afternoon';
+    if (hour < 21)
+        return 'evening';
+    return 'overnight';
+}
+/**
+ * Derives the legacy single `weekday` value from the new `weekdays` array.
+ * Returns the first selected day, or null if none selected.
+ */
+function weekdaysToLegacyWeekday(weekdays) {
+    return weekdays.length > 0 ? weekdays[0] : null;
+}
+/**
+ * Normalizes a schedule read from the database, ensuring the new fields are
+ * populated even if the row was last written by old code.
+ *
+ * Handles two cases:
+ *
+ * 1. **Legacy frequency**: `frequency='weekdays'` is converted to `'weekly'`
+ *    with `weekdays=[1,2,3,4,5]` (Mon-Fri). The DB value is left untouched
+ *    so old code can still read it, but the returned object uses the new
+ *    representation.
+ *
+ * 2. **Stale new columns**: If `scheduledHour` is at the default (9) and
+ *    `scheduledMinute` is 0 and `weekdays` is empty, but `timeWindow` has a
+ *    non-morning value or `weekday` has a value, the old columns are more
+ *    authoritative and we derive from them.
+ *
+ * The DB trigger handles most of this on write, so this is a belt-and-
+ * suspenders safety net for the read path.
+ */
+function normalizeSchedule(schedule) {
+    let result = schedule;
+    // Convert legacy 'weekdays' frequency → 'weekly' with Mon-Fri.
+    // The DB still stores 'weekdays' for old code compatibility, but
+    // new code treats it as weekly with explicit day selection.
+    if (result.frequency === 'weekdays') {
+        result = {
+            ...result,
+            frequency: 'weekly',
+            weekdays: [1, 2, 3, 4, 5],
+        };
+    }
+    // Detect rows written by old code where new columns have default values
+    // but old columns have real data.
+    const newColumnsAtDefaults = result.scheduledHour === 9
+        && result.scheduledMinute === 0
+        && (!result.weekdays || result.weekdays.length === 0);
+    const oldColumnsHaveData = (result.timeWindow !== undefined && result.timeWindow !== 'morning')
+        || (result.weekday !== undefined && result.weekday !== null);
+    if (newColumnsAtDefaults && oldColumnsHaveData) {
+        const derivedHour = result.timeWindow
+            ? (TIME_WINDOW_TO_HOUR[result.timeWindow] ?? 9)
+            : 9;
+        const derivedWeekdays = result.weekday !== undefined && result.weekday !== null
+            ? [result.weekday]
+            : [];
+        result = {
+            ...result,
+            scheduledHour: derivedHour,
+            weekdays: derivedWeekdays,
+        };
+    }
+    return result;
+}
+//# sourceMappingURL=schedule.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/schedule/next-execution.js
+const next_execution_ONE_DAY_MS = 24 * 60 * 60 * 1000;
+/**
+ * Get the day-of-week (0=Sunday … 6=Saturday) in a given timezone.
+ */
+function getDayOfWeekInTimezone(date, timezone) {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        weekday: 'short',
+    });
+    const weekday = formatter.format(date);
+    const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    return map[weekday];
+}
+/**
+ * Build a UTC Date for a specific year/month/day at hour:minute in the given timezone.
+ * Month is 1-indexed.
+ */
+function buildDateInTimezone(year, month, day, timezone, targetHour, targetMinute) {
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const hourStr = String(targetHour).padStart(2, '0');
+    const minuteStr = String(targetMinute).padStart(2, '0');
+    const referenceUtc = new Date(`${dateStr}T${hourStr}:${minuteStr}:00Z`);
+    const utcFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+    });
+    const tzParts = utcFormatter.formatToParts(referenceUtc);
+    const tzHour = parseInt(tzParts.find((p) => p.type === 'hour').value, 10);
+    const tzMinute = parseInt(tzParts.find((p) => p.type === 'minute').value, 10);
+    const tzDay = parseInt(tzParts.find((p) => p.type === 'day').value, 10);
+    const utcDay = referenceUtc.getUTCDate();
+    const tzTotalMinutes = tzHour * 60 + tzMinute;
+    const utcTotalMinutes = referenceUtc.getUTCHours() * 60 + referenceUtc.getUTCMinutes();
+    let offsetMinutes = tzTotalMinutes - utcTotalMinutes;
+    if (tzDay > utcDay)
+        offsetMinutes += 24 * 60;
+    if (tzDay < utcDay)
+        offsetMinutes -= 24 * 60;
+    return new Date(referenceUtc.getTime() - offsetMinutes * 60 * 1000);
+}
+/**
+ * Get the UTC Date representing the target hour:minute in the given timezone
+ * for the calendar date of `date` in that timezone.
+ */
+function getTargetTimeForDate(date, timezone, targetHour, targetMinute) {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+    const parts = formatter.formatToParts(date);
+    const year = parseInt(parts.find((p) => p.type === 'year').value, 10);
+    const month = parseInt(parts.find((p) => p.type === 'month').value, 10);
+    const day = parseInt(parts.find((p) => p.type === 'day').value, 10);
+    return buildDateInTimezone(year, month, day, timezone, targetHour, targetMinute);
+}
+/**
+ * Advance a date by `days` calendar days and return the target time.
+ */
+function advanceDays(date, days, timezone, targetHour, targetMinute) {
+    const advanced = new Date(date.getTime() + days * next_execution_ONE_DAY_MS);
+    return getTargetTimeForDate(advanced, timezone, targetHour, targetMinute);
+}
+/**
+ * Get the start-of-week (Monday 00:00) as a UTC timestamp for a date in a timezone.
+ * Used to determine biweekly on/off by counting whole weeks between anchor and candidate.
+ */
+function getStartOfWeekInTimezone(date, timezone) {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+    const parts = formatter.formatToParts(date);
+    const y = parseInt(parts.find((p) => p.type === 'year').value, 10);
+    const m = parseInt(parts.find((p) => p.type === 'month').value, 10) - 1;
+    const d = parseInt(parts.find((p) => p.type === 'day').value, 10);
+    const localDate = new Date(Date.UTC(y, m, d));
+    const dow = localDate.getUTCDay();
+    // Shift so Monday = 0 (JS Date uses Sunday = 0)
+    const mondayOffset = dow === 0 ? 6 : dow - 1;
+    return localDate.getTime() - mondayOffset * next_execution_ONE_DAY_MS;
+}
+/**
+ * Calculate the next execution time for a schedule.
+ *
+ * Accepts exact hour + minute, supports daily/weekly/biweekly/once frequencies,
+ * multi-day weekday arrays, and biweekly alternating with an anchor date.
+ *
+ * @returns ISO string of the next execution time in UTC
+ */
+function calculateNextExecutionAt(params) {
+    const { timezone, hour, minute, frequency, weekdays, biweeklyAnchor } = params;
+    const now = params.afterDate ?? new Date();
+    switch (frequency) {
+        case 'once': {
+            if (params.scheduledDate) {
+                const [year, month, day] = params.scheduledDate.split('-').map(Number);
+                return buildDateInTimezone(year, month, day, timezone, hour, minute).toISOString();
+            }
+            const todayTarget = getTargetTimeForDate(now, timezone, hour, minute);
+            if (todayTarget.getTime() > now.getTime())
+                return todayTarget.toISOString();
+            return advanceDays(now, 1, timezone, hour, minute).toISOString();
+        }
+        case 'daily': {
+            const todayTarget = getTargetTimeForDate(now, timezone, hour, minute);
+            if (todayTarget.getTime() > now.getTime())
+                return todayTarget.toISOString();
+            return advanceDays(now, 1, timezone, hour, minute).toISOString();
+        }
+        case 'weekly': {
+            return findNextMatchingDay(now, timezone, hour, minute, weekdays ?? []);
+        }
+        case 'monthly': {
+            return findNextMonthlyDay(now, timezone, hour, minute, params.dayOfMonth);
+        }
+        case 'biweekly': {
+            return findNextBiweeklyDay(now, timezone, hour, minute, weekdays ?? [], biweeklyAnchor);
+        }
+    }
+}
+/**
+ * Find the next day that matches one of the target weekdays.
+ * Scans today + up to 7 days forward.
+ */
+function findNextMatchingDay(now, timezone, hour, minute, weekdays) {
+    const todayTarget = getTargetTimeForDate(now, timezone, hour, minute);
+    const todayIsFuture = todayTarget.getTime() > now.getTime();
+    if (todayIsFuture) {
+        const todayDow = getDayOfWeekInTimezone(todayTarget, timezone);
+        if (weekdays.includes(todayDow))
+            return todayTarget.toISOString();
+    }
+    for (let d = 1; d <= 7; d++) {
+        const candidate = advanceDays(now, d, timezone, hour, minute);
+        const dow = getDayOfWeekInTimezone(candidate, timezone);
+        if (weekdays.includes(dow))
+            return candidate.toISOString();
+    }
+    throw new Error('Failed to find next matching weekday within 7 days');
+}
+/**
+ * Get the last day of a given year/month (1-indexed month).
+ */
+function getLastDayOfMonth(year, month) {
+    return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+/**
+ * Get the year and 1-indexed month for a date in a given timezone.
+ */
+function getYearMonthInTimezone(date, timezone) {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+    });
+    const parts = formatter.formatToParts(date);
+    return {
+        year: parseInt(parts.find((p) => p.type === 'year').value, 10),
+        month: parseInt(parts.find((p) => p.type === 'month').value, 10),
+    };
+}
+/**
+ * Resolve the effective day for a monthly schedule.
+ * dayOfMonth 0 = last day of the given month.
+ */
+function resolveMonthlyDay(year, month, dayOfMonth) {
+    const lastDay = getLastDayOfMonth(year, month);
+    return dayOfMonth === 0 ? lastDay : dayOfMonth;
+}
+/**
+ * Find the next monthly execution day.
+ * dayOfMonth: 1–28 for a specific day, 0 for "last day of month".
+ */
+function findNextMonthlyDay(now, timezone, hour, minute, dayOfMonth) {
+    const { year, month } = getYearMonthInTimezone(now, timezone);
+    const effectiveDay = resolveMonthlyDay(year, month, dayOfMonth);
+    const candidate = buildDateInTimezone(year, month, effectiveDay, timezone, hour, minute);
+    if (candidate.getTime() > now.getTime()) {
+        return candidate.toISOString();
+    }
+    // Advance to next month
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const nextYear = month === 12 ? year + 1 : year;
+    const nextEffectiveDay = resolveMonthlyDay(nextYear, nextMonth, dayOfMonth);
+    return buildDateInTimezone(nextYear, nextMonth, nextEffectiveDay, timezone, hour, minute).toISOString();
+}
+/**
+ * Find the next biweekly execution day.
+ * Uses the anchor date to determine which weeks are "on" (even week offset from anchor).
+ */
+function findNextBiweeklyDay(now, timezone, hour, minute, weekdays, anchor) {
+    const anchorWeekStart = getStartOfWeekInTimezone(anchor, timezone);
+    for (let d = 0; d <= 14; d++) {
+        const candidate = d === 0
+            ? getTargetTimeForDate(now, timezone, hour, minute)
+            : advanceDays(now, d, timezone, hour, minute);
+        if (candidate.getTime() <= now.getTime())
+            continue;
+        const dow = getDayOfWeekInTimezone(candidate, timezone);
+        if (!weekdays.includes(dow))
+            continue;
+        const candidateWeekStart = getStartOfWeekInTimezone(candidate, timezone);
+        const weeksBetween = Math.round((candidateWeekStart - anchorWeekStart) / (7 * next_execution_ONE_DAY_MS));
+        if (weeksBetween % 2 === 0)
+            return candidate.toISOString();
+    }
+    throw new Error('Failed to find next biweekly execution within 14 days');
+}
+//# sourceMappingURL=next-execution.js.map
+;// CONCATENATED MODULE: ../shared/dist/schedule/index.js
+
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/contracts/billing.contract.js
+/**
+ * Billing endpoint contracts.
+ *
+ * Defines request/response shapes for billing/subscription endpoints.
+ * Used by: /billing/balance, /billing/has-credits, /billing/portal,
+ *          /billing/checkout, /billing/subscription, /billing/change-plan
+ */
+/** All valid billing tiers as a runtime array (mirrors the BillingTier union). */
+const BILLING_TIERS = ['starter', 'pro', 'max', 'enterprise', 'enterprise_pro'];
+/** Set for O(1) tier validation. */
+const BILLING_TIERS_SET = new Set(BILLING_TIERS);
+/** All valid subscription add-ons as a runtime array (mirrors the SubscriptionAddon union). */
+const SUBSCRIPTION_ADDONS = ['autonomous'];
+/** Set for O(1) add-on validation. */
+const SUBSCRIPTION_ADDONS_SET = new Set(SUBSCRIPTION_ADDONS);
+//# sourceMappingURL=billing.contract.js.map
+;// CONCATENATED MODULE: ../shared/dist/contracts/index.js
+/**
+ * API Contract System
+ *
+ * Single source of truth for endpoint type safety across frontend and backend.
+ *
+ * Usage (backend):
+ *   import { RouteSchema } from '@runhuman/shared';
+ *   fastify.post<RouteSchema<'authSync', 'POST'>>(withApiPrefix(apiRoutes.authSync.pattern), handler);
+ *
+ * Usage (frontend):
+ *   import { api } from '@/api/typed-client';
+ *   const result = await api('authSync', 'POST', { body: data, authToken });
+ */
+// Billing contract runtime values
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/test-session/test-session.types.js
+/**
+ * Test session types for SDK + extension data ingestion.
+ *
+ * A test session is created when a Runhuman tester starts a job
+ * on an SDK-enabled app or via the browser extension. All events
+ * are scoped to a session, enabling deterministic correlation
+ * with the job (no time-window heuristic).
+ */
+const TEST_SESSION_PLATFORMS = ['react-native', 'web', 'ios', 'android'];
+//# sourceMappingURL=test-session.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/test-session/test-session-event.types.js
+/**
+ * Test session event types for SDK + extension data.
+ *
+ * Events reuse SessionEvents sub-types (ConsoleMessage, NetworkRequest, etc.)
+ * for seamless AI pipeline compatibility. The event type discriminator and
+ * relative timestamp enable cross-device timeline alignment.
+ */
+const TEST_SESSION_SOURCES = ['sdk', 'extension'];
+const TEST_SESSION_EVENT_TYPES = [
+    'console',
+    'network',
+    'error',
+    'crash',
+    'ui_event',
+    'performance',
+    'event',
+    'page_snapshot',
+    'screenshot',
+    'tab_change',
+];
+//# sourceMappingURL=test-session-event.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/billing/member-limits.js
+/**
+ * Member limit for each billing tier.
+ * 0 = unlimited (Clerk convention for maxAllowedMemberships).
+ */
+const TIER_MEMBER_LIMITS = {
+    starter: 3,
+    pro: 3,
+    max: 3,
+    enterprise: 10,
+    enterprise_pro: 0,
+};
+/**
+ * Default member limit for organizations with no active subscription.
+ */
+const DEFAULT_MEMBER_LIMIT = 1;
+/**
+ * Get the member limit for a billing tier.
+ */
+function getMemberLimit(tier) {
+    return TIER_MEMBER_LIMITS[tier];
+}
+/**
+ * Check if a member count exceeds the limit.
+ * A limit of 0 means unlimited — never exceeded.
+ */
+function exceedsLimit(memberCount, limit) {
+    if (limit === 0)
+        return false;
+    return memberCount > limit;
+}
+/**
+ * Get the display string for a member limit.
+ * Returns "Unlimited" for 0, otherwise "Up to N".
+ */
+function formatMemberLimit(limit) {
+    if (limit === 0)
+        return 'Unlimited team members';
+    return `Up to ${limit} team members`;
+}
+//# sourceMappingURL=member-limits.js.map
+;// CONCATENATED MODULE: ../shared/dist/billing/tier-comparison.js
+/**
+ * Tier Comparison Utilities
+ *
+ * Single source of truth for billing tier ordering.
+ * Used by frontend (plan card disabling, change direction) and backend (validation).
+ *
+ * Tier order matches the BILLING_TIERS array: starter < pro < max < enterprise < enterprise_pro.
+ */
+
+/**
+ * Ordinal index for each billing tier.
+ * Built from BILLING_TIERS to stay in sync automatically.
+ */
+const TIER_ORDER = Object.fromEntries(BILLING_TIERS.map((tier, index) => [tier, index]));
+/** Returns the ordinal index of a tier in the hierarchy. */
+function getTierIndex(tier) {
+    return TIER_ORDER[tier];
+}
+/** Returns true if `candidate` is at the same level or below `current` in the hierarchy. */
+function isAtOrBelowTier(candidate, current) {
+    return TIER_ORDER[candidate] <= TIER_ORDER[current];
+}
+/** Returns true if `candidate` is strictly above `current` in the hierarchy. */
+function isAboveTier(candidate, current) {
+    return TIER_ORDER[candidate] > TIER_ORDER[current];
+}
+/** Determines the direction of a plan change. */
+function getChangeDirection(currentTier, targetTier) {
+    if (currentTier === targetTier)
+        return 'cycle-change';
+    return TIER_ORDER[targetTier] > TIER_ORDER[currentTier] ? 'upgrade' : 'downgrade';
+}
+//# sourceMappingURL=tier-comparison.js.map
+;// CONCATENATED MODULE: ../shared/dist/billing/index.js
+
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/flowchart/flowchart-validator.js
+/**
+ * Validates flowchart data structure.
+ * Returns a discriminated union for type-safe error handling.
+ */
+function validateFlowChartData(data) {
+    // Check for board
+    if (!data || typeof data !== 'object' || !('board' in data) || !data.board) {
+        return {
+            success: false,
+            error: {
+                code: 'MISSING_BOARD',
+                message: 'Flow chart data must contain a "board" object',
+            },
+        };
+    }
+    const board = data.board;
+    // Check board.id
+    if (!board.id || typeof board.id !== 'string') {
+        return {
+            success: false,
+            error: {
+                code: 'MISSING_BOARD_ID',
+                message: 'Board must have an "id" field',
+            },
+        };
+    }
+    // Check board.name
+    if (!board.name || typeof board.name !== 'string') {
+        return {
+            success: false,
+            error: {
+                code: 'MISSING_BOARD_NAME',
+                message: 'Board must have a "name" field',
+            },
+        };
+    }
+    // Check nodes exists
+    if (!('nodes' in data)) {
+        return {
+            success: false,
+            error: {
+                code: 'MISSING_NODES',
+                message: 'Flow chart data must contain a "nodes" array',
+            },
+        };
+    }
+    // Check nodes is array
+    if (!Array.isArray(data.nodes)) {
+        return {
+            success: false,
+            error: {
+                code: 'INVALID_NODES_TYPE',
+                message: 'Nodes must be an array',
+            },
+        };
+    }
+    // Validate each node
+    for (let i = 0; i < data.nodes.length; i++) {
+        const node = data.nodes[i];
+        if (!node.id || typeof node.id !== 'string') {
+            return {
+                success: false,
+                error: {
+                    code: 'INVALID_NODE_MISSING_ID',
+                    message: `Node at index ${i} is missing required "id" field`,
+                },
+            };
+        }
+        if (!node.type || typeof node.type !== 'string') {
+            return {
+                success: false,
+                error: {
+                    code: 'INVALID_NODE_MISSING_TYPE',
+                    message: `Node "${node.id}" is missing required "type" field`,
+                },
+            };
+        }
+        if (!node.position || typeof node.position !== 'object') {
+            return {
+                success: false,
+                error: {
+                    code: 'INVALID_NODE_MISSING_POSITION',
+                    message: `Node "${node.id}" is missing required "position" field`,
+                },
+            };
+        }
+    }
+    // All validations passed - cast and return
+    return {
+        success: true,
+        data: data,
+    };
+}
+/**
+ * Validates the contents extracted from a flowchart zip file.
+ * This is the main entry point for validating uploaded zip files.
+ */
+function validateFlowChartZipContents(contents) {
+    // Check data.json exists
+    if (!contents.hasDataJson || !contents.dataJsonContent) {
+        return {
+            success: false,
+            error: {
+                code: 'MISSING_DATA_JSON',
+                message: 'Zip file must contain data.json at the root',
+            },
+        };
+    }
+    // Parse JSON
+    let parsedData;
+    try {
+        parsedData = JSON.parse(contents.dataJsonContent);
+    }
+    catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        return {
+            success: false,
+            error: {
+                code: 'INVALID_JSON',
+                message: 'data.json contains invalid JSON',
+                details: errorMessage,
+            },
+        };
+    }
+    // Validate the parsed data structure
+    return validateFlowChartData(parsedData);
+}
+/**
+ * Creates a user-friendly error message from a validation error.
+ */
+function formatValidationError(error) {
+    if (error.details) {
+        return `${error.message}: ${error.details}`;
+    }
+    return error.message;
+}
+//# sourceMappingURL=flowchart-validator.js.map
+;// CONCATENATED MODULE: ../shared/dist/index.js
+// Job types
+
+// Pagination types
+
+// GitHub Issues types
+
+// Route types and builders
+
+// Issue testing types
+
+// Template types
+
+// Tester types
+
+// Utility functions and types
+
+// API contract types (request/response)
+
+// MDForm parser (markdown form <-> JSON Schema conversion)
+
+// Feature flags
+
+// Timing & extension constants
+
+// Organization types
+
+// Extension types (browser extension + streaming)
+
+// Slack integration types (customer-facing notifications)
+
+// Schedule types
+
+// Billing contract runtime values
+
+// Test session types (unified SDK + extension data ingestion)
+
+// Billing member limits & tier comparison
+
+// Flowchart types and validation
+
+//# sourceMappingURL=index.js.map
+
 /***/ })
 
 /******/ 	});
@@ -33579,6 +39560,34 @@ module.exports = parseParams
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
@@ -33588,7 +39597,7 @@ module.exports = parseParams
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(1236);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(3018);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()

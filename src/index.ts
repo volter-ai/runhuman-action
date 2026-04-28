@@ -5,6 +5,7 @@ import { collectIssues } from './issues';
 import { runJobWithIds, runTestWithDescription } from './runner';
 import { applyLabelsForOutcome } from './labels';
 import { upsertPrDigestComment } from './pr-comment';
+import { renderStdoutIssues } from './stdout-summary';
 import type { ActionOutputs, IssueTestResult, TestOutcome } from './types';
 
 async function run(): Promise<void> {
@@ -102,6 +103,13 @@ async function run(): Promise<void> {
       core.info('Outcome: ' + outcome);
       core.info('Cost: $' + result.costUsd.toFixed(4));
       core.info('Duration: ' + result.durationSeconds + 's');
+
+      if (result.jobStatus && result.extractedIssues && result.extractedIssues.length > 0) {
+        core.info('');
+        for (const line of renderStdoutIssues(result.extractedIssues, result.jobStatus)) {
+          core.info(line);
+        }
+      }
 
       // Handle workflow failure (skip in fire-and-forget mode)
       if (inputs.waitForResult) {

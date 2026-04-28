@@ -464,6 +464,7 @@ export async function runTestForIssue(
         status: 'completed',
         analysis,
         extractedIssues: finalStatus.extractedIssues,
+        jobStatus: finalStatus,
       };
     }
 
@@ -573,6 +574,7 @@ export async function runTestForPr(
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'completed',
         extractedIssues: finalStatus.extractedIssues,
+        jobStatus: finalStatus,
       };
     }
 
@@ -706,6 +708,7 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
         durationSeconds: finalStatus.testDurationSeconds ?? 0,
         status: 'completed',
         extractedIssues: finalStatus.extractedIssues,
+        jobStatus: finalStatus,
       };
     }
 

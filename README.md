@@ -130,14 +130,14 @@ jobs:
 
 ### Code Context
 
-When the project has a repo connected, these inputs let extracted issues come back with code references pointing at the specific files and symbols involved. See the [Code Context docs](https://runhuman.com/docs/code-context) for the full picture.
+When the project has a repo connected, these inputs let test results reflect the code at the head of your PR rather than the default branch. See the [Code Context docs](https://runhuman.com/docs/code-context) for the full picture.
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `enable-code-context` | No | `false` | When `true`, extracted issues include references to the specific files and symbols in your repository most likely related to each finding. Requires a repo to be connected to the project. |
-| `commit-sha` | No | - | Commit SHA the deployed app corresponds to (typically `${{ github.event.pull_request.head.sha }}`). When set alongside `enable-code-context`, code references reflect this commit's code instead of the indexed default branch. |
-| `commit-base-sha` | No | - | Base commit SHA the PR is merging into (typically `${{ github.event.pull_request.base.sha }}`). When set alongside `commit-sha`, code-context preparation for this run is scoped to just the files actually changed in the PR rather than every file changed since the repo was last indexed. |
-| `wait-for-code-context` | No | `false` | When `true`, the test waits up to 90 seconds for code references to be prepared for `commit-sha` before scoring. When `false`, the test proceeds immediately and code references may reflect the indexed default branch instead of this commit. |
+| `enable-code-context` | No | `false` | Turn on Code Context for this run. Requires a repo to be connected to the project. |
+| `commit-sha` | No | - | Commit SHA the deployed app corresponds to (typically `${{ github.event.pull_request.head.sha }}`). |
+| `commit-base-sha` | No | - | Base commit SHA the PR is merging into (typically `${{ github.event.pull_request.base.sha }}`). Set alongside `commit-sha` so results reflect the PR's actual changes. |
+| `wait-for-code-context` | No | `false` | Wait up to 90 seconds for the PR's code to be ready before scoring. When `false`, the test proceeds immediately and results may reflect the default branch instead of the PR. |
 
 **Recommended PR workflow** (the four inputs are designed to be used together):
 
@@ -264,7 +264,7 @@ You don't need to manually create projects or configure project IDs. Everything 
 2. **Deduplicate**: Removes duplicate issues
 3. **Analyze Testability**: Determines which issues can be tested by a human
 4. **Run Tests**: Creates Runhuman jobs for each testable issue (auto-creating projects as needed)
-5. **Extract Issues**: AI extracts structured issues from tester findings with related issue detection. When `enable-code-context: true` and a `commit-sha` is provided, extracted issues include code references pointing at the relevant files and symbols at that commit.
+5. **Extract Issues**: AI extracts structured issues from tester findings with related issue detection. When `enable-code-context: true` and a `commit-sha` is provided, results reflect the code at that commit.
 6. **Apply Labels**: Updates issue labels based on outcomes
 7. **Report Results**: Sets outputs (including `extracted-issues`) and optionally fails the workflow
 

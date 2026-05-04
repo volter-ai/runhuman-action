@@ -128,6 +128,31 @@ jobs:
 | `auto-create-github-issues-repo` | No | Triggering repo | Target repo (`owner/repo`) for auto-created GitHub issues when the template/project has `autoCreateGithubIssues` enabled. Must be one of the project's linked repos. |
 | `requires-runhuman-apk-install` | No | `false` | **Internal (@volter.ai only).** Request the Runhuman dual-device self-test flow — routes to testers with the APK-install capability. Rejected with 403 for non-Volter callers. Distinct from generic third-party APK-install jobs; gated because a tester cannot screen-share a reinstall of the app doing the screen-sharing. |
 
+### Code Context
+
+When the project has a repo connected, these inputs let extracted issues come back with code references pointing at the specific files and symbols involved. See the [Code Context docs](https://runhuman.com/docs/code-context) for the full picture.
+
+| Input | Required | Default | Description |
+|-------|----------|---------|-------------|
+| `enable-code-context` | No | `false` | When `true`, extracted issues include references to the specific files and symbols in your repository most likely related to each finding. Requires a repo to be connected to the project. |
+| `commit-sha` | No | - | Commit SHA the deployed app corresponds to (typically `${{ github.event.pull_request.head.sha }}`). When set alongside `enable-code-context`, code references reflect this commit's code instead of the indexed default branch. |
+| `commit-base-sha` | No | - | Base commit SHA the PR is merging into (typically `${{ github.event.pull_request.base.sha }}`). When set alongside `commit-sha`, code-context preparation for this run is scoped to just the files actually changed in the PR rather than every file changed since the repo was last indexed. |
+| `wait-for-code-context` | No | `false` | When `true`, the test waits up to 90 seconds for code references to be prepared for `commit-sha` before scoring. When `false`, the test proceeds immediately and code references may reflect the indexed default branch instead of this commit. |
+
+**Recommended PR workflow** (the four inputs are designed to be used together):
+
+```yaml
+- uses: volter-ai/runhuman-action@v1
+  with:
+    url: https://staging.example.com
+    pr-numbers: '[${{ github.event.pull_request.number }}]'
+    api-key: ${{ secrets.RUNHUMAN_API_KEY }}
+    enable-code-context: true
+    commit-sha: ${{ github.event.pull_request.head.sha }}
+    commit-base-sha: ${{ github.event.pull_request.base.sha }}
+    wait-for-code-context: true
+```
+
 ### Label Callbacks
 
 | Input | Description |
@@ -239,7 +264,7 @@ You don't need to manually create projects or configure project IDs. Everything 
 2. **Deduplicate**: Removes duplicate issues
 3. **Analyze Testability**: Determines which issues can be tested by a human
 4. **Run Tests**: Creates Runhuman jobs for each testable issue (auto-creating projects as needed)
-5. **Extract Issues**: AI extracts structured issues from tester findings with related issue detection
+5. **Extract Issues**: AI extracts structured issues from tester findings with related issue detection. When `enable-code-context: true` and a `commit-sha` is provided, extracted issues include code references pointing at the relevant files and symbols at that commit.
 6. **Apply Labels**: Updates issue labels based on outcomes
 7. **Report Results**: Sets outputs (including `extracted-issues`) and optionally fails the workflow
 

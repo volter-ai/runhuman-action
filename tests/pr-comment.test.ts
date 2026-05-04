@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderDigestMarkdown, upsertPrDigestComment, STICKY_MARKER } from '../src/pr-comment';
+import { renderDigestMarkdown, postPrDigestComment } from '../src/pr-comment';
 import type { ExtractedIssue, JobStatusResponse, RunhumanJobResult } from '../src/types';
 
 const richIssue: ExtractedIssue = {
@@ -74,21 +74,31 @@ const baseResult: RunhumanJobResult = {
   jobStatus: baseJobStatus,
 };
 
-describe('renderDigestMarkdown — digest header (always-on)', () => {
-  it('keeps the sticky marker as the first line', () => {
-    const md = renderDigestMarkdown(baseResult, 'failure');
-    expect(md.split('\n')[0]).toBe(STICKY_MARKER);
+const baseMetadata = {
+  owner: 'volter-ai',
+  repo: 'runhuman',
+  commitSha: 'abc1234567890abcdef1234567890abcdef12345',
+  runId: 9876543210,
+  runNumber: 42,
+  timestamp: '2026-05-04T12:34:56.000Z',
+};
+
+describe('renderDigestMarkdown — digest header', () => {
+  it('does not embed any hidden HTML marker', () => {
+    const md = renderDigestMarkdown(baseResult, 'failure', baseMetadata);
+    expect(md).not.toContain('<!--');
+    expect(md).not.toMatch(/runhuman-qa-digest/);
   });
 
   it('surfaces the outcome label prominently', () => {
-    expect(renderDigestMarkdown(baseResult, 'success')).toMatch(/passed|success/i);
-    expect(renderDigestMarkdown(baseResult, 'failure')).toMatch(/failed|failure/i);
-    expect(renderDigestMarkdown(baseResult, 'timeout')).toMatch(/timed out|timeout/i);
-    expect(renderDigestMarkdown(baseResult, 'not-testable')).toMatch(/not.?testable/i);
+    expect(renderDigestMarkdown(baseResult, 'success', baseMetadata)).toMatch(/passed|success/i);
+    expect(renderDigestMarkdown(baseResult, 'failure', baseMetadata)).toMatch(/failed|failure/i);
+    expect(renderDigestMarkdown(baseResult, 'timeout', baseMetadata)).toMatch(/timed out|timeout/i);
+    expect(renderDigestMarkdown(baseResult, 'not-testable', baseMetadata)).toMatch(/not.?testable/i);
   });
 
   it('includes the tester narrative and job URL', () => {
-    const md = renderDigestMarkdown(baseResult, 'failure');
+    const md = renderDigestMarkdown(baseResult, 'failure', baseMetadata);
     expect(md).toContain(baseResult.explanation!);
     expect(md).toContain(baseResult.jobUrl!);
   });
@@ -97,6 +107,7 @@ describe('renderDigestMarkdown — digest header (always-on)', () => {
     const md = renderDigestMarkdown(
       { ...baseResult, extractedIssues: [] },
       'success',
+      baseMetadata,
     );
     expect(md).toMatch(/no bugs/i);
   });
@@ -104,7 +115,7 @@ describe('renderDigestMarkdown — digest header (always-on)', () => {
 
 describe('renderDigestMarkdown — collapsed <details> per issue', () => {
   it('wraps each issue in a <details>/<summary> block', () => {
-    const md = renderDigestMarkdown(baseResult, 'failure');
+    const md = renderDigestMarkdown(baseResult, 'failure', baseMetadata);
     const detailsCount = (md.match(/<details>/g) ?? []).length;
     expect(detailsCount).toBeGreaterThanOrEqual(2);
     expect(md).toContain('<summary>');
@@ -113,13 +124,13 @@ describe('renderDigestMarkdown — collapsed <details> per issue', () => {
   });
 
   it('puts the severity emoji + bold severity + title in each <summary>', () => {
-    const md = renderDigestMarkdown(baseResult, 'failure');
+    const md = renderDigestMarkdown(baseResult, 'failure', baseMetadata);
     expect(md).toMatch(/<summary>[^<]*🟠[^<]*<strong>high<\/strong>[^<]*Dashboard stuck on spinner/);
     expect(md).toMatch(/<summary>[^<]*🔵[^<]*<strong>low<\/strong>[^<]*Console noise on homepage/);
   });
 
   it('renders the full issue body inside each <details>', () => {
-    const md = renderDigestMarkdown(baseResult, 'failure');
+    const md = renderDigestMarkdown(baseResult, 'failure', baseMetadata);
     expect(md).toContain('## Description');
     expect(md).toContain('## Expected');
     expect(md).toContain('## Actual');
@@ -136,12 +147,38 @@ describe('renderDigestMarkdown — collapsed <details> per issue', () => {
     const md = renderDigestMarkdown(
       { ...baseResult, extractedIssues: [minimalIssue] },
       'failure',
+      baseMetadata,
     );
     expect(md).not.toContain('## Root Cause');
     expect(md).not.toContain('## Suggested Fix');
     expect(md).not.toContain('## Code References');
     expect(md).not.toContain('## Evidence');
     expect(md).toContain('## Description');
+  });
+});
+
+describe('renderDigestMarkdown — run metadata footer', () => {
+  it('includes a short commit SHA linked to the commit page', () => {
+    const md = renderDigestMarkdown(baseResult, 'failure', baseMetadata);
+    expect(md).toContain('`abc1234`');
+    expect(md).toContain(`https://github.com/volter-ai/runhuman/commit/${baseMetadata.commitSha}`);
+  });
+
+  it('includes a workflow run link with the run number', () => {
+    const md = renderDigestMarkdown(baseResult, 'failure', baseMetadata);
+    expect(md).toContain('Run #42');
+    expect(md).toContain('https://github.com/volter-ai/runhuman/actions/runs/9876543210');
+  });
+
+  it('includes the timestamp passed in', () => {
+    const md = renderDigestMarkdown(baseResult, 'failure', baseMetadata);
+    expect(md).toContain('2026-05-04T12:34:56.000Z');
+  });
+
+  it('omits the commit section when no commitSha is provided', () => {
+    const md = renderDigestMarkdown(baseResult, 'failure', { ...baseMetadata, commitSha: undefined });
+    expect(md).not.toContain('/commit/');
+    expect(md).toContain('Run #42');
   });
 });
 
@@ -155,12 +192,22 @@ function makeOctokit(existing: { id: number; body: string }[]) {
   };
 }
 
-describe('upsertPrDigestComment', () => {
-  const commonParams = { owner: 'volter-ai', repo: 'runhuman', prNumber: 42 };
+describe('postPrDigestComment', () => {
+  const commonParams = {
+    owner: 'volter-ai',
+    repo: 'runhuman',
+    prNumber: 42,
+    commitSha: 'abc1234567890abcdef1234567890abcdef12345',
+    runId: 9876543210,
+    runNumber: 42,
+  };
 
-  it('creates a new comment when no sticky comment exists', async () => {
-    const octokit = makeOctokit([{ id: 1, body: 'some other comment' }]);
-    await upsertPrDigestComment({
+  it('always creates a new comment, even when a prior digest comment exists on the PR', async () => {
+    const octokit = makeOctokit([
+      { id: 1, body: 'unrelated' },
+      { id: 77, body: '### Runhuman QA — ❌ Failed\nold content' },
+    ]);
+    await postPrDigestComment({
       // @ts-expect-error — mock is structurally compatible with Octokit surface we use
       octokit,
       ...commonParams,
@@ -169,24 +216,21 @@ describe('upsertPrDigestComment', () => {
     });
     expect(octokit._spies.createComment).toHaveBeenCalledOnce();
     expect(octokit._spies.updateComment).not.toHaveBeenCalled();
-    const body = octokit._spies.createComment.mock.calls[0][0].body as string;
-    expect(body.startsWith(STICKY_MARKER)).toBe(true);
+    expect(octokit._spies.listComments).not.toHaveBeenCalled();
   });
 
-  it('updates the existing comment when a sticky comment is found', async () => {
-    const octokit = makeOctokit([
-      { id: 1, body: 'unrelated' },
-      { id: 77, body: `${STICKY_MARKER}\nold content` },
-    ]);
-    await upsertPrDigestComment({
+  it('writes a body containing the run metadata footer', async () => {
+    const octokit = makeOctokit([]);
+    await postPrDigestComment({
       // @ts-expect-error — mock is structurally compatible with Octokit surface we use
       octokit,
       ...commonParams,
       result: baseResult,
       outcome: 'failure',
     });
-    expect(octokit._spies.updateComment).toHaveBeenCalledOnce();
-    expect(octokit._spies.createComment).not.toHaveBeenCalled();
-    expect(octokit._spies.updateComment.mock.calls[0][0].comment_id).toBe(77);
+    const body = octokit._spies.createComment.mock.calls[0][0].body as string;
+    expect(body).toContain('`abc1234`');
+    expect(body).toContain('Run #42');
+    expect(body).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
   });
 });

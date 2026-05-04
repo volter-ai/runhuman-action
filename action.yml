@@ -73,7 +73,7 @@ inputs:
     default: 'true'
 
   post-pr-comment:
-    description: 'When true, post (or update) a sticky PR comment containing the tester narrative, AI-extracted bug list, and a link to the full session. Requires pr-numbers, wait-for-result=true, and a github-token with pull-requests:write.'
+    description: 'When true, post a PR comment containing the tester narrative, AI-extracted bug list, and a link to the full session. Each run posts a new comment so the timeline is preserved across multiple commits. Requires pr-numbers, wait-for-result=true, and a github-token with pull-requests:write.'
     required: false
     default: 'false'
 

@@ -4,7 +4,7 @@ import { parseInputs } from './inputs';
 import { collectIssues } from './issues';
 import { runJobWithIds, runTestWithDescription } from './runner';
 import { applyLabelsForOutcome } from './labels';
-import { upsertPrDigestComment } from './pr-comment';
+import { postPrDigestComment } from './pr-comment';
 import { renderStdoutIssues } from './stdout-summary';
 import type { ActionOutputs, IssueTestResult, TestOutcome } from './types';
 
@@ -50,13 +50,16 @@ async function run(): Promise<void> {
 
         if (inputs.postPrComment) {
           for (const prNumber of inputs.prNumbers) {
-            await upsertPrDigestComment({
+            await postPrDigestComment({
               octokit,
               owner,
               repo,
               prNumber,
               result,
               outcome,
+              commitSha: inputs.commitSha,
+              runId: github.context.runId,
+              runNumber: github.context.runNumber,
             });
           }
         }

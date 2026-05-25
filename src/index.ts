@@ -154,8 +154,7 @@ async function run(): Promise<void> {
     const result = await runTestWithDescription(inputs);
 
     const success = result.success;
-    const mappedStatus =
-      result.status === 'abandoned' || result.status === 'not-testable' ? 'error' : result.status;
+    const mappedStatus = result.status === 'not-testable' ? 'error' : result.status;
     const outputs: ActionOutputs = {
       status: mappedStatus,
       success,

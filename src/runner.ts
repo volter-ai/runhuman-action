@@ -1,34 +1,15 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import type {
-  Issue,
   ActionInputs,
-  AnalyzeIssueResponse,
-  AnalyzePrResponse,
   CreateJobRequest,
   CreateJobResponse,
   JobStatusResponse,
   JobMetadata,
-  PullRequest,
   RunhumanJobResult,
 } from './types';
-import { isTerminalStatus, extractSuccessFromResult } from './types';
-
-/**
- * Analyzed PR with its analysis response
- */
-export interface AnalyzedPr {
-  pr: PullRequest;
-  analysis: AnalyzePrResponse;
-}
-
-/**
- * Analyzed Issue with its analysis response
- */
-export interface AnalyzedIssue {
-  issue: Issue;
-  analysis: AnalyzeIssueResponse;
-}
+import { isTerminalStatus } from './types';
+import { mapTerminalStatusToResult } from './job-result-mapper';
 
 // Polling configuration
 const POLL_INTERVAL_MS = 10000; // 10 seconds between polls
@@ -128,86 +109,6 @@ function buildBaseMetadata(inputs: ActionInputs): JobMetadata {
   if (inputs.waitForCodeContextOverlay) metadata.waitForCodeContextOverlay = true;
 
   return metadata;
-}
-
-/**
- * Build metadata for issue testing
- */
-function buildIssueTestMetadata(issue: Issue, inputs: ActionInputs): JobMetadata {
-  const metadata = buildBaseMetadata(inputs);
-
-  metadata.githubIssue = {
-    repo: inputs.githubRepo,
-    issueNumber: issue.number,
-    issueUrl: `https://github.com/${inputs.githubRepo}/issues/${issue.number}`,
-  };
-
-  return metadata;
-}
-
-/**
- * Build metadata for PR testing
- */
-function buildPrTestMetadata(pr: PullRequest, inputs: ActionInputs): JobMetadata {
-  const metadata = buildBaseMetadata(inputs);
-
-  metadata.githubPR = {
-    repo: inputs.githubRepo,
-    prNumber: pr.number,
-    prUrl: `https://github.com/${inputs.githubRepo}/pull/${pr.number}`,
-  };
-
-  return metadata;
-}
-
-// Character limits for context formatting
-const ISSUE_BODY_LIMIT = 2000;
-const PR_BODY_LIMIT = 2000;
-
-/**
- * Truncate text to a maximum length
- */
-function truncateText(text: string, limit: number): string {
-  if (!text) return '';
-  if (text.length <= limit) return text;
-  return text.substring(0, limit) + '... (truncated)';
-}
-
-/**
- * Format issue context for validation instructions
- */
-function formatIssueContext(issue: Issue): string {
-  const labels = issue.labels.join(', ') || 'None';
-  const body = truncateText(issue.body, ISSUE_BODY_LIMIT);
-
-  return `=== Original Issue Context ===
-Title: ${issue.title}
-Labels: ${labels}
-
-Issue Description:
-${body}
-
-When validating the test results, consider whether the tester's findings align with the expectations described in the original issue above. The test should be marked as passing only if the issue appears to be properly resolved or the feature works as described.`;
-}
-
-/**
- * Format PR context for validation instructions
- */
-function formatPrContext(pr: PullRequest, analysis: AnalyzePrResponse): string {
-  const body = truncateText(pr.body, PR_BODY_LIMIT);
-
-  return `=== Pull Request Context ===
-Title: ${pr.title}
-
-PR Description:
-${body}
-
-=== AI Analysis Summary ===
-${analysis.summary}
-
-Affected Areas: ${analysis.affectedAreas.join(', ')}
-
-When validating the test results, consider whether the tester's findings align with the expected behavior of the PR changes described above. The test should verify that the changes work as intended.`;
 }
 
 /**
@@ -318,7 +219,7 @@ async function getJobStatus(inputs: ActionInputs, jobId: string): Promise<JobSta
  */
 function calculateMaxWaitMs(
   targetDurationMinutes: number | undefined,
-  totalExtensionMinutes: number | undefined,
+  maxExtensionMinutes: number | undefined,
   responseDeadline: string | undefined
 ): number {
   // If we have a deadline, use it + buffer
@@ -331,7 +232,7 @@ function calculateMaxWaitMs(
 
   // Calculate based on target + extensions + buffer
   if (targetDurationMinutes !== undefined) {
-    const totalMinutes = targetDurationMinutes + (totalExtensionMinutes || 0);
+    const totalMinutes = targetDurationMinutes + (maxExtensionMinutes || 0);
     const totalMs = totalMinutes * 60 * 1000;
     return totalMs + BUFFER_MS;
   }
@@ -340,7 +241,14 @@ function calculateMaxWaitMs(
 }
 
 /**
- * Poll for job completion with dynamic timeout
+ * Poll for job completion with dynamic timeout.
+ *
+ * Returns the instant the job reaches a terminal status (`isTerminalStatus`)
+ * — the verdict is latched by the caller and no further status fetches are
+ * made. A persistently failing API can never wedge the loop: each poll is
+ * bounded by `withRetry` (it throws after its retry budget), so the caller
+ * exits on either a terminal status, the wait-budget timeout, or a thrown
+ * error.
  */
 async function pollForCompletion(
   inputs: ActionInputs,
@@ -360,7 +268,7 @@ async function pollForCompletion(
     // Dynamically update maxWaitMs based on job data (handles extensions)
     const newMaxWaitMs = calculateMaxWaitMs(
       status.targetDurationMinutes,
-      status.totalExtensionMinutes,
+      status.maxExtensionMinutes,
       status.responseDeadline
     );
     if (newMaxWaitMs > maxWaitMs) {
@@ -386,226 +294,6 @@ async function pollForCompletion(
 
     // Wait before next poll
     await sleep(POLL_INTERVAL_MS);
-  }
-}
-
-/**
- * Run a QA test for an issue with AI-generated analysis
- */
-export async function runTestForIssue(
-  inputs: ActionInputs,
-  issue: Issue,
-  analysis: AnalyzeIssueResponse
-): Promise<RunhumanJobResult> {
-  const testUrl = analysis.testUrl || inputs.url;
-
-  if (!testUrl) {
-    return {
-      success: false,
-      explanation: 'No test URL available',
-      costUsd: 0,
-      durationSeconds: 0,
-      status: 'error',
-      analysis,
-    };
-  }
-
-  core.info(`Creating QA test job for issue #${issue.number}`);
-  core.debug(`Test URL: ${testUrl}`);
-  core.debug(`Instructions: ${analysis.testInstructions.substring(0, 200)}...`);
-
-  try {
-    const jobId = await withRetry(() =>
-      createJob(inputs, {
-        url: testUrl,
-        description: analysis.testInstructions,
-        outputSchema: analysis.outputSchema,
-        targetDurationMinutes: inputs.targetDurationMinutes,
-        additionalValidationInstructions: formatIssueContext(issue),
-        githubRepos: inputs.githubRepos,
-        autoCreateGithubIssues: inputs.autoCreateGithubIssues,
-        autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
-        autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
-        deviceClass: inputs.deviceClass,
-        requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
-        metadata: buildIssueTestMetadata(issue, inputs),
-        githubToken: inputs.githubToken || undefined,
-      })
-    );
-
-    core.info(`Created job ${jobId} for issue #${issue.number}`);
-
-    // Poll for completion
-    core.info(`Waiting for job ${jobId} to complete...`);
-    const { status: finalStatus, timedOut } = await pollForCompletion(
-      inputs,
-      jobId,
-      inputs.targetDurationMinutes
-    );
-
-    // Map status to result
-    if (timedOut) {
-      return {
-        success: false,
-        explanation: 'Test timed out waiting for tester response',
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'timeout',
-        analysis,
-      };
-    }
-
-    if (finalStatus.status === 'completed' && finalStatus.result) {
-      return {
-        success: extractSuccessFromResult(finalStatus.result),
-        explanation: finalStatus.result.explanation,
-        data: finalStatus.result.data,
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'completed',
-        analysis,
-        extractedIssues: finalStatus.extractedIssues,
-        jobStatus: finalStatus,
-      };
-    }
-
-    if (finalStatus.status === 'abandoned') {
-      return {
-        success: false,
-        explanation: finalStatus.reason || 'Test was abandoned',
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'abandoned',
-        analysis,
-      };
-    }
-
-    // Error or other terminal state
-    return {
-      success: false,
-      explanation: finalStatus.error || finalStatus.reason || `Job ended with status: ${finalStatus.status}`,
-      costUsd: finalStatus.costUsd ?? 0,
-      durationSeconds: finalStatus.testDurationSeconds ?? 0,
-      status: 'error',
-      analysis,
-    };
-  } catch (error) {
-    core.error(`Failed to run test for issue #${issue.number}: ${error}`);
-    return {
-      success: false,
-      explanation: `Error: ${error}`,
-      costUsd: 0,
-      durationSeconds: 0,
-      status: 'error',
-      analysis,
-    };
-  }
-}
-
-/**
- * Run a QA test for a PR with AI-generated analysis
- */
-export async function runTestForPr(
-  inputs: ActionInputs,
-  pr: PullRequest,
-  analysis: AnalyzePrResponse
-): Promise<RunhumanJobResult> {
-  const testUrl = inputs.url;
-
-  if (!testUrl) {
-    return {
-      success: false,
-      explanation: 'No test URL available',
-      costUsd: 0,
-      durationSeconds: 0,
-      status: 'error',
-    };
-  }
-
-  core.info(`Creating QA test job for PR #${pr.number}`);
-  core.debug(`Test URL: ${testUrl}`);
-  core.debug(`Instructions: ${analysis.testInstructions.substring(0, 200)}...`);
-
-  try {
-    const jobId = await withRetry(() =>
-      createJob(inputs, {
-        url: testUrl,
-        description: analysis.testInstructions,
-        outputSchema: analysis.outputSchema,
-        targetDurationMinutes: inputs.targetDurationMinutes,
-        additionalValidationInstructions: formatPrContext(pr, analysis),
-        githubRepos: inputs.githubRepos,
-        autoCreateGithubIssues: inputs.autoCreateGithubIssues,
-        autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
-        autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
-        deviceClass: inputs.deviceClass,
-        requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
-        metadata: buildPrTestMetadata(pr, inputs),
-        githubToken: inputs.githubToken || undefined,
-      })
-    );
-
-    core.info(`Created job ${jobId} for PR #${pr.number}`);
-
-    // Poll for completion
-    core.info(`Waiting for job ${jobId} to complete...`);
-    const { status: finalStatus, timedOut } = await pollForCompletion(
-      inputs,
-      jobId,
-      inputs.targetDurationMinutes
-    );
-
-    // Map status to result
-    if (timedOut) {
-      return {
-        success: false,
-        explanation: 'Test timed out waiting for tester response',
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'timeout',
-      };
-    }
-
-    if (finalStatus.status === 'completed' && finalStatus.result) {
-      return {
-        success: extractSuccessFromResult(finalStatus.result),
-        explanation: finalStatus.result.explanation,
-        data: finalStatus.result.data,
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'completed',
-        extractedIssues: finalStatus.extractedIssues,
-        jobStatus: finalStatus,
-      };
-    }
-
-    if (finalStatus.status === 'abandoned') {
-      return {
-        success: false,
-        explanation: finalStatus.reason || 'Test was abandoned',
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'abandoned',
-      };
-    }
-
-    // Error or other terminal state
-    return {
-      success: false,
-      explanation: finalStatus.error || finalStatus.reason || `Job ended with status: ${finalStatus.status}`,
-      costUsd: finalStatus.costUsd ?? 0,
-      durationSeconds: finalStatus.testDurationSeconds ?? 0,
-      status: 'error',
-    };
-  } catch (error) {
-    core.error(`Failed to run test for PR #${pr.number}: ${error}`);
-    return {
-      success: false,
-      explanation: `Error: ${error}`,
-      costUsd: 0,
-      durationSeconds: 0,
-      status: 'error',
-    };
   }
 }
 
@@ -683,270 +371,21 @@ export async function runTestWithDescription(inputs: ActionInputs): Promise<Runh
       };
     }
 
-    // Poll for completion
+    // Poll for completion, then latch the terminal verdict
     const { status: finalStatus, timedOut } = await pollForCompletion(
       inputs,
       jobId,
       inputs.targetDurationMinutes
     );
 
-    if (timedOut) {
-      return {
-        success: false,
-        explanation: 'Test timed out waiting for tester response',
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'timeout',
-      };
+    const result = mapTerminalStatusToResult(finalStatus, timedOut);
+    if (result.status === 'completed') {
+      result.extractedIssues = finalStatus.extractedIssues;
+      result.jobStatus = finalStatus;
     }
-
-    if (finalStatus.status === 'completed' && finalStatus.result) {
-      return {
-        success: extractSuccessFromResult(finalStatus.result),
-        explanation: finalStatus.result.explanation,
-        data: finalStatus.result.data,
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'completed',
-        extractedIssues: finalStatus.extractedIssues,
-        jobStatus: finalStatus,
-      };
-    }
-
-    if (finalStatus.status === 'abandoned') {
-      return {
-        success: false,
-        explanation: finalStatus.reason || 'Test was abandoned',
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'abandoned',
-      };
-    }
-
-    return {
-      success: false,
-      explanation: finalStatus.error || finalStatus.reason || `Job ended with status: ${finalStatus.status}`,
-      costUsd: finalStatus.costUsd ?? 0,
-      durationSeconds: finalStatus.testDurationSeconds ?? 0,
-      status: 'error',
-    };
+    return result;
   } catch (error) {
     core.error(`Failed to run test: ${error}`);
-    return {
-      success: false,
-      explanation: `Error: ${error}`,
-      costUsd: 0,
-      durationSeconds: 0,
-      status: 'error',
-    };
-  }
-}
-
-/**
- * Build metadata for a consolidated test that covers multiple PRs and/or issues
- */
-function buildConsolidatedMetadata(
-  prs: AnalyzedPr[],
-  issues: AnalyzedIssue[],
-  inputs: ActionInputs
-): JobMetadata {
-  const metadata = buildBaseMetadata(inputs);
-  const githubRepo = inputs.githubRepo;
-
-  // Add PR references
-  if (prs.length === 1) {
-    metadata.githubPR = {
-      repo: githubRepo,
-      prNumber: prs[0].pr.number,
-      prUrl: `https://github.com/${githubRepo}/pull/${prs[0].pr.number}`,
-    };
-  } else if (prs.length > 1) {
-    // For multiple PRs, store in a custom field
-    (metadata as unknown as Record<string, unknown>).githubPRs = prs.map((p) => ({
-      repo: githubRepo,
-      prNumber: p.pr.number,
-      prUrl: `https://github.com/${githubRepo}/pull/${p.pr.number}`,
-    }));
-  }
-
-  // Add issue references
-  if (issues.length === 1) {
-    metadata.githubIssue = {
-      repo: githubRepo,
-      issueNumber: issues[0].issue.number,
-      issueUrl: `https://github.com/${githubRepo}/issues/${issues[0].issue.number}`,
-    };
-  } else if (issues.length > 1) {
-    // For multiple issues, store in a custom field
-    (metadata as unknown as Record<string, unknown>).githubIssues = issues.map((i) => ({
-      repo: githubRepo,
-      issueNumber: i.issue.number,
-      issueUrl: `https://github.com/${githubRepo}/issues/${i.issue.number}`,
-    }));
-  }
-
-  return metadata;
-}
-
-/**
- * Build a combined description from all testable PRs and issues
- */
-function buildConsolidatedDescription(prs: AnalyzedPr[], issues: AnalyzedIssue[]): string {
-  const sections: string[] = [];
-
-  // Add PR test instructions
-  for (const { pr, analysis } of prs) {
-    sections.push(`## PR #${pr.number}: ${pr.title}\n\n${analysis.testInstructions}`);
-  }
-
-  // Add issue test instructions
-  for (const { issue, analysis } of issues) {
-    sections.push(`## Issue #${issue.number}: ${issue.title}\n\n${analysis.testInstructions}`);
-  }
-
-  if (sections.length === 1) {
-    // Only one item, no need for headers
-    return prs.length > 0 ? prs[0].analysis.testInstructions : issues[0].analysis.testInstructions;
-  }
-
-  return sections.join('\n\n---\n\n');
-}
-
-/**
- * Build combined validation instructions from all PRs and issues
- */
-function buildConsolidatedValidationInstructions(
-  prs: AnalyzedPr[],
-  issues: AnalyzedIssue[]
-): string {
-  const sections: string[] = [];
-
-  // Add PR contexts
-  for (const { pr, analysis } of prs) {
-    sections.push(formatPrContext(pr, analysis));
-  }
-
-  // Add issue contexts
-  for (const { issue } of issues) {
-    sections.push(formatIssueContext(issue));
-  }
-
-  if (sections.length === 1) {
-    return sections[0];
-  }
-
-  return sections.join('\n\n===\n\n');
-}
-
-/**
- * Run a single consolidated QA test for all testable PRs and issues.
- * This creates ONE job that the tester will use to verify all changes.
- */
-export async function runConsolidatedTest(
-  inputs: ActionInputs,
-  prs: AnalyzedPr[],
-  issues: AnalyzedIssue[]
-): Promise<RunhumanJobResult> {
-  const testUrl = inputs.url;
-
-  if (!testUrl) {
-    return {
-      success: false,
-      explanation: 'No test URL available',
-      costUsd: 0,
-      durationSeconds: 0,
-      status: 'error',
-    };
-  }
-
-  const prNumbers = prs.map((p) => p.pr.number);
-  const issueNumbers = issues.map((i) => i.issue.number);
-  const itemSummary = [
-    ...(prNumbers.length > 0 ? [`PRs: ${prNumbers.map((n) => `#${n}`).join(', ')}`] : []),
-    ...(issueNumbers.length > 0 ? [`Issues: ${issueNumbers.map((n) => `#${n}`).join(', ')}`] : []),
-  ].join('; ');
-
-  core.info(`Creating consolidated QA test job for ${itemSummary}`);
-  core.debug(`Test URL: ${testUrl}`);
-
-  try {
-    const description = buildConsolidatedDescription(prs, issues);
-    const validationInstructions = buildConsolidatedValidationInstructions(prs, issues);
-    const metadata = buildConsolidatedMetadata(prs, issues, inputs);
-
-    // Use the first available output schema, or null if none
-    const outputSchema = prs[0]?.analysis.outputSchema || issues[0]?.analysis.outputSchema || undefined;
-
-    const jobId = await withRetry(() =>
-      createJob(inputs, {
-        url: testUrl,
-        description,
-        outputSchema,
-        targetDurationMinutes: inputs.targetDurationMinutes,
-        additionalValidationInstructions: validationInstructions,
-        githubRepos: inputs.githubRepos,
-        autoCreateGithubIssues: inputs.autoCreateGithubIssues,
-        autoCreateGithubIssuesRepo: inputs.autoCreateGithubIssuesRepo,
-        autoCreateOnlyTesterSurfaced: inputs.autoCreateOnlyTesterSurfaced,
-        deviceClass: inputs.deviceClass,
-        requiresRunhumanApkInstall: inputs.requiresRunhumanApkInstall,
-        metadata,
-        githubToken: inputs.githubToken || undefined,
-      })
-    );
-
-    core.info(`Created consolidated job ${jobId} for ${itemSummary}`);
-
-    // Poll for completion
-    core.info(`Waiting for job ${jobId} to complete...`);
-    const { status: finalStatus, timedOut } = await pollForCompletion(
-      inputs,
-      jobId,
-      inputs.targetDurationMinutes
-    );
-
-    // Map status to result
-    if (timedOut) {
-      return {
-        success: false,
-        explanation: 'Test timed out waiting for tester response',
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'timeout',
-      };
-    }
-
-    if (finalStatus.status === 'completed' && finalStatus.result) {
-      return {
-        success: extractSuccessFromResult(finalStatus.result),
-        explanation: finalStatus.result.explanation,
-        data: finalStatus.result.data,
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'completed',
-      };
-    }
-
-    if (finalStatus.status === 'abandoned') {
-      return {
-        success: false,
-        explanation: finalStatus.reason || 'Test was abandoned',
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'abandoned',
-      };
-    }
-
-    // Error or other terminal state
-    return {
-      success: false,
-      explanation: finalStatus.error || finalStatus.reason || `Job ended with status: ${finalStatus.status}`,
-      costUsd: finalStatus.costUsd ?? 0,
-      durationSeconds: finalStatus.testDurationSeconds ?? 0,
-      status: 'error',
-    };
-  } catch (error) {
-    core.error(`Failed to run consolidated test for ${itemSummary}: ${error}`);
     return {
       success: false,
       explanation: `Error: ${error}`,
@@ -1037,86 +476,15 @@ export async function runJobWithIds(
       inputs.targetDurationMinutes
     );
 
+    // Latch the terminal verdict; jobUrl is carried through for the PR comment / outputs.
     const jobUrl = finalStatus.jobUrl;
-
-    if (finalStatus.status === 'untestable') {
-      return {
-        result: {
-          success: false,
-          explanation: finalStatus.error || 'Job determined to be not testable',
-          costUsd: finalStatus.costUsd ?? 0,
-          durationSeconds: finalStatus.testDurationSeconds ?? 0,
-          status: 'not-testable',
-          jobId,
-          jobUrl,
-        },
-        jobId,
-        jobUrl,
-      };
-    }
-
-    if (timedOut) {
-      return {
-        result: {
-          success: false,
-          explanation: 'Test timed out waiting for tester response',
-          costUsd: finalStatus.costUsd ?? 0,
-          durationSeconds: finalStatus.testDurationSeconds ?? 0,
-          status: 'timeout',
-          jobId,
-          jobUrl,
-        },
-        jobId,
-        jobUrl,
-      };
-    }
-
-    if (finalStatus.status === 'completed' && finalStatus.result) {
-      return {
-        result: {
-          success: extractSuccessFromResult(finalStatus.result),
-          explanation: finalStatus.result.explanation,
-          data: finalStatus.result.data,
-          costUsd: finalStatus.costUsd ?? 0,
-          durationSeconds: finalStatus.testDurationSeconds ?? 0,
-          status: 'completed',
-          jobId,
-          jobUrl,
-        },
-        jobId,
-        jobUrl,
-      };
-    }
-
-    if (finalStatus.status === 'abandoned') {
-      return {
-        result: {
-          success: false,
-          explanation: finalStatus.reason || 'Test was abandoned',
-          costUsd: finalStatus.costUsd ?? 0,
-          durationSeconds: finalStatus.testDurationSeconds ?? 0,
-          status: 'abandoned',
-          jobId,
-          jobUrl,
-        },
-        jobId,
-        jobUrl,
-      };
-    }
-
-    return {
-      result: {
-        success: false,
-        explanation: finalStatus.error || finalStatus.reason || 'Job ended with status: ' + finalStatus.status,
-        costUsd: finalStatus.costUsd ?? 0,
-        durationSeconds: finalStatus.testDurationSeconds ?? 0,
-        status: 'error',
-        jobId,
-        jobUrl,
-      },
+    const result: RunhumanJobResult = {
+      ...mapTerminalStatusToResult(finalStatus, timedOut),
       jobId,
       jobUrl,
     };
+
+    return { result, jobId, jobUrl };
   } catch (error) {
     core.error('Failed to run test for ' + itemSummary + ': ' + error);
     return {

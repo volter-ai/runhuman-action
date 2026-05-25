@@ -302,7 +302,7 @@ export interface RunhumanJobResult {
   data?: Record<string, unknown>;
   costUsd: number;
   durationSeconds: number;
-  status: 'completed' | 'timeout' | 'error' | 'abandoned' | 'not-testable' | 'created';
+  status: 'completed' | 'timeout' | 'error' | 'not-testable' | 'created';
   analysis?: AnalyzeIssueResponse;
   jobId?: string;
   jobUrl?: string;

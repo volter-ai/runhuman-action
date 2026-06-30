@@ -155,6 +155,7 @@ export function parseInputs(): ActionInputs {
     description: core.getInput('description') || undefined,
     prNumbers: parseNumberList(core.getInput('pr-numbers')),
     issueNumbers: parseNumberList(core.getInput('issue-numbers')),
+    includeLinkedIssues: core.getBooleanInput('include-linked-issues'),
 
     // Label callbacks
     onSuccessAddLabels: parseStringList(core.getInput('on-success-add-labels')),

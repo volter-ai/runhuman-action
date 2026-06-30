@@ -22,4 +22,11 @@ export declare function findLinkedIssuesFromPR(octokit: Octokit, owner: string, 
  * Collect all issues from PR numbers and explicit issue numbers, deduplicated.
  */
 export declare function collectIssues(octokit: Octokit, owner: string, repo: string, prNumbers: number[], issueNumbers: number[]): Promise<Issue[]>;
+/**
+ * Collect the issue numbers a PR closes ("Closes #123", "Fixes #456"), scraped
+ * from each PR body and deduplicated. Gated by `includeLinkedIssues` (#5823):
+ * when false, the PR is tested on its own and no linked issues are derived, so
+ * the server builds the test plan from the pull request alone.
+ */
+export declare function collectPrLinkedIssueNumbers(octokit: Octokit, owner: string, repo: string, prNumbers: number[], includeLinkedIssues: boolean): Promise<number[]>;
 export {};

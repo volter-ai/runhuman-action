@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { parseInputs } from './inputs';
-import { collectIssues } from './issues';
+import { collectPrLinkedIssueNumbers } from './issues';
 import { runJobWithIds, runTestWithDescription } from './runner';
 import { applyLabelsForOutcome } from './labels';
 import { postPrDigestComment } from './pr-comment';
@@ -18,8 +18,15 @@ async function run(): Promise<void> {
     const octokit = github.getOctokit(inputs.githubToken);
     const { owner, repo } = github.context.repo;
 
-    // Collect issue numbers from PRs (if any) and explicit issue numbers
-    const issueNumbersFromPrs = await collectIssueNumbers(octokit, owner, repo, inputs.prNumbers);
+    // Collect issue numbers linked from PRs (gated by include-linked-issues,
+    // #5823) plus any explicit issue numbers.
+    const issueNumbersFromPrs = await collectPrLinkedIssueNumbers(
+      octokit,
+      owner,
+      repo,
+      inputs.prNumbers,
+      inputs.includeLinkedIssues,
+    );
     const allIssueNumbers = [...new Set([...issueNumbersFromPrs, ...inputs.issueNumbers])];
 
     // If we have PRs or issues, use the server-side analysis flow
@@ -189,41 +196,6 @@ async function run(): Promise<void> {
       core.setFailed(String(error));
     }
   }
-}
-
-/**
- * Collect issue numbers that are linked from PRs
- */
-async function collectIssueNumbers(
-  octokit: ReturnType<typeof github.getOctokit>,
-  owner: string,
-  repo: string,
-  prNumbers: number[]
-): Promise<number[]> {
-  const issueNumbers: number[] = [];
-
-  for (const prNumber of prNumbers) {
-    try {
-      // Get PR data to find linked issues
-      const { data: pr } = await octokit.rest.pulls.get({
-        owner,
-        repo,
-        pull_number: prNumber,
-      });
-
-      // Extract issue numbers from PR body (common patterns like "Closes #123", "Fixes #456")
-      const body = pr.body || '';
-      const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
-      let match;
-      while ((match = issuePattern.exec(body)) !== null) {
-        issueNumbers.push(parseInt(match[1], 10));
-      }
-    } catch (error) {
-      core.warning('Failed to fetch PR #' + prNumber + ': ' + error);
-    }
-  }
-
-  return [...new Set(issueNumbers)];
 }
 
 function setOutputs(outputs: ActionOutputs): void {

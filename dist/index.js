@@ -52870,6 +52870,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7184));
 const github = __importStar(__nccwpck_require__(8064));
 const inputs_1 = __nccwpck_require__(1601);
+const issues_1 = __nccwpck_require__(5720);
 const runner_1 = __nccwpck_require__(1722);
 const labels_1 = __nccwpck_require__(875);
 const pr_comment_1 = __nccwpck_require__(5842);
@@ -52882,8 +52883,9 @@ async function run() {
         // Get GitHub context
         const octokit = github.getOctokit(inputs.githubToken);
         const { owner, repo } = github.context.repo;
-        // Collect issue numbers from PRs (if any) and explicit issue numbers
-        const issueNumbersFromPrs = await collectIssueNumbers(octokit, owner, repo, inputs.prNumbers);
+        // Collect issue numbers linked from PRs (gated by include-linked-issues,
+        // #5823) plus any explicit issue numbers.
+        const issueNumbersFromPrs = await (0, issues_1.collectPrLinkedIssueNumbers)(octokit, owner, repo, inputs.prNumbers, inputs.includeLinkedIssues);
         const allIssueNumbers = [...new Set([...issueNumbersFromPrs, ...inputs.issueNumbers])];
         // If we have PRs or issues, use the server-side analysis flow
         if (inputs.prNumbers.length > 0 || allIssueNumbers.length > 0) {
@@ -53044,33 +53046,6 @@ async function run() {
             core.setFailed(String(error));
         }
     }
-}
-/**
- * Collect issue numbers that are linked from PRs
- */
-async function collectIssueNumbers(octokit, owner, repo, prNumbers) {
-    const issueNumbers = [];
-    for (const prNumber of prNumbers) {
-        try {
-            // Get PR data to find linked issues
-            const { data: pr } = await octokit.rest.pulls.get({
-                owner,
-                repo,
-                pull_number: prNumber,
-            });
-            // Extract issue numbers from PR body (common patterns like "Closes #123", "Fixes #456")
-            const body = pr.body || '';
-            const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
-            let match;
-            while ((match = issuePattern.exec(body)) !== null) {
-                issueNumbers.push(parseInt(match[1], 10));
-            }
-        }
-        catch (error) {
-            core.warning('Failed to fetch PR #' + prNumber + ': ' + error);
-        }
-    }
-    return [...new Set(issueNumbers)];
 }
 function setOutputs(outputs) {
     core.setOutput('status', outputs.status);
@@ -53274,6 +53249,7 @@ function parseInputs() {
         description: core.getInput('description') || undefined,
         prNumbers: parseNumberList(core.getInput('pr-numbers')),
         issueNumbers: parseNumberList(core.getInput('issue-numbers')),
+        includeLinkedIssues: core.getBooleanInput('include-linked-issues'),
         // Label callbacks
         onSuccessAddLabels: parseStringList(core.getInput('on-success-add-labels')),
         onSuccessRemoveLabels: parseStringList(core.getInput('on-success-remove-labels')),
@@ -53325,6 +53301,200 @@ function parseOutputSchema(input) {
         core.warning(`Failed to parse output-schema as JSON: ${input}`);
         return undefined;
     }
+}
+
+
+/***/ }),
+
+/***/ 5720:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.extractIssueNumbers = extractIssueNumbers;
+exports.getPullRequest = getPullRequest;
+exports.getIssue = getIssue;
+exports.findLinkedIssuesFromPR = findLinkedIssuesFromPR;
+exports.collectIssues = collectIssues;
+exports.collectPrLinkedIssueNumbers = collectPrLinkedIssueNumbers;
+const core = __importStar(__nccwpck_require__(7184));
+/**
+ * Extract issue numbers from text using various patterns.
+ * Matches: #123, fixes #123, closes #123, resolves #123, refs #123
+ */
+function extractIssueNumbers(text) {
+    if (!text)
+        return [];
+    // Pattern matches issue references with optional keywords
+    const pattern = /(?:fix(?:es)?|close[sd]?|resolve[sd]?|refs?)?[\s:]*#(\d+)/gi;
+    const matches = [...text.matchAll(pattern)];
+    const numbers = matches.map(m => parseInt(m[1], 10)).filter(n => !isNaN(n));
+    // Deduplicate
+    return [...new Set(numbers)];
+}
+/**
+ * Get a pull request by number.
+ */
+async function getPullRequest(octokit, owner, repo, prNumber) {
+    try {
+        const { data: pr } = await octokit.rest.pulls.get({
+            owner,
+            repo,
+            pull_number: prNumber,
+        });
+        return {
+            number: pr.number,
+            title: pr.title,
+            body: pr.body || '',
+            labels: pr.labels.map(l => (typeof l === 'string' ? l : l.name || '')),
+        };
+    }
+    catch (error) {
+        core.warning(`Failed to fetch PR #${prNumber}: ${error}`);
+        return null;
+    }
+}
+/**
+ * Get an issue by number.
+ */
+async function getIssue(octokit, owner, repo, issueNumber) {
+    try {
+        const { data: issue } = await octokit.rest.issues.get({
+            owner,
+            repo,
+            issue_number: issueNumber,
+        });
+        // Skip if this is actually a PR (PRs are also issues in GitHub API)
+        if (issue.pull_request) {
+            core.debug(`#${issueNumber} is a pull request, not an issue`);
+            return null;
+        }
+        return {
+            number: issue.number,
+            title: issue.title,
+            body: issue.body || '',
+            labels: issue.labels.map(l => (typeof l === 'string' ? l : l.name || '')),
+            state: issue.state,
+        };
+    }
+    catch (error) {
+        core.warning(`Failed to fetch issue #${issueNumber}: ${error}`);
+        return null;
+    }
+}
+/**
+ * Find all linked issues from a pull request.
+ */
+async function findLinkedIssuesFromPR(octokit, owner, repo, prNumber) {
+    const pr = await getPullRequest(octokit, owner, repo, prNumber);
+    if (!pr) {
+        return [];
+    }
+    // Extract issue numbers from PR title and body
+    const text = `${pr.title} ${pr.body}`;
+    const issueNumbers = extractIssueNumbers(text);
+    core.info(`Found ${issueNumbers.length} issue references in PR #${prNumber}: ${issueNumbers.join(', ')}`);
+    // Verify each issue exists and is actually an issue (not a PR)
+    const validIssues = [];
+    for (const num of issueNumbers) {
+        const issue = await getIssue(octokit, owner, repo, num);
+        if (issue) {
+            validIssues.push(num);
+        }
+    }
+    return validIssues;
+}
+/**
+ * Collect all issues from PR numbers and explicit issue numbers, deduplicated.
+ */
+async function collectIssues(octokit, owner, repo, prNumbers, issueNumbers) {
+    const allIssueNumbers = new Set();
+    // Find linked issues from each PR
+    for (const prNumber of prNumbers) {
+        const linkedIssues = await findLinkedIssuesFromPR(octokit, owner, repo, prNumber);
+        for (const num of linkedIssues) {
+            allIssueNumbers.add(num);
+        }
+    }
+    // Add explicit issue numbers
+    for (const num of issueNumbers) {
+        allIssueNumbers.add(num);
+    }
+    core.info(`Total unique issues to process: ${allIssueNumbers.size}`);
+    // Fetch full issue data
+    const issues = [];
+    for (const num of allIssueNumbers) {
+        const issue = await getIssue(octokit, owner, repo, num);
+        if (issue) {
+            issues.push(issue);
+        }
+    }
+    return issues;
+}
+/**
+ * Collect the issue numbers a PR closes ("Closes #123", "Fixes #456"), scraped
+ * from each PR body and deduplicated. Gated by `includeLinkedIssues` (#5823):
+ * when false, the PR is tested on its own and no linked issues are derived, so
+ * the server builds the test plan from the pull request alone.
+ */
+async function collectPrLinkedIssueNumbers(octokit, owner, repo, prNumbers, includeLinkedIssues) {
+    if (!includeLinkedIssues) {
+        return [];
+    }
+    const issueNumbers = [];
+    for (const prNumber of prNumbers) {
+        try {
+            const { data: pr } = await octokit.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: prNumber,
+            });
+            const body = pr.body || '';
+            const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+            let match;
+            while ((match = issuePattern.exec(body)) !== null) {
+                issueNumbers.push(parseInt(match[1], 10));
+            }
+        }
+        catch (error) {
+            core.warning('Failed to fetch PR #' + prNumber + ': ' + error);
+        }
+    }
+    return [...new Set(issueNumbers)];
 }
 
 
@@ -53607,7 +53777,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.renderDigestMarkdown = renderDigestMarkdown;
 exports.postPrDigestComment = postPrDigestComment;
 const core = __importStar(__nccwpck_require__(7184));
-const shared_1 = __nccwpck_require__(5040);
+const shared_1 = __nccwpck_require__(5976);
 const job_like_adapter_1 = __nccwpck_require__(4783);
 const OUTCOME_PRESENTATION = {
     success: { emoji: '✅', label: 'Passed' },
@@ -54148,7 +54318,7 @@ async function runJobWithIds(inputs, prNumbers, issueNumbers) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.renderStdoutIssues = renderStdoutIssues;
-const shared_1 = __nccwpck_require__(5040);
+const shared_1 = __nccwpck_require__(5976);
 const job_like_adapter_1 = __nccwpck_require__(4783);
 /**
  * Render the per-issue stdout block for the action's `qa-test` job log.
@@ -54189,7 +54359,7 @@ function renderStdoutIssues(issues, jobStatus) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isTerminalStatus = void 0;
 exports.extractSuccessFromResult = extractSuccessFromResult;
-var shared_1 = __nccwpck_require__(5040);
+var shared_1 = __nccwpck_require__(5976);
 Object.defineProperty(exports, "isTerminalStatus", ({ enumerable: true, get: function () { return shared_1.isTerminalStatus; } }));
 /**
  * Extract the success value from an ExtractedResult.
@@ -57708,7 +57878,7 @@ module.exports = parseParams
 
 /***/ }),
 
-/***/ 5040:
+/***/ 5976:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -57717,6 +57887,8 @@ __nccwpck_require__.r(__webpack_exports__);
 
 // EXPORTS
 __nccwpck_require__.d(__webpack_exports__, {
+  ACTION_REGISTRY: () => (/* reexport */ ACTION_REGISTRY),
+  ACTOR_ROLE_LABEL: () => (/* reexport */ ACTOR_ROLE_LABEL),
   ADMIN_JOBS_OVERVIEW_ACTIVITY_METRICS: () => (/* reexport */ ADMIN_JOBS_OVERVIEW_ACTIVITY_METRICS),
   ADMIN_JOBS_OVERVIEW_GRANULARITIES: () => (/* reexport */ ADMIN_JOBS_OVERVIEW_GRANULARITIES),
   ADMIN_JOBS_OVERVIEW_HOUR_OF_DAY_MODES: () => (/* reexport */ ADMIN_JOBS_OVERVIEW_HOUR_OF_DAY_MODES),
@@ -57725,6 +57897,7 @@ __nccwpck_require__.d(__webpack_exports__, {
   ADMIN_JOBS_OVERVIEW_PIE_DIMENSIONS: () => (/* reexport */ ADMIN_JOBS_OVERVIEW_PIE_DIMENSIONS),
   ADMIN_JOBS_OVERVIEW_PLATFORM_KEYS: () => (/* reexport */ ADMIN_JOBS_OVERVIEW_PLATFORM_KEYS),
   ADMIN_JOBS_OVERVIEW_SHARE_DIMENSIONS: () => (/* reexport */ ADMIN_JOBS_OVERVIEW_SHARE_DIMENSIONS),
+  ADMIN_JOBS_OVERVIEW_SHARE_MEASURES: () => (/* reexport */ ADMIN_JOBS_OVERVIEW_SHARE_MEASURES),
   ADMIN_JOBS_OVERVIEW_TIME_RANGES: () => (/* reexport */ ADMIN_JOBS_OVERVIEW_TIME_RANGES),
   ADMIN_JOBS_OVERVIEW_TOP_ORG_METRICS: () => (/* reexport */ ADMIN_JOBS_OVERVIEW_TOP_ORG_METRICS),
   ADMIN_JOB_LIST_CHIP_GROUPS: () => (/* reexport */ ADMIN_JOB_LIST_CHIP_GROUPS),
@@ -57735,17 +57908,21 @@ __nccwpck_require__.d(__webpack_exports__, {
   BASE_CHIP_GROUPS: () => (/* reexport */ BASE_CHIP_GROUPS),
   BILLING_TIERS: () => (/* reexport */ BILLING_TIERS),
   BILLING_TIERS_SET: () => (/* reexport */ BILLING_TIERS_SET),
+  CI_CLAIM_WINDOW_MINUTES: () => (/* reexport */ CI_CLAIM_WINDOW_MINUTES),
+  CI_SOURCES: () => (/* reexport */ CI_SOURCES),
   CLAIM_ERROR_CODES: () => (/* reexport */ CLAIM_ERROR_CODES),
   CLAIM_SOURCES: () => (/* reexport */ CLAIM_SOURCES),
   CLAIM_SOURCE_LABELS: () => (/* reexport */ CLAIM_SOURCE_LABELS),
   CLAIM_SURFACE_FILTER_CHIPS: () => (/* reexport */ CLAIM_SURFACE_FILTER_CHIPS),
+  CLAIM_WINDOW_MINUTES_BY_TIER: () => (/* reexport */ CLAIM_WINDOW_MINUTES_BY_TIER),
   DEFAULT_DEVICE_CLASS: () => (/* reexport */ DEFAULT_DEVICE_CLASS),
+  DEFAULT_FEEDBACK_TITLE_PREFIX: () => (/* reexport */ DEFAULT_FEEDBACK_TITLE_PREFIX),
   DEFAULT_ISSUE_TEST_CONFIG: () => (/* reexport */ DEFAULT_ISSUE_TEST_CONFIG),
-  DEFAULT_JOB_PRIORITY: () => (/* reexport */ DEFAULT_JOB_PRIORITY),
   DEFAULT_MAX_EXTENSION_MINUTES: () => (/* reexport */ DEFAULT_MAX_EXTENSION_MINUTES),
   DEFAULT_MEMBER_LIMIT: () => (/* reexport */ DEFAULT_MEMBER_LIMIT),
   DEFAULT_TARGET_DURATION_MINUTES: () => (/* reexport */ DEFAULT_TARGET_DURATION_MINUTES),
   DEFAULT_TESTER_NOTIFICATION_PREFERENCES: () => (/* reexport */ DEFAULT_TESTER_NOTIFICATION_PREFERENCES),
+  DELAY_MINUTES_PER_LN: () => (/* reexport */ DELAY_MINUTES_PER_LN),
   DESKTOP_CLAIM_SOURCES: () => (/* reexport */ DESKTOP_CLAIM_SOURCES),
   DEVICE_CAPABILITY: () => (/* reexport */ DEVICE_CAPABILITY),
   DEVICE_CLASSES: () => (/* reexport */ DEVICE_CLASSES),
@@ -57754,19 +57931,29 @@ __nccwpck_require__.d(__webpack_exports__, {
   DEVICE_META: () => (/* reexport */ DEVICE_META),
   DEVICE_ORDER: () => (/* reexport */ DEVICE_ORDER),
   EMAIL_ON_COMPLETION_PREFS: () => (/* reexport */ EMAIL_ON_COMPLETION_PREFS),
+  ENHANCED_VIDEO_INPUT_PREFIX: () => (/* reexport */ ENHANCED_VIDEO_INPUT_PREFIX),
+  ESTIMATION_CEILING_EXTENSION_MINUTES: () => (/* reexport */ ESTIMATION_CEILING_EXTENSION_MINUTES),
+  ESTIMATION_CEILING_TARGET_MINUTES: () => (/* reexport */ ESTIMATION_CEILING_TARGET_MINUTES),
+  ESTIMATION_FLOOR_EXTENSION_MINUTES: () => (/* reexport */ ESTIMATION_FLOOR_EXTENSION_MINUTES),
+  ESTIMATION_FLOOR_TARGET_MINUTES: () => (/* reexport */ ESTIMATION_FLOOR_TARGET_MINUTES),
   EXECUTED_VIA_OS_CHIP_LABELS: () => (/* reexport */ EXECUTED_VIA_OS_CHIP_LABELS),
   EXTENSION_EVENT_TYPES: () => (/* reexport */ EXTENSION_EVENT_TYPES),
-  FEEDBACK_TITLE_PREFIX: () => (/* reexport */ FEEDBACK_TITLE_PREFIX),
+  FALLBACK_TIMEOUT_GRACE_MINUTES: () => (/* reexport */ FALLBACK_TIMEOUT_GRACE_MINUTES),
+  FLOOR_MANAGER_THRESHOLD_MULTIPLIER: () => (/* reexport */ FLOOR_MANAGER_THRESHOLD_MULTIPLIER),
   FREQUENCY_LABELS: () => (/* reexport */ FREQUENCY_LABELS),
+  HARD_TIMEOUT_GRACE_MINUTES: () => (/* reexport */ HARD_TIMEOUT_GRACE_MINUTES),
+  HIGH_BAND_MIN_SCORE: () => (/* reexport */ HIGH_BAND_MIN_SCORE),
+  INTERNAL_SCORE_PENALTY: () => (/* reexport */ INTERNAL_SCORE_PENALTY),
+  ISSUE_REVIEW_RERUN_SOFT_CAP: () => (/* reexport */ ISSUE_REVIEW_RERUN_SOFT_CAP),
   InvalidTemplateQueryError: () => (/* reexport */ InvalidTemplateQueryError),
   JIRA_QA_LABELS: () => (/* reexport */ JIRA_QA_LABELS),
   JIRA_QA_LABEL_FAILED: () => (/* reexport */ JIRA_QA_LABEL_FAILED),
   JIRA_QA_LABEL_IN_PROGRESS: () => (/* reexport */ JIRA_QA_LABEL_IN_PROGRESS),
   JIRA_QA_LABEL_PASSED: () => (/* reexport */ JIRA_QA_LABEL_PASSED),
   JOB_ARTIFACT_TYPES: () => (/* reexport */ JOB_ARTIFACT_TYPES),
-  JOB_PRIORITIES: () => (/* reexport */ JOB_PRIORITIES),
   JOB_STATUS: () => (/* reexport */ JOB_STATUS),
   KIND_REGISTRY: () => (/* reexport */ KIND_REGISTRY),
+  KNOWN_FRAMEWORKS: () => (/* reexport */ KNOWN_FRAMEWORKS),
   LANGUAGE_CAPABILITY: () => (/* reexport */ LANGUAGE_CAPABILITY),
   LANGUAGE_LABELS: () => (/* reexport */ LANGUAGE_LABELS),
   LATE_SUBMISSION_WINDOW_HOURS: () => (/* reexport */ LATE_SUBMISSION_WINDOW_HOURS),
@@ -57777,19 +57964,30 @@ __nccwpck_require__.d(__webpack_exports__, {
   MAX_ATTACHMENTS: () => (/* reexport */ MAX_ATTACHMENTS),
   MAX_SLACK_NOTIFICATION_CHANNELS: () => (/* reexport */ MAX_SLACK_NOTIFICATION_CHANNELS),
   MDFormParseError: () => (/* reexport */ MDFormParseError),
+  MEDIUM_BAND_MIN_SCORE: () => (/* reexport */ MEDIUM_BAND_MIN_SCORE),
   MENU_GROUP_LABELS: () => (/* reexport */ MENU_GROUP_LABELS),
   MENU_GROUP_ORDER: () => (/* reexport */ MENU_GROUP_ORDER),
+  MIN_VISIBLE_TAIL_MINUTES: () => (/* reexport */ MIN_VISIBLE_TAIL_MINUTES),
   MOBILE_CLAIM_SOURCES: () => (/* reexport */ MOBILE_CLAIM_SOURCES),
   MODIFIER_LABELS: () => (/* reexport */ MODIFIER_LABELS),
+  NON_ACTIVE_AVAILABILITIES: () => (/* reexport */ NON_ACTIVE_AVAILABILITIES),
   ON_CLOCK_BREAK_DURATION_MINUTES: () => (/* reexport */ ON_CLOCK_BREAK_DURATION_MINUTES),
   PAGINATION_DEFAULTS: () => (/* reexport */ PAGINATION_DEFAULTS),
   PASS_STATUS_VALUES: () => (/* reexport */ PASS_STATUS_VALUES),
-  PRIORITY_LIFETIME_MS: () => (/* reexport */ PRIORITY_LIFETIME_MS),
-  PRIORITY_SORT_WEIGHT: () => (/* reexport */ PRIORITY_SORT_WEIGHT),
+  PERFORMANCE_RATING_STAR_COUNT: () => (/* reexport */ PERFORMANCE_RATING_STAR_COUNT),
+  PLAYGROUND_FLOOR_MAX_EXTENSION_MINUTES: () => (/* reexport */ PLAYGROUND_FLOOR_MAX_EXTENSION_MINUTES),
+  PLAYGROUND_FLOOR_TARGET_DURATION_MINUTES: () => (/* reexport */ PLAYGROUND_FLOOR_TARGET_DURATION_MINUTES),
+  PLAYGROUND_PREFERRED_MAX_EXTENSION_MINUTES: () => (/* reexport */ PLAYGROUND_PREFERRED_MAX_EXTENSION_MINUTES),
+  PLAYGROUND_PREFERRED_TARGET_DURATION_MINUTES: () => (/* reexport */ PLAYGROUND_PREFERRED_TARGET_DURATION_MINUTES),
+  PRIORITY_BANDS: () => (/* reexport */ PRIORITY_BANDS),
   PUSH_NOTIFICATION_BEHAVIORS: () => (/* reexport */ PUSH_NOTIFICATION_BEHAVIORS),
   QUARTER_HOUR_MINUTES: () => (/* reexport */ QUARTER_HOUR_MINUTES),
+  QUEUE_SCORE_AGING_WEIGHT: () => (/* reexport */ QUEUE_SCORE_AGING_WEIGHT),
   REASON_CHIP_GROUPS: () => (/* reexport */ REASON_CHIP_GROUPS),
   RECORDING_FINALIZING_CODE: () => (/* reexport */ RECORDING_FINALIZING_CODE),
+  RELAXED_SOURCES: () => (/* reexport */ RELAXED_SOURCES),
+  RELAX_SCORE_PENALTY: () => (/* reexport */ RELAX_SCORE_PENALTY),
+  REVIEW_COUNT_DISPLAY_CAP: () => (/* reexport */ REVIEW_COUNT_DISPLAY_CAP),
   RUNHUMAN_SELF_TEST_SLACK_INSTRUCTION: () => (/* reexport */ RUNHUMAN_SELF_TEST_SLACK_INSTRUCTION),
   SAML_PROVIDERS: () => (/* reexport */ SAML_PROVIDERS),
   SCHEDULE_CSV_HEADER: () => (/* reexport */ SCHEDULE_CSV_HEADER),
@@ -57805,6 +58003,8 @@ __nccwpck_require__.d(__webpack_exports__, {
   SOURCE_EXTENSIONS: () => (/* reexport */ SOURCE_EXTENSIONS),
   SUBSCRIPTION_ADDONS: () => (/* reexport */ SUBSCRIPTION_ADDONS),
   SUBSCRIPTION_ADDONS_SET: () => (/* reexport */ SUBSCRIPTION_ADDONS_SET),
+  SURFACE_TAGS: () => (/* reexport */ SURFACE_TAGS),
+  SYSTEM_ACTOR_FILTER: () => (/* reexport */ SYSTEM_ACTOR_FILTER),
   SYSTEM_MAX_SESSION_MINUTES: () => (/* reexport */ SYSTEM_MAX_SESSION_MINUTES),
   TERMINAL_CHIP_GROUPS: () => (/* reexport */ TERMINAL_CHIP_GROUPS),
   TESTER_ADMIN_ACTIONS: () => (/* reexport */ TESTER_ADMIN_ACTIONS),
@@ -57815,6 +58015,7 @@ __nccwpck_require__.d(__webpack_exports__, {
   TESTER_INACTIVITY_WARNING_MINUTES_DEFAULT: () => (/* reexport */ TESTER_INACTIVITY_WARNING_MINUTES_DEFAULT),
   TESTER_LANGUAGES: () => (/* reexport */ TESTER_LANGUAGES),
   TESTER_SCHEDULE_TYPE_DAILY_BREAK_ALLOWANCE_MINUTES: () => (/* reexport */ TESTER_SCHEDULE_TYPE_DAILY_BREAK_ALLOWANCE_MINUTES),
+  TESTER_SCHEDULE_TYPE_LABEL: () => (/* reexport */ TESTER_SCHEDULE_TYPE_LABEL),
   TESTER_STATS_DURATION_BUCKETS: () => (/* reexport */ TESTER_STATS_DURATION_BUCKETS),
   TESTER_STATS_TIME_RANGES: () => (/* reexport */ TESTER_STATS_TIME_RANGES),
   TESTER_STATUSES: () => (/* reexport */ TESTER_STATUSES),
@@ -57824,6 +58025,8 @@ __nccwpck_require__.d(__webpack_exports__, {
   TIER_FEATURES: () => (/* reexport */ TIER_FEATURES),
   TIER_MEMBER_LIMITS: () => (/* reexport */ TIER_MEMBER_LIMITS),
   TIER_ORDER: () => (/* reexport */ TIER_ORDER),
+  TIER_PRIORITY: () => (/* reexport */ TIER_PRIORITY),
+  TIER_WINDOW_ORDER: () => (/* reexport */ TIER_WINDOW_ORDER),
   TIMEZONE_OPTIONS: () => (/* reexport */ TIMEZONE_OPTIONS),
   TOPUP_BUCKETS_SET: () => (/* reexport */ TOPUP_BUCKETS_SET),
   TOPUP_BUCKETS_USD: () => (/* reexport */ TOPUP_BUCKETS_USD),
@@ -57832,40 +58035,53 @@ __nccwpck_require__.d(__webpack_exports__, {
   accessEndedCopyFor: () => (/* reexport */ accessEndedCopyFor),
   apiRoutes: () => (/* reexport */ apiRoutes),
   asStorageUrl: () => (/* reexport */ asStorageUrl),
+  buildBakedDemoVideoTranscriptKey: () => (/* reexport */ buildBakedDemoVideoTranscriptKey),
   buildChipFilter: () => (/* reexport */ buildChipFilter),
   buildDuplicateCommentBody: () => (/* reexport */ buildDuplicateCommentBody),
   buildFeedbackBody: () => (/* reexport */ buildFeedbackBody),
   buildFeedbackDuplicateCommentBody: () => (/* reexport */ buildFeedbackDuplicateCommentBody),
-  buildFeedbackTitle: () => (/* reexport */ buildFeedbackTitle),
   buildIssueBody: () => (/* reexport */ buildIssueBody),
-  buildIssueTitle: () => (/* reexport */ buildIssueTitle),
   buildJobFailedComment: () => (/* reexport */ buildJobFailedComment),
+  buildPresenceSections: () => (/* reexport */ buildPresenceSections),
   buildTestResultComment: () => (/* reexport */ buildTestResultComment),
   buildTesterTestUrl: () => (/* reexport */ buildTesterTestUrl),
+  buildTimecodeLink: () => (/* reexport */ buildTimecodeLink),
   calculateNextExecutionAt: () => (/* reexport */ calculateNextExecutionAt),
   canonicalModifier: () => (/* reexport */ canonicalModifier),
   canonicalToSession: () => (/* reexport */ canonicalToSession),
+  categoryForKind: () => (/* reexport */ categoryForKind),
   checkPoolRequirements: () => (/* reexport */ checkPoolRequirements),
   checkSideloadPlatform: () => (/* reexport */ checkSideloadPlatform),
   claimErrorMessage: () => (/* reexport */ claimErrorMessage),
   clampDurationSecondsToAllotted: () => (/* reexport */ clampDurationSecondsToAllotted),
+  clampEstimatedSession: () => (/* reexport */ clampEstimatedSession),
   classifyDebitRegion: () => (/* reexport */ classifyDebitRegion),
   collapseHourCellsToRules: () => (/* reexport */ collapseHourCellsToRules),
+  compareQueueByScore: () => (/* reexport */ compareQueueByScore),
   computeAllottedMinutes: () => (/* reexport */ computeAllottedMinutes),
+  computeClaimWindowMinutes: () => (/* reexport */ computeClaimWindowMinutes),
   computeDebitMinutes: () => (/* reexport */ computeDebitMinutes),
+  computeElapsedFraction: () => (/* reexport */ computeElapsedFraction),
   computeExpiresAt: () => (/* reexport */ computeExpiresAt),
   computeHardCutoffTime: () => (/* reexport */ computeHardCutoffTime),
   computeMultiSessionSpan: () => (/* reexport */ computeMultiSessionSpan),
   computeOverdueLapsesAt: () => (/* reexport */ computeOverdueLapsesAt),
+  computePriorityScore: () => (/* reexport */ computePriorityScore),
+  computeQueueScore: () => (/* reexport */ computeQueueScore),
+  computeRevealDelayMs: () => (/* reexport */ computeRevealDelayMs),
   computeScheduleWindow: () => (/* reexport */ computeScheduleWindow),
+  computeWorkingTimeoutCutoff: () => (/* reexport */ computeWorkingTimeoutCutoff),
   convertSchemaToMDForm: () => (/* reexport */ convertSchemaToMDForm),
   decodeChipFilter: () => (/* reexport */ decodeChipFilter),
   defineRoute: () => (/* reexport */ defineRoute),
   deriveTesterColor: () => (/* reexport */ deriveTesterColor),
   describeClaimError: () => (/* reexport */ describeClaimError),
   describeClaimErrorFromUnknown: () => (/* reexport */ describeClaimErrorFromUnknown),
+  describeJobFailure: () => (/* reexport */ describeJobFailure),
+  describeOfflinePreviewItem: () => (/* reexport */ describeOfflinePreviewItem),
   detectAttachmentType: () => (/* reexport */ detectAttachmentType),
   detectClaimSurfaceConflict: () => (/* reexport */ detectClaimSurfaceConflict),
+  editedDateTooltip: () => (/* reexport */ editedDateTooltip),
   encodeChipFilter: () => (/* reexport */ encodeChipFilter),
   enumerateLocalDates: () => (/* reexport */ enumerateLocalDates),
   exceedsLimit: () => (/* reexport */ exceedsLimit),
@@ -57878,10 +58094,14 @@ __nccwpck_require__.d(__webpack_exports__, {
   filterRecentJobs: () => (/* reexport */ filterRecentJobs),
   filterTemplates: () => (/* reexport */ filterTemplates),
   findChipGroup: () => (/* reexport */ findChipGroup),
+  floorManagerAdjustedMinutes: () => (/* reexport */ floorManagerAdjustedMinutes),
   formatElapsed: () => (/* reexport */ formatElapsed),
   formatLastSeen: () => (/* reexport */ formatLastSeen),
   formatMemberLimit: () => (/* reexport */ formatMemberLimit),
+  formatPerformanceRatingValue: () => (/* reexport */ formatPerformanceRatingValue),
+  formatPostDateTime: () => (/* reexport */ formatPostDateTime),
   formatResultValue: () => (/* reexport */ formatResultValue),
+  formatReviewCountLabel: () => (/* reexport */ formatReviewCountLabel),
   formatSourceExtension: () => (/* reexport */ formatSourceExtension),
   formatValidationError: () => (/* reexport */ formatValidationError),
   formatVideoTime: () => (/* reexport */ formatVideoTime),
@@ -57911,15 +58131,17 @@ __nccwpck_require__.d(__webpack_exports__, {
   groupTestersByMenuGroup: () => (/* reexport */ groupTestersByMenuGroup),
   hasActiveReasonChip: () => (/* reexport */ hasActiveReasonChip),
   holdCopyFor: () => (/* reexport */ holdCopyFor),
-  hourToLegacyTimeWindow: () => (/* reexport */ hourToLegacyTimeWindow),
   ineligibleClaimReason: () => (/* reexport */ ineligibleClaimReason),
   isAboveTier: () => (/* reexport */ isAboveTier),
+  isAcceptedForResult: () => (/* reexport */ isAcceptedForResult),
+  isActiveAvailability: () => (/* reexport */ isActiveAvailability),
   isActiveStatus: () => (/* reexport */ isActiveStatus),
-  isAdminOverrideEligible: () => (/* reexport */ isAdminOverrideEligible),
   isAtOrBelowTier: () => (/* reexport */ isAtOrBelowTier),
+  isAwaitingReview: () => (/* reexport */ isAwaitingReview),
   isAxisUnnarrowed: () => (/* reexport */ isAxisUnnarrowed),
   isBreakRequestNotification: () => (/* reexport */ isBreakRequestNotification),
   isBusy: () => (/* reexport */ isBusy),
+  isCanonicalAnchorResolved: () => (/* reexport */ isCanonicalAnchorResolved),
   isClaimErrorCode: () => (/* reexport */ isClaimErrorCode),
   isClaimableFromSurface: () => (/* reexport */ isClaimableFromSurface),
   isDeviceClass: () => (/* reexport */ isDeviceClass),
@@ -57928,18 +58150,22 @@ __nccwpck_require__.d(__webpack_exports__, {
   isFinalSegment: () => (/* reexport */ isFinalSegment),
   isInactive: () => (/* reexport */ isInactive),
   isIncidentalIssue: () => (/* reexport */ isIncidentalIssue),
-  isJobPriority: () => (/* reexport */ isJobPriority),
+  isKnownFramework: () => (/* reexport */ isKnownFramework),
+  isMarkedForRevision: () => (/* reexport */ isMarkedForRevision),
   isMissing: () => (/* reexport */ isMissing),
   isOffScheduleAndPresent: () => (/* reexport */ isOffScheduleAndPresent),
   isPassStatus: () => (/* reexport */ isPassStatus),
   isPrimaryIssue: () => (/* reexport */ isPrimaryIssue),
+  isPriorityBand: () => (/* reexport */ isPriorityBand),
   isPushNotificationBehavior: () => (/* reexport */ isPushNotificationBehavior),
   isReasonLabel: () => (/* reexport */ isReasonLabel),
+  isSurfaceTag: () => (/* reexport */ isSurfaceTag),
   isTelemetryOnlyIssue: () => (/* reexport */ isTelemetryOnlyIssue),
   isTerminalStatus: () => (/* reexport */ isTerminalStatus),
   isTesterSurfaced: () => (/* reexport */ isTesterSurfaced),
   isValidAttachmentUrl: () => (/* reexport */ isValidAttachmentUrl),
   isValidGithubRepo: () => (/* reexport */ isValidGithubRepo),
+  isVisibleToTester: () => (/* reexport */ isVisibleToTester),
   isZeroChargeOutcome: () => (/* reexport */ isZeroChargeOutcome),
   kindsForCategory: () => (/* reexport */ kindsForCategory),
   linkify: () => (/* reexport */ linkify),
@@ -57948,30 +58174,41 @@ __nccwpck_require__.d(__webpack_exports__, {
   localMidnightUtcMs: () => (/* reexport */ localMidnightUtcMs),
   mapLegacyScreenSizeToDeviceClass: () => (/* reexport */ mapLegacyScreenSizeToDeviceClass),
   normalizeAttachment: () => (/* reexport */ normalizeAttachment),
-  normalizeSchedule: () => (/* reexport */ normalizeSchedule),
   normalizeSlackNotificationConfig: () => (/* reexport */ normalizeSlackNotificationConfig),
+  normalizeTimezone: () => (/* reexport */ normalizeTimezone),
   normalizeUrl: () => (/* reexport */ normalizeUrl),
   osToExecutedViaLabel: () => (/* reexport */ osToExecutedViaLabel),
   parseMDFormToSchema: () => (/* reexport */ parseMDFormToSchema),
   parsePaginationParams: () => (/* reexport */ parsePaginationParams),
   parseScheduleCsv: () => (/* reexport */ parseScheduleCsv),
   parseTemplateListQuery: () => (/* reexport */ parseTemplateListQuery),
+  performanceRatingStars: () => (/* reexport */ performanceRatingStars),
   phaseDescriptions: () => (/* reexport */ phaseDescriptions),
+  playbackKeyForSession: () => (/* reexport */ playbackKeyForSession),
+  postedDateTooltip: () => (/* reexport */ postedDateTooltip),
   predictClaimError: () => (/* reexport */ predictClaimError),
-  priorityFromSource: () => (/* reexport */ priorityFromSource),
+  priorityScoreToBand: () => (/* reexport */ priorityScoreToBand),
   requiredClaimSurface: () => (/* reexport */ requiredClaimSurface),
+  resolveActivityAction: () => (/* reexport */ resolveActivityAction),
   resolveCanonicalTimeZero: () => (/* reexport */ resolveCanonicalTimeZero),
   resolveClaimableDeviceSet: () => (/* reexport */ resolveClaimableDeviceSet),
+  resolveEffectiveVideoDuration: () => (/* reexport */ resolveEffectiveVideoDuration),
   resolveSessionBoundaries: () => (/* reexport */ resolveSessionBoundaries),
   resolveTransition: () => (/* reexport */ resolveTransition),
+  resolveTriStateCascade: () => (/* reexport */ resolveTriStateCascade),
+  revealAtMs: () => (/* reexport */ revealAtMs),
   serializeScheduleCsv: () => (/* reexport */ serializeScheduleCsv),
+  shiftGroupAnchorDate: () => (/* reexport */ shiftGroupAnchorDate),
   sortQueueForTester: () => (/* reexport */ sortQueueForTester),
   sortTemplates: () => (/* reexport */ sortTemplates),
   sortedDevices: () => (/* reexport */ sortedDevices),
   splitWindowByLocalDays: () => (/* reexport */ splitWindowByLocalDays),
+  stripMarkdown: () => (/* reexport */ stripMarkdown),
   subPhaseDescriptions: () => (/* reexport */ subPhaseDescriptions),
+  sumSessionVideoSeconds: () => (/* reexport */ sumSessionVideoSeconds),
   terminalStatusSetForLabels: () => (/* reexport */ terminalStatusSetForLabels),
   terminationCopyFor: () => (/* reexport */ terminationCopyFor),
+  timezoneLabel: () => (/* reexport */ timezoneLabel),
   truncateAtWord: () => (/* reexport */ truncateAtWord),
   utcMsToLocalInstant: () => (/* reexport */ utcMsToLocalInstant),
   utcQueryRangeForLocalRange: () => (/* reexport */ utcQueryRangeForLocalRange),
@@ -57984,7 +58221,6 @@ __nccwpck_require__.d(__webpack_exports__, {
   validateOutputSchema: () => (/* reexport */ validateOutputSchema),
   validateUrl: () => (/* reexport */ validateUrl),
   webRoutes: () => (/* reexport */ webRoutes),
-  weekdaysToLegacyWeekday: () => (/* reexport */ weekdaysToLegacyWeekday),
   withApiPrefix: () => (/* reexport */ withApiPrefix)
 });
 
@@ -58058,41 +58294,6 @@ function canonicalModifier(modifier) {
  */
 function isZeroChargeOutcome(status) {
     return status !== 'completed';
-}
-/**
- * Modifiers attributed to the tester abandoning their work. Admin override
- * (#4576) refuses to re-run these because there's no recording / no
- * submitted work to extract from — the eligibility tier is empty by
- * definition. The hard-disabled set lives here, in shared, so backend and
- * frontend agree on a single source of truth for the "Re-run (Override)"
- * button's disabled state.
- */
-const TESTER_ABANDONMENT_MODIFIERS = new Set([
-    'tester_dropped',
-    'tester_unresponsive',
-    'tester_cancellation',
-    'tester_cancelled', // legacy alias preserved for in-flight rows pre-#4079
-    'tester_invalidated',
-]);
-/**
- * Whether a terminal-failed job is eligible for the admin "Re-run Pipeline
- * (Override)" path (#4576). Returns true when the failure is plausibly
- * outside the tester's control — every Tier A / B / C modifier in the
- * eligibility taxonomy — and false for the hard-disabled tester-abandonment
- * set. The route handler is the authoritative enforcer; the frontend uses
- * the same predicate to render the action as disabled-with-tooltip.
- *
- * Returns false for non-terminal-failure statuses. `cancelled/no_capacity`
- * etc. with a null modifier are accepted because there's no abandonment
- * signal on the row — the override dialog can still warn the admin that
- * a no-capacity expiry has nothing to extract.
- */
-function isAdminOverrideEligible(status, modifier) {
-    if (status !== 'failed' && status !== 'cancelled' && status !== 'expired')
-        return false;
-    if (modifier && TESTER_ABANDONMENT_MODIFIERS.has(modifier))
-        return false;
-    return true;
 }
 //# sourceMappingURL=job-status.js.map
 ;// CONCATENATED MODULE: ../shared/dist/job/schema.types.js
@@ -58182,569 +58383,6 @@ function getEffectivePassStatus(input) {
     return input.passStatus ?? undefined;
 }
 //# sourceMappingURL=pass-status.js.map
-;// CONCATENATED MODULE: ../shared/dist/job/effective-description.js
-/**
- * Get the effective description for a job.
- * Uses augmentedDescription (AI-generated test plan) if available, otherwise the original description.
- */
-function getEffectiveDescription(job) {
-    return job.augmentedDescription && job.augmentedDescription.length > 0
-        ? job.augmentedDescription
-        : job.description;
-}
-//# sourceMappingURL=effective-description.js.map
-;// CONCATENATED MODULE: ../shared/dist/job/job-title.js
-/**
- * Resolves a display title for a job. Single source of truth shared by the
- * web frontend (job lists, detail modal headers) AND the backend (admin /jobs
- * list, activity log) so both surfaces always agree on what to call a job.
- *
- * Lives in `@runhuman/shared` so the API can resolve titles server-side from
- * raw DB columns and ship a single `title` field on the wire — instead of
- * bloating every list-row payload with `metadata` + `augmentedDescription` +
- * `error` and re-deriving on the client.
- */
-function truncateAtWord(text, maxLength) {
-    if (text.length <= maxLength)
-        return text;
-    const truncated = text.slice(0, maxLength);
-    const lastSpace = truncated.lastIndexOf(' ');
-    return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + '...';
-}
-function getFailurePrefix(status) {
-    if (status === 'untestable')
-        return 'Untestable';
-    if (status === 'failed')
-        return 'Error';
-    return undefined;
-}
-function extractHostname(url) {
-    if (!url)
-        return undefined;
-    // URL constructor throws on malformed input. Historical job rows may store
-    // non-URL strings, so treat parse failure as "no hostname available"
-    // and fall through to the next layer of the resolution chain.
-    try {
-        return new URL(url).hostname;
-    }
-    catch {
-        return undefined;
-    }
-}
-function getPlaceholder(status) {
-    if (status === 'untestable')
-        return 'Untestable job';
-    if (status === 'failed')
-        return 'Errored job';
-    return 'Untitled job';
-}
-/**
- * Resolves a display title for a job, guaranteed non-empty.
- *
- * For failure statuses (`untestable`, `failed`), the specific `error` message
- * is preferred over any AI-generated `metadata.title`: auto-generated titles
- * can be misleadingly generic (e.g. "Verify user authentication..." on a job
- * the AI later ruled untestable).
- *
- * Resolution order:
- * 1. Status-prefixed error for failure statuses with an `error` — `"Untestable: {reason}"`
- * 2. `metadata.title` (AI-generated)
- * 3. Effective description (`augmentedDescription` > `description`)
- * 4. URL hostname — prefixed with status for failure statuses
- * 5. Status-based placeholder — guarantees a non-empty return
- */
-function getJobTitle(job, maxLength) {
-    const truncate = (text) => maxLength ? truncateAtWord(text, maxLength) : text;
-    const metadata = job.metadata;
-    const metadataTitle = typeof metadata?.title === 'string' && metadata.title.length > 0
-        ? metadata.title
-        : undefined;
-    const failurePrefix = getFailurePrefix(job.status);
-    if (failurePrefix && job.error && job.error.length > 0) {
-        return `${failurePrefix}: ${truncate(job.error)}`;
-    }
-    if (metadataTitle)
-        return truncate(metadataTitle);
-    const effectiveDesc = (job.augmentedDescription && job.augmentedDescription.length > 0)
-        ? job.augmentedDescription
-        : (job.description && job.description.length > 0 ? job.description : undefined);
-    if (effectiveDesc)
-        return truncate(effectiveDesc);
-    const hostname = extractHostname(job.url);
-    if (hostname) {
-        return failurePrefix ? `${failurePrefix}: ${hostname}` : hostname;
-    }
-    return getPlaceholder(job.status);
-}
-//# sourceMappingURL=job-title.js.map
-;// CONCATENATED MODULE: ../shared/dist/job/job-filter.js
-/**
- * Serialize a {@link JobChipFilter} for use as a query string param.
- *
- * Returns `undefined` when the filter is empty so callers can drop the param
- * from the request rather than sending a no-op value.
- */
-function encodeChipFilter(filter) {
-    if (filter.include.length === 0 && !filter.other)
-        return undefined;
-    return JSON.stringify(filter);
-}
-/**
- * Parse a serialized {@link JobChipFilter}. Throws on malformed input — callers
- * that receive this from untrusted sources (handler query params) must catch.
- */
-function decodeChipFilter(encoded) {
-    const parsed = JSON.parse(encoded);
-    if (!parsed || typeof parsed !== 'object') {
-        throw new Error('chipFilter must be an object');
-    }
-    const raw = parsed;
-    const include = assertMatchers(raw.include, 'include');
-    if (raw.other === undefined)
-        return { include };
-    return { include, other: assertMatchers(raw.other, 'other') };
-}
-function assertMatchers(value, field) {
-    if (!Array.isArray(value)) {
-        throw new Error(`chipFilter.${field} must be an array`);
-    }
-    return value.map((entry, i) => assertMatcher(entry, `${field}[${i}]`));
-}
-function assertMatcher(value, path) {
-    if (!value || typeof value !== 'object') {
-        throw new Error(`chipFilter.${path} must be an object`);
-    }
-    const raw = value;
-    if (!Array.isArray(raw.statuses) || raw.statuses.length === 0 || !raw.statuses.every((s) => typeof s === 'string')) {
-        throw new Error(`chipFilter.${path}.statuses must be a non-empty string[]`);
-    }
-    if (raw.reasons !== undefined) {
-        if (!Array.isArray(raw.reasons) || raw.reasons.length === 0 || !raw.reasons.every((r) => typeof r === 'string')) {
-            throw new Error(`chipFilter.${path}.reasons must be a non-empty string[] when present`);
-        }
-        return { statuses: raw.statuses, reasons: raw.reasons };
-    }
-    return { statuses: raw.statuses };
-}
-//# sourceMappingURL=job-filter.js.map
-;// CONCATENATED MODULE: ../shared/dist/job/chip-groups.js
-
-/**
- * Default row, shared between admin and non-admin. Customers see only these
- * 7 chips on the customer Jobs page; admin pages compose them with
- * {@link REASON_CHIP_GROUPS} via {@link ADMIN_JOB_LIST_CHIP_GROUPS}.
- *
- * #4012: also serves as the Status group on `/admin/jobs` — every parent
- * status an admin would filter by lives here, including Cancelled / Expired
- * / Failed (previously hidden behind their modifier chips on admin).
- */
-const BASE_CHIP_GROUPS = [
-    { label: 'Pending', statuses: [JOB_STATUS.PENDING, JOB_STATUS.PREPARING] },
-    { label: 'Queued', statuses: [JOB_STATUS.QUEUED, JOB_STATUS.WAITING] },
-    // `overdue` rolls in here so customers see a single in-flight bucket
-    // (#3835/#4034). Visual differentiation is handled by `StatusLabel`'s
-    // distinct icon (stopwatch vs spinner); the filter chip stays unified.
-    { label: 'Working', statuses: [JOB_STATUS.WORKING, JOB_STATUS.OVERDUE] },
-    { label: 'Completed', statuses: [JOB_STATUS.COMPLETED] },
-    { label: 'Cancelled', statuses: [JOB_STATUS.CANCELLED] },
-    { label: 'Expired', statuses: [JOB_STATUS.EXPIRED] },
-    { label: 'Failed', statuses: [JOB_STATUS.FAILED] },
-];
-/**
- * Admin-only Reason row — modifier-level chips that split Cancelled / Expired
- * / Failed into the granular outcomes admins care about for triage, plus the
- * standalone Overdue + Late submission chips that surface the modifier-driven
- * distinctions inside Working / Completed.
- *
- * Renders alongside (not in place of) {@link BASE_CHIP_GROUPS} on `/admin/jobs`
- * via {@link ADMIN_JOB_LIST_CHIP_GROUPS}, so admins can filter by parent
- * status (Failed) or by reason (System error) or by union of both — see
- * #4012.
- */
-const REASON_CHIP_GROUPS = [
-    // Working sub-chip — admins want overdue separable from on-time working
-    // even though customers see them combined under the Working chip.
-    { label: 'Overdue', statuses: [JOB_STATUS.OVERDUE] },
-    // Completed sub-chip — late submissions render with a yellow ✓ on every
-    // surface (#4036) and need a corresponding filter for admin triage (#4038).
-    { label: 'Late submission', statuses: [JOB_STATUS.COMPLETED], reasons: ['late_submission'] },
-    // Cancelled modifiers.
-    { label: 'Invalidated', statuses: [JOB_STATUS.CANCELLED], reasons: ['tester_invalidated'] },
-    // `tester_cancellation` is the canonical reason (post-#4079); `tester_cancelled`
-    // is the legacy alias on rows written before the rolling rename.
-    { label: 'Tester cancellation', statuses: [JOB_STATUS.CANCELLED], reasons: ['tester_cancellation', 'tester_cancelled'] },
-    { label: 'Admin terminated', statuses: [JOB_STATUS.CANCELLED], reasons: ['admin_terminated'] },
-    // Expired modifiers.
-    { label: 'No capacity', statuses: [JOB_STATUS.EXPIRED], reasons: ['no_capacity'] },
-    { label: 'Never started', statuses: [JOB_STATUS.EXPIRED], reasons: ['tester_unresponsive'] },
-    { label: 'Dropped', statuses: [JOB_STATUS.EXPIRED], reasons: ['tester_dropped'] },
-    // Failed modifiers.
-    { label: 'AI extraction failed', statuses: [JOB_STATUS.FAILED], reasons: ['ai_extraction_failed'] },
-    { label: 'AI extraction incomplete', statuses: [JOB_STATUS.FAILED], reasons: ['ai_extraction_incomplete'] },
-    { label: 'Unreachable URL', statuses: [JOB_STATUS.FAILED], reasons: ['unreachable_url'] },
-    { label: 'Safety check failed', statuses: [JOB_STATUS.FAILED], reasons: ['safety_check_failed'] },
-    { label: 'Platform issue', statuses: [JOB_STATUS.FAILED], reasons: ['platform_issue'] },
-    { label: 'System error', statuses: [JOB_STATUS.FAILED], reasons: ['system_error'] },
-];
-/**
- * Flat chip set for the admin `/admin/jobs` list, composed from {@link
- * BASE_CHIP_GROUPS} (Status group) + {@link REASON_CHIP_GROUPS} (Reason
- * group). Each chip is independent: selecting `Failed` filters to all
- * failed/error jobs; selecting `System error` alone filters to system_error
- * jobs without requiring Failed to also be selected. Selections OR together
- * — see #4012's union semantics.
- *
- * Adding a new modifier to {@link REASON_CHIP_GROUPS} automatically flows
- * here. Coverage is asserted by the test suite — `JobModifier` values
- * without a chip (other than `tester_overtime`, which is implicit in the
- * Overdue status chip) fail compilation.
- */
-const ADMIN_JOB_LIST_CHIP_GROUPS = [
-    ...BASE_CHIP_GROUPS,
-    ...REASON_CHIP_GROUPS,
-];
-/**
- * Special chip label that toggles the "only archived rows" filter on the
- * admin jobs list (`archivedOnly=true`). Lives in the same chip row as the
- * status chips so admins can combine e.g. `Archived + Completed`.
- */
-const ARCHIVED_CHIP_LABEL = 'Archived';
-/**
- * Map of every {@link JobModifier} value to the human-readable label used
- * by `REASON_CHIP_GROUPS`. Drives the admin-only modifier chip rendered
- * alongside the base status on cards, tables, and the Admin Tools drawer
- * (#4079) — keeps a single source of truth for the modifier vocabulary
- * across the filter chips and the inline outcome chips.
- *
- * `tester_overtime` is the always-set modifier on the `overdue` status and
- * has no dedicated chip in `REASON_CHIP_GROUPS`; it doesn't surface in
- * the inline modifier chip either (the base `Overdue` status already
- * communicates everything the label would), so it's omitted here. The
- * `Exclude` on the record's key set keeps that omission compile-checked.
- */
-const MODIFIER_LABELS = {
-    late_submission: 'Late submission',
-    tester_dropped: 'Dropped',
-    tester_unresponsive: 'Never started',
-    no_capacity: 'No capacity',
-    // Both the canonical `tester_cancellation` and the legacy `tester_cancelled`
-    // resolve to the same display label — the rolling rename is transparent to
-    // every reader (#4079). "Tester cancellation" leads with the disambiguating
-    // word so the inline modifier chip stays informative when truncated to a
-    // narrow column.
-    tester_cancellation: 'Tester cancellation',
-    tester_cancelled: 'Tester cancellation',
-    tester_invalidated: 'Invalidated',
-    admin_terminated: 'Admin terminated',
-    platform_issue: 'Platform issue',
-    system_error: 'System error',
-    ai_extraction_failed: 'AI extraction failed',
-    ai_extraction_incomplete: 'AI extraction incomplete',
-    unreachable_url: 'Unreachable URL',
-    safety_check_failed: 'Safety check failed',
-};
-/**
- * Resolve a {@link JobModifier} to its human-readable label. Returns `null`
- * for modifiers that intentionally don't surface as an inline chip (today,
- * only `tester_overtime` — see {@link MODIFIER_LABELS}).
- */
-function getModifierLabel(modifier) {
-    if (modifier === 'tester_overtime')
-        return null;
-    return MODIFIER_LABELS[modifier];
-}
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _modifierLabelsExhaustive = true;
-/**
- * Compressed terminal-status chips used by the Recent tab on the unified
- * `JobsTabs` cluster (Tester Portal / Admin Home). Drawn from {@link
- * BASE_CHIP_GROUPS} so testers and admins see the same vocabulary on
- * Recent that they see on the customer Jobs page.
- */
-const TERMINAL_CHIP_GROUPS = BASE_CHIP_GROUPS.filter((g) => g.label === 'Completed' || g.label === 'Cancelled' || g.label === 'Expired' || g.label === 'Failed');
-/** Set of all terminal `JobStatus` values addressed by `TERMINAL_CHIP_GROUPS`. */
-const TERMINAL_STATUS_SET = new Set(TERMINAL_CHIP_GROUPS.flatMap((g) => g.statuses));
-/**
- * Resolve the set of selected chip labels to the underlying {@link JobStatus}
- * values they represent. An empty input returns the all-statuses set so a
- * "no chips active" state behaves as "no filter" instead of "match nothing".
- */
-function terminalStatusSetForLabels(activeLabels) {
-    if (activeLabels.length === 0)
-        return TERMINAL_STATUS_SET;
-    const out = new Set();
-    for (const label of activeLabels) {
-        const group = TERMINAL_CHIP_GROUPS.find((g) => g.label === label);
-        if (group)
-            for (const s of group.statuses)
-                out.add(s);
-    }
-    return out;
-}
-function groupToMatcher(group) {
-    return group.reasons ? { statuses: group.statuses, reasons: group.reasons } : { statuses: group.statuses };
-}
-/** Resolve a chip label to its group, searching base + reason groups. */
-function findChipGroup(label) {
-    return BASE_CHIP_GROUPS.find((g) => g.label === label)
-        ?? REASON_CHIP_GROUPS.find((g) => g.label === label);
-}
-/**
- * Build the wire-format {@link JobChipFilter} from the set of active chip
- * labels. Returns `undefined` when nothing is active so callers can omit the
- * request param entirely (drops back to the default unfiltered list).
- */
-function buildChipFilter(activeLabels) {
-    if (activeLabels.length === 0)
-        return undefined;
-    const include = [];
-    for (const label of activeLabels) {
-        const group = findChipGroup(label);
-        if (group)
-            include.push(groupToMatcher(group));
-    }
-    return include.length > 0 ? { include } : undefined;
-}
-/** True when any currently-active chip is a Reason (modifier-level) chip. */
-function hasActiveReasonChip(activeLabels) {
-    return activeLabels.some((label) => REASON_CHIP_GROUPS.some((g) => g.label === label));
-}
-/** True when `label` is a Reason (modifier-level) chip. */
-function isReasonLabel(label) {
-    return REASON_CHIP_GROUPS.some((g) => g.label === label);
-}
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _chipModifierExhaustivenessGuard = true;
-//# sourceMappingURL=chip-groups.js.map
-;// CONCATENATED MODULE: ../shared/dist/job/executed-via-os.js
-/**
- * "Executed via" OS chip vocabulary used by the Recent tab's filter
- * (#3801). Each completed job records the OS its tester actually ran the
- * test on via `metadata.testerClient.os`. This module owns the mapping
- * between the raw `TesterClientOs` values (data) and the user-facing chip
- * labels (UI) — so `Linux` and pre-rollout `null` jobs both surface under
- * a single `Other` bucket without losing them from the list.
- *
- * Adding a new OS chip means: (a) add a value to the `TesterClientOs`
- * union in `job-metadata.types.ts`, (b) add a label entry below, and
- * (c) update the chip group order if order matters.
- */
-/** Chip labels in render order. `Other` always last. */
-const EXECUTED_VIA_OS_CHIP_LABELS = ['iOS', 'Android', 'Mac', 'Windows', 'Other'];
-/**
- * Map a recorded `TesterClientOs` (or its absence) to the chip label
- * that should match it. Linux + missing data both fall through to
- * `Other` — that bucket holds anything we either can't categorize into
- * the four common buckets (Linux desktops) or don't yet have data for
- * (pre-#3801 jobs, pre-rollout clients).
- */
-function osToExecutedViaLabel(os) {
-    if (os === 'ios')
-        return 'iOS';
-    if (os === 'android')
-        return 'Android';
-    if (os === 'mac')
-        return 'Mac';
-    if (os === 'windows')
-        return 'Windows';
-    return 'Other';
-}
-/**
- * Resolve the chip label for a given recent-job row. Falls through to
- * `Other` when the job has no `executedViaOs` set — covering both
- * pre-#3801 jobs (field is `null`) and rows submitted by clients that
- * haven't yet been updated to populate it.
- */
-function executedViaOsLabelForJob(job) {
-    return osToExecutedViaLabel(job.executedViaOs);
-}
-//# sourceMappingURL=executed-via-os.js.map
-;// CONCATENATED MODULE: ../shared/dist/job/job-priority.types.js
-/**
- * Job priority configuration for the tester queue.
- * Determines ordering in the Tester HQ priority-sorted stack.
- */
-const JOB_PRIORITIES = ['high', 'medium', 'low'];
-const DEFAULT_JOB_PRIORITY = 'medium';
-/**
- * Numeric weight for sorting: lower number = higher priority.
- * Used by the API to sort within priority tiers.
- */
-const PRIORITY_SORT_WEIGHT = {
-    high: 0,
-    medium: 1,
-    low: 2,
-};
-/**
- * Map job source to priority tier.
- *
- * - high: Client-submitted tests (API, dashboard, MCP, playground)
- * - medium: Automated tests (CI/CD, GitHub Actions, schedulers)
- * - low: Internal/dogfood (bulk tests)
- */
-const SOURCE_PRIORITY_MAP = {
-    'api-async': 'high',
-    'api-sync': 'high',
-    mcp: 'high',
-    dashboard: 'high',
-    playground: 'high',
-    'qa-test-action': 'medium',
-    'issue-tester-action': 'medium',
-    scheduler: 'medium',
-    'bulk-test-queue': 'low',
-};
-function priorityFromSource(source) {
-    return SOURCE_PRIORITY_MAP[source];
-}
-function isJobPriority(value) {
-    return typeof value === 'string' && JOB_PRIORITIES.includes(value);
-}
-/**
- * How long an unclaimed job stays in the queue before expiring, per priority.
- * In the queue model, jobs sit and wait — higher priority jobs expire sooner
- * because they're time-sensitive, while lower priority jobs can wait longer.
- */
-const PRIORITY_LIFETIME_MS = {
-    high: 30 * 60 * 1000, // 30 minutes
-    medium: 2 * 60 * 60 * 1000, // 2 hours
-    low: 24 * 60 * 60 * 1000, // 24 hours
-};
-/**
- * Compute the expiration timestamp for a job based on its creation time and priority.
- */
-function computeExpiresAt(createdAt, priority) {
-    return new Date(new Date(createdAt).getTime() + PRIORITY_LIFETIME_MS[priority]).toISOString();
-}
-//# sourceMappingURL=job-priority.types.js.map
-;// CONCATENATED MODULE: ../shared/dist/job/attachment.types.js
-/**
- * Attachment types for QA test jobs
- * Allows users to attach images, videos, and documents to job descriptions
- */
-/**
- * Maximum number of attachments allowed per job
- */
-const MAX_ATTACHMENTS = 10;
-/**
- * File extensions mapped to attachment types
- */
-const EXTENSION_TYPE_MAP = {
-    // Images
-    jpg: 'image',
-    jpeg: 'image',
-    png: 'image',
-    gif: 'image',
-    webp: 'image',
-    svg: 'image',
-    bmp: 'image',
-    ico: 'image',
-    // Videos
-    mp4: 'video',
-    webm: 'video',
-    mov: 'video',
-    avi: 'video',
-    mkv: 'video',
-    m4v: 'video',
-    // Documents
-    pdf: 'document',
-    doc: 'document',
-    docx: 'document',
-    xls: 'document',
-    xlsx: 'document',
-    ppt: 'document',
-    pptx: 'document',
-    txt: 'document',
-    md: 'document',
-    csv: 'document',
-};
-/**
- * Detect attachment type from URL based on file extension
- */
-function detectAttachmentType(url) {
-    try {
-        const urlObj = new URL(url);
-        const pathname = urlObj.pathname.toLowerCase();
-        // Extract extension from pathname
-        const lastDotIndex = pathname.lastIndexOf('.');
-        if (lastDotIndex === -1 || lastDotIndex === pathname.length - 1) {
-            return 'unknown';
-        }
-        const extension = pathname.slice(lastDotIndex + 1);
-        return EXTENSION_TYPE_MAP[extension] ?? 'unknown';
-    }
-    catch {
-        return 'unknown';
-    }
-}
-/**
- * Validate that a string is a valid URL
- */
-function isValidAttachmentUrl(url) {
-    try {
-        const urlObj = new URL(url);
-        // Only allow http and https protocols
-        return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-    }
-    catch {
-        return false;
-    }
-}
-/**
- * Validate an attachment object
- */
-function validateAttachment(attachment) {
-    if (typeof attachment !== 'object' || attachment === null) {
-        return false;
-    }
-    const att = attachment;
-    // URL is required and must be a valid string
-    if (typeof att.url !== 'string' || !isValidAttachmentUrl(att.url)) {
-        return false;
-    }
-    // Optional fields must be strings if present
-    if (att.title !== undefined && typeof att.title !== 'string') {
-        return false;
-    }
-    if (att.altText !== undefined && typeof att.altText !== 'string') {
-        return false;
-    }
-    // Type must be a valid AttachmentType if present
-    if (att.type !== undefined) {
-        const validTypes = ['image', 'video', 'document', 'unknown'];
-        if (!validTypes.includes(att.type)) {
-            return false;
-        }
-    }
-    return true;
-}
-/**
- * Validate an array of attachments
- * Returns an error message if invalid, undefined if valid
- */
-function validateAttachments(attachments) {
-    if (!Array.isArray(attachments)) {
-        return 'attachments must be an array';
-    }
-    if (attachments.length > MAX_ATTACHMENTS) {
-        return `Maximum ${MAX_ATTACHMENTS} attachments allowed`;
-    }
-    for (let i = 0; i < attachments.length; i++) {
-        if (!validateAttachment(attachments[i])) {
-            return `Invalid attachment at index ${i}: must have a valid URL`;
-        }
-    }
-    return undefined;
-}
-/**
- * Normalize an attachment by resolving its type if not provided
- */
-function normalizeAttachment(attachment) {
-    return {
-        ...attachment,
-        type: attachment.type ?? detectAttachmentType(attachment.url),
-    };
-}
-//# sourceMappingURL=attachment.types.js.map
 ;// CONCATENATED MODULE: ../shared/dist/job/device-class.types.js
 /**
  * Device class configuration for QA test jobs.
@@ -58817,6 +58455,15 @@ const TESTER_STATUSES = ['pending', 'active', 'rejected', 'deactivated', 'banned
 const TESTER_SCHEDULE_TYPE_DAILY_BREAK_ALLOWANCE_MINUTES = {
     part_time: 30,
     full_time: 60,
+};
+/**
+ * Human-facing label for a tester's schedule type — the single source of the
+ * "Part-time" / "Full-time" copy across the timesheet badge and the profile
+ * modal's break-allowance line (#4864).
+ */
+const TESTER_SCHEDULE_TYPE_LABEL = {
+    part_time: 'Part-time',
+    full_time: 'Full-time',
 };
 /**
  * Threshold separating on-clock vs. off-clock breaks (#3756).
@@ -59067,6 +58714,370 @@ function detectClaimSurfaceConflict(job) {
     };
 }
 //# sourceMappingURL=claim-surface.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/job-priority.types.js
+/**
+ * Job priority + time-to-claim model for the tester queue.
+ *
+ * Priority is driven primarily by the creating organization's **plan tier**.
+ * How the job was created (its {@link JobSource}) is only a minor modifier, and
+ * first-party (internal Runhuman) jobs are deprioritized so paying customers
+ * come first. Two outputs are derived from the same inputs:
+ *
+ *  - {@link computePriorityScore} — a numeric score that orders the queue
+ *    (higher = claimed first). Stored on the job; projected to a coarse
+ *    {@link PriorityBand} for notification routing and badges.
+ *  - {@link computeClaimWindowMinutes} — how long an unclaimed job waits before
+ *    expiring, bounded to [30 min, 6 h]. Higher-priority jobs get shorter,
+ *    more urgent windows; deprioritized jobs get longer, more patient ones.
+ */
+// ────────────────────────────── Priority score ──────────────────────────────
+/**
+ * Tier is the spine of the score. Even 20-point steps keep tier dominant: a
+ * relax modifier never flips two tiers, but the internal penalty intentionally
+ * sinks a first-party job well below an equivalent customer's.
+ */
+const TIER_PRIORITY = {
+    free: 0,
+    starter: 20,
+    pro: 40,
+    max: 60,
+    enterprise: 80,
+    enterprise_pro: 100,
+};
+/**
+ * Sources with no per-job urgency: planned (scheduler) or batch
+ * (bulk issue testing) work where nobody is waiting on a single result.
+ */
+const RELAXED_SOURCES = new Set([
+    'scheduler',
+    'bulk-test-queue',
+]);
+/** Score penalty applied to relaxed sources (less than one tier step). */
+const RELAX_SCORE_PENALTY = -10;
+/** Score penalty applied to internal jobs (~2.5 tiers — customers come first). */
+const INTERNAL_SCORE_PENALTY = -50;
+function isRelaxedSource(source) {
+    return source !== undefined && RELAXED_SOURCES.has(source);
+}
+/**
+ * Compute a job's numeric priority score. Higher = claimed first. The score may
+ * go negative (a free + relaxed + internal job lands at -60), which still orders
+ * correctly below a plain free job at 0.
+ */
+function computePriorityScore(inputs) {
+    return (TIER_PRIORITY[inputs.tier] +
+        (isRelaxedSource(inputs.source) ? RELAX_SCORE_PENALTY : 0) +
+        (inputs.isInternal ? INTERNAL_SCORE_PENALTY : 0));
+}
+// ─────────────────────────────── Claim window ───────────────────────────────
+/**
+ * Per-tier base claim window, shortest → longest. The curve is deliberately
+ * non-linear: a gradual 30-min climb across the premium tiers (30 min → 2 h),
+ * then a rapid climb to the 6 h cap for the lower tiers.
+ */
+const CLAIM_WINDOW_MINUTES_BY_TIER = {
+    enterprise_pro: 30,
+    enterprise: 60,
+    max: 90,
+    pro: 120,
+    starter: 240,
+    free: 360,
+};
+/** Tiers ordered by ascending claim window (index 0 = shortest = highest priority). */
+const TIER_WINDOW_ORDER = [
+    'enterprise_pro',
+    'enterprise',
+    'max',
+    'pro',
+    'starter',
+    'free',
+];
+/**
+ * CI-driven sources whose claim window is fixed rather than tier-derived. A PR
+ * check runs in a narrow automated window — once the run has moved on, an
+ * unclaimed job lingering for hours is useless — so these always expire at
+ * {@link CI_CLAIM_WINDOW_MINUTES}, ignoring tier and the relax/internal
+ * modifiers entirely.
+ */
+const CI_SOURCES = new Set([
+    'qa-test-action',
+    'issue-tester-action',
+]);
+/**
+ * Fixed claim window (minutes) for {@link CI_SOURCES}. A flat constant on
+ * purpose — it is not derived from any tier's window, so retuning a tier's
+ * timing can never silently move the CI window.
+ */
+const CI_CLAIM_WINDOW_MINUTES = 30;
+function isCiSource(source) {
+    return source !== undefined && CI_SOURCES.has(source);
+}
+/**
+ * Compute the claim window in minutes. CI sources are pinned to a fixed window
+ * regardless of tier or modifiers. Otherwise relaxed sources and internal orgs
+ * are "more patient": each one steps the job one tier slower (a longer window),
+ * clamped at the free-tier 6 h ceiling.
+ */
+function computeClaimWindowMinutes(inputs) {
+    if (isCiSource(inputs.source))
+        return CI_CLAIM_WINDOW_MINUTES;
+    const lengthenSteps = (isRelaxedSource(inputs.source) ? 1 : 0) + (inputs.isInternal ? 1 : 0);
+    const baseIndex = TIER_WINDOW_ORDER.indexOf(inputs.tier);
+    const effectiveIndex = Math.min(baseIndex + lengthenSteps, TIER_WINDOW_ORDER.length - 1);
+    return CLAIM_WINDOW_MINUTES_BY_TIER[TIER_WINDOW_ORDER[effectiveIndex]];
+}
+/** Compute the absolute expiry timestamp from creation time and a claim window. */
+function computeExpiresAt(createdAt, claimWindowMinutes) {
+    return new Date(new Date(createdAt).getTime() + claimWindowMinutes * 60 * 1000).toISOString();
+}
+/**
+ * Weight of the aging term in {@link computeQueueScore}. Deliberately smaller
+ * than the 20-point gap between adjacent tiers: aging only ever reorders
+ * *within* a priority tier and applies gentle cross-tier pressure — it can
+ * never lift a fully-aged lower-tier job above a fresh higher-tier one. That
+ * keeps the queue **priority-dominant**: lower-tier jobs are allowed to expire
+ * unclaimed when testers are saturated.
+ */
+const QUEUE_SCORE_AGING_WEIGHT = 15;
+/**
+ * How far a job is through its own claim window, in `[0, 1]`. Normalizing to
+ * each job's own window (not a global clock) lets a 30-min enterprise job and
+ * a 6-h free job age on the same scale — the short window simply fills faster.
+ * Clamped at both ends: clock skew before creation reads 0, past expiry reads 1.
+ */
+function computeElapsedFraction(createdAt, expiresAt, nowMs) {
+    const startMs = new Date(createdAt).getTime();
+    const endMs = new Date(expiresAt).getTime();
+    const fraction = (nowMs - startMs) / (endMs - startMs);
+    if (fraction < 0)
+        return 0;
+    if (fraction > 1)
+        return 1;
+    return fraction;
+}
+/**
+ * Dynamic, time-aware queue score (#5115). Priority is the spine; the job's
+ * elapsed fraction of its own window is a bounded additive nudge. Higher =
+ * surfaced first. Recompute at query/render time — it is never stored.
+ */
+function computeQueueScore(inputs, nowMs) {
+    return (inputs.priorityScore +
+        QUEUE_SCORE_AGING_WEIGHT * computeElapsedFraction(inputs.createdAt, inputs.expiresAt, nowMs));
+}
+/**
+ * Total order for the tester queue, shared by the server snapshot and the
+ * client per-tester sort so the two can never diverge. Higher
+ * {@link computeQueueScore} first; ties broken by the soonest absolute expiry.
+ */
+function compareQueueByScore(a, b, nowMs) {
+    const scoreDiff = computeQueueScore(b, nowMs) - computeQueueScore(a, nowMs);
+    if (scoreDiff !== 0)
+        return scoreDiff;
+    return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime();
+}
+// ─────────────────────────────── Priority band ──────────────────────────────
+/**
+ * Coarse band projected from a {@link computePriorityScore}. Used for tester
+ * notification preferences ("notify me for High/Medium/Low jobs") and badges —
+ * the discrete, human-facing face of the continuous score.
+ */
+const PRIORITY_BANDS = ['high', 'medium', 'low'];
+/** Score at/above which a job is "high" band. */
+const HIGH_BAND_MIN_SCORE = 70;
+/** Score at/above which a job is "medium" band (below ⇒ "low"). */
+const MEDIUM_BAND_MIN_SCORE = 30;
+function priorityScoreToBand(priorityScore) {
+    if (priorityScore >= HIGH_BAND_MIN_SCORE)
+        return 'high';
+    if (priorityScore >= MEDIUM_BAND_MIN_SCORE)
+        return 'medium';
+    return 'low';
+}
+function isPriorityBand(value) {
+    return typeof value === 'string' && PRIORITY_BANDS.includes(value);
+}
+//# sourceMappingURL=job-priority.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/job-visibility.js
+/**
+ * Experience-based staggered job visibility (#5162).
+ *
+ * A job for an organization surfaces first to the testers who know that org,
+ * then opens up to everyone over time. Each job carries a per-org
+ * `effectiveThreshold` (the experience level at which it's instantly visible —
+ * `min(daily P80, live bestOnline)`, computed server-side). The client compares
+ * that against the tester's own completed-job count for the org and derives a
+ * reveal delay measured from the job's creation:
+ *
+ *   rawDelay      = max(0, ln(1+threshold) − ln(1+count)) × DELAY_MINUTES_PER_LN
+ *   effectiveDelay = max(0, min(rawDelay, window − MIN_VISIBLE_TAIL))
+ *   visible        = now ≥ createdAt + effectiveDelay
+ *
+ * `ln(1+x)` gives diminishing returns (0→1→2 jobs moves the needle fast, 50→55
+ * barely at all) and differentiates 0 from 1 experience, which `max(1,x)` can't.
+ * The visible-tail cap guarantees every tester sees the job before it expires,
+ * so gating never starves a job. A threshold of 0 (org not gated, or feature
+ * off) yields a non-positive gap → zero delay → immediately visible.
+ *
+ * Pure and deterministic in `now`, evaluated client-side per tester. The
+ * snapshot service computes `effectiveThreshold`; this module owns the delay.
+ */
+/** Minutes of reveal delay added per unit of `ln(1+x)` experience gap. */
+const DELAY_MINUTES_PER_LN = 2;
+/**
+ * Every tester is guaranteed to see a job for at least this many minutes before
+ * it expires, regardless of experience — the floor that keeps gating from ever
+ * withholding a job until death.
+ */
+const MIN_VISIBLE_TAIL_MINUTES = 10;
+const MS_PER_MINUTE = 60_000;
+/** Reveal delay from job creation, in milliseconds, after the visible-tail cap. */
+function computeRevealDelayMs(inputs) {
+    const gap = Math.log(1 + inputs.effectiveThreshold) - Math.log(1 + inputs.testerCount);
+    if (gap <= 0)
+        return 0;
+    const rawDelayMs = gap * DELAY_MINUTES_PER_LN * MS_PER_MINUTE;
+    const windowMs = new Date(inputs.expiresAt).getTime() - new Date(inputs.createdAt).getTime();
+    const cappedMs = Math.min(rawDelayMs, windowMs - MIN_VISIBLE_TAIL_MINUTES * MS_PER_MINUTE);
+    return Math.max(0, cappedMs);
+}
+/** Wall-clock ms at which the job becomes visible to this tester (for countdowns). */
+function revealAtMs(inputs) {
+    return new Date(inputs.createdAt).getTime() + computeRevealDelayMs(inputs);
+}
+/** Whether the job is visible to this tester at `nowMs`. */
+function isVisibleToTester(inputs, nowMs) {
+    return nowMs >= revealAtMs(inputs);
+}
+//# sourceMappingURL=job-visibility.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/attachment.types.js
+/**
+ * Attachment types for QA test jobs
+ * Allows users to attach images, videos, and documents to job descriptions
+ */
+/**
+ * Maximum number of attachments allowed per job
+ */
+const MAX_ATTACHMENTS = 10;
+/**
+ * File extensions mapped to attachment types
+ */
+const EXTENSION_TYPE_MAP = {
+    // Images
+    jpg: 'image',
+    jpeg: 'image',
+    png: 'image',
+    gif: 'image',
+    webp: 'image',
+    svg: 'image',
+    bmp: 'image',
+    ico: 'image',
+    // Videos
+    mp4: 'video',
+    webm: 'video',
+    mov: 'video',
+    avi: 'video',
+    mkv: 'video',
+    m4v: 'video',
+    // Documents
+    pdf: 'document',
+    doc: 'document',
+    docx: 'document',
+    xls: 'document',
+    xlsx: 'document',
+    ppt: 'document',
+    pptx: 'document',
+    txt: 'document',
+    md: 'document',
+    csv: 'document',
+};
+/**
+ * Detect attachment type from URL based on file extension
+ */
+function detectAttachmentType(url) {
+    try {
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname.toLowerCase();
+        // Extract extension from pathname
+        const lastDotIndex = pathname.lastIndexOf('.');
+        if (lastDotIndex === -1 || lastDotIndex === pathname.length - 1) {
+            return 'unknown';
+        }
+        const extension = pathname.slice(lastDotIndex + 1);
+        return EXTENSION_TYPE_MAP[extension] ?? 'unknown';
+    }
+    catch {
+        return 'unknown';
+    }
+}
+/**
+ * Validate that a string is a valid URL
+ */
+function isValidAttachmentUrl(url) {
+    try {
+        const urlObj = new URL(url);
+        // Only allow http and https protocols
+        return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    }
+    catch {
+        return false;
+    }
+}
+/**
+ * Validate an attachment object
+ */
+function validateAttachment(attachment) {
+    if (typeof attachment !== 'object' || attachment === null) {
+        return false;
+    }
+    const att = attachment;
+    // URL is required and must be a valid string
+    if (typeof att.url !== 'string' || !isValidAttachmentUrl(att.url)) {
+        return false;
+    }
+    // Optional fields must be strings if present
+    if (att.title !== undefined && typeof att.title !== 'string') {
+        return false;
+    }
+    if (att.altText !== undefined && typeof att.altText !== 'string') {
+        return false;
+    }
+    // Type must be a valid AttachmentType if present
+    if (att.type !== undefined) {
+        const validTypes = ['image', 'video', 'document', 'unknown'];
+        if (!validTypes.includes(att.type)) {
+            return false;
+        }
+    }
+    return true;
+}
+/**
+ * Validate an array of attachments
+ * Returns an error message if invalid, undefined if valid
+ */
+function validateAttachments(attachments) {
+    if (!Array.isArray(attachments)) {
+        return 'attachments must be an array';
+    }
+    if (attachments.length > MAX_ATTACHMENTS) {
+        return `Maximum ${MAX_ATTACHMENTS} attachments allowed`;
+    }
+    for (let i = 0; i < attachments.length; i++) {
+        if (!validateAttachment(attachments[i])) {
+            return `Invalid attachment at index ${i}: must have a valid URL`;
+        }
+    }
+    return undefined;
+}
+/**
+ * Normalize an attachment by resolving its type if not provided
+ */
+function normalizeAttachment(attachment) {
+    return {
+        ...attachment,
+        type: attachment.type ?? detectAttachmentType(attachment.url),
+    };
+}
+//# sourceMappingURL=attachment.types.js.map
 ;// CONCATENATED MODULE: ../shared/dist/job/transcript-utils.js
 /**
  * A transcript segment is "final" when its `isFinal` flag is `true` or absent.
@@ -59150,113 +59161,6 @@ function getProgressMessage(segments) {
     return activePhase.data?.progressMessage;
 }
 //# sourceMappingURL=phase-segment.types.js.map
-;// CONCATENATED MODULE: ../shared/dist/job/session-boundaries.js
-/**
- * Sort recordings by `sessionIndex` and deduplicate by `s3Key`. The
- * auto-finalized dangling-session bug can produce duplicate entries that
- * differ only in their `sessionIndex` — collapse them so the boundaries we
- * derive describe distinct MP4s.
- */
-function deduplicateRecordings(recordings) {
-    const sorted = [...recordings].sort((a, b) => a.sessionIndex - b.sessionIndex);
-    const seen = new Set();
-    return sorted.filter((rec) => {
-        if (seen.has(rec.s3Key))
-            return false;
-        seen.add(rec.s3Key);
-        return true;
-    });
-}
-/**
- * Resolve the reference timestamp every video-relative offset is computed
- * against.
- *
- * Priority chain:
- *   1. Multi-session: first recording's `videoStartTime` (testerAppStartTime
- *      gets overwritten on each rejoin and only reflects the last session).
- *   2. `testerAppStartTime` — screen share confirmed (testing began).
- *   3. `videoStartTime` / first recording session — egress creation time.
- *   4. `claimedAt` / `createdAt` — job lifecycle (last resort).
- */
-function resolveCanonicalTimeZero(job) {
-    const recordings = job.livekitRecordingSessions;
-    if (recordings && recordings.length > 1) {
-        const unique = deduplicateRecordings(recordings);
-        return unique[0].videoStartTime;
-    }
-    if (job.testerAppStartTime)
-        return job.testerAppStartTime;
-    const videoTs = job.videoStartTime ?? recordings?.[0]?.videoStartTime;
-    if (videoTs)
-        return videoTs;
-    if (job.claimedAt)
-        return new Date(job.claimedAt).getTime();
-    return new Date(job.createdAt).getTime();
-}
-/**
- * Compute time boundaries for each recording session, in canonical-time
- * offsets. Each session spans `[startOffset, endOffset)`. The last session's
- * `endOffset` falls back to `videoDuration` (when known) or `Infinity` so any
- * canonical-time offset within the merged span maps to exactly one session.
- */
-function resolveSessionBoundaries(recordings, canonicalTimeZero, videoDuration) {
-    const unique = deduplicateRecordings(recordings);
-    return unique.map((rec, i) => {
-        const startOffset = (rec.videoStartTime - canonicalTimeZero) / 1000;
-        const nextRec = unique[i + 1];
-        const endOffset = nextRec
-            ? (nextRec.videoStartTime - canonicalTimeZero) / 1000
-            : videoDuration ?? Infinity;
-        return {
-            sessionIndex: rec.sessionIndex,
-            videoStartTime: rec.videoStartTime,
-            startOffset: Math.max(0, startOffset),
-            endOffset,
-        };
-    });
-}
-/**
- * Total canonical-time span across all sessions. Used as the effective
- * duration when clamping merged-view events so signals from later sessions
- * aren't capped by the single-session duration.
- */
-function computeMultiSessionSpan(recordings, canonicalTimeZero, singleSessionDuration) {
-    const unique = deduplicateRecordings(recordings);
-    const lastRecording = unique[unique.length - 1];
-    const lastStartOffset = (lastRecording.videoStartTime - canonicalTimeZero) / 1000;
-    return lastStartOffset + (singleSessionDuration ?? 0);
-}
-/**
- * Map a canonical-time offset to the session it belongs to and the equivalent
- * player-relative offset inside that session's MP4.
- *
- * Boundaries must be sorted by `startOffset`; `resolveSessionBoundaries()`
- * already returns them sorted. The last boundary's `endOffset` is expected to
- * be `Infinity` (or a known `videoDuration`) so any in-span offset finds a
- * match.
- *
- * Throws when called with no boundaries — caller should gate on
- * `boundaries.length > 0` first (single-session jobs don't need this).
- */
-function canonicalToSession(canonicalSeconds, boundaries) {
-    if (boundaries.length === 0) {
-        throw new Error('canonicalToSession requires at least one session boundary');
-    }
-    for (const b of boundaries) {
-        if (canonicalSeconds < b.endOffset) {
-            return {
-                sessionIndex: b.sessionIndex,
-                perSessionSeconds: Math.max(0, canonicalSeconds - b.startOffset),
-            };
-        }
-    }
-    const last = boundaries[boundaries.length - 1];
-    return {
-        sessionIndex: last.sessionIndex,
-        perSessionSeconds: Math.max(0, canonicalSeconds - last.startOffset),
-    };
-}
-//# sourceMappingURL=session-boundaries.js.map
 ;// CONCATENATED MODULE: ../shared/dist/job/phase-descriptions.js
 /**
  * Human-readable descriptions for tester app phases and sub-phases.
@@ -59293,6 +59197,649 @@ function getPhaseDescription(phase, subPhase) {
     return phaseDescriptions[phase];
 }
 //# sourceMappingURL=phase-descriptions.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/livekit-session.types.js
+/**
+ * LiveKit Recording Session Types (Issue #1965)
+ *
+ * Tracks completed recording sessions for multi-session jobs.
+ * Each session corresponds to one LiveKit room/egress recording.
+ */
+/**
+ * The S3 key to serve for playback of a recording session (#5354). The single
+ * source of truth for "which object does a viewer get": the audio-removed
+ * `silentS3Key` when the strip produced one, otherwise the `s3Key` original.
+ *
+ * Every viewer-facing serve path MUST go through this — serving `s3Key` directly
+ * would leak audio for a voice-privacy recording whose original is now retained
+ * (immutable). Legacy in-place-stripped sessions have no `silentS3Key`; their
+ * `s3Key` is already silent, so it is correctly returned.
+ */
+function playbackKeyForSession(session) {
+    return session.silentS3Key ? session.silentS3Key : session.s3Key;
+}
+//# sourceMappingURL=livekit-session.types.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/session-boundaries.js
+/**
+ * Sort recordings by `sessionIndex` and deduplicate by `s3Key`. The
+ * auto-finalized dangling-session bug can produce duplicate entries that
+ * differ only in their `sessionIndex` — collapse them so the boundaries we
+ * derive describe distinct MP4s.
+ */
+function deduplicateRecordings(recordings) {
+    const sorted = [...recordings].sort((a, b) => a.sessionIndex - b.sessionIndex);
+    const seen = new Set();
+    return sorted.filter((rec) => {
+        if (seen.has(rec.s3Key))
+            return false;
+        seen.add(rec.s3Key);
+        return true;
+    });
+}
+/**
+ * A recording is *placeable* once its first-frame time is a real epoch — i.e.
+ * LiveKit first-frame detection has resolved. Sessions filed during the
+ * dangling-session window carry a null start and cannot be anchored to canonical
+ * time; treating their null/`0` start as a reference collapses every offset to
+ * `@ 0:00` (#5051), so callers must skip them.
+ */
+function hasPlaceableStart(rec) {
+    return rec.videoStartTime !== null && Number.isFinite(rec.videoStartTime) && rec.videoStartTime > 0;
+}
+/** Dedup, then keep only sessions we can anchor to canonical time. */
+function placeableRecordings(recordings) {
+    return deduplicateRecordings(recordings).filter(hasPlaceableStart);
+}
+/**
+ * The recording session whose first frame anchors canonical time: the first
+ * session (by `sessionIndex`, deduped), but only once its first frame has
+ * resolved. `null` when there are no recordings, or when the earliest session's
+ * first frame is still pending (#5051) — anchoring on a *later* session's start
+ * would shift every offset, so a pending first session has no anchor at all.
+ */
+function canonicalAnchorRecording(recordings) {
+    if (!recordings || recordings.length === 0)
+        return null;
+    const first = deduplicateRecordings(recordings)[0];
+    return hasPlaceableStart(first) ? first : null;
+}
+/**
+ * Resolve the reference timestamp every video-relative offset is computed
+ * against: the first recording session's first frame (by `sessionIndex`,
+ * deduped). The video player plays this MP4 and its `t=0` IS that first frame
+ * (the #P2-accurate egress start), so anchoring here keeps karaoke words, event
+ * offsets, and deep-links in sync with playback.
+ *
+ * There is no fallback (#5446). Anchoring on `testerAppStartTime` instead drifted
+ * every offset by the gap between "screen-share confirmed" and the encoder's
+ * first frame — the ~1s karaoke lead in #5432 — and the lifecycle anchors
+ * (`claimedAt`/`createdAt`) are wronger still. Every job has a recording, so the
+ * only anchorless state is transient: the #5051 dangling window, where the
+ * earliest session's first frame is still `null`. That is a **throw**, not a
+ * silent re-anchor; callers gate on `isCanonicalAnchorResolved` and skip
+ * video-anchored work while the anchor is pending.
+ */
+function resolveCanonicalTimeZero(job) {
+    const anchor = canonicalAnchorRecording(job.livekitRecordingSessions);
+    if (anchor === null) {
+        throw new Error('Cannot resolve canonical time zero: job has no recording with a resolved ' +
+            'first-frame videoStartTime. Gate on isCanonicalAnchorResolved() and skip ' +
+            'video-anchored work while the anchor is pending (#5446).');
+    }
+    return anchor.videoStartTime;
+}
+/**
+ * True once the first recording's first frame has resolved — the only anchor
+ * canonical time is derived from. False during the transient #5051 dangling
+ * window (and for a job whose recordings haven't been filed yet). Callers use
+ * this to skip canonical-zero-dependent work instead of letting
+ * `resolveCanonicalTimeZero` throw.
+ */
+function isCanonicalAnchorResolved(job) {
+    return canonicalAnchorRecording(job.livekitRecordingSessions) !== null;
+}
+/**
+ * Compute time boundaries for each recording session, in canonical-time
+ * offsets. Each session spans `[startOffset, endOffset)`. The last session's
+ * `endOffset` falls back to `videoDuration` (when known) or `Infinity` so any
+ * canonical-time offset within the merged span maps to exactly one session.
+ */
+function resolveSessionBoundaries(recordings, canonicalTimeZero, videoDuration) {
+    // Only sessions with a resolved first frame can be placed on the canonical
+    // timeline; a null-start session has no anchor (#5051) and is skipped.
+    const placeable = placeableRecordings(recordings);
+    return placeable.map((rec, i) => {
+        const startOffset = (rec.videoStartTime - canonicalTimeZero) / 1000;
+        const nextRec = placeable[i + 1];
+        const endOffset = nextRec
+            ? (nextRec.videoStartTime - canonicalTimeZero) / 1000
+            : videoDuration ?? Infinity;
+        return {
+            sessionIndex: rec.sessionIndex,
+            videoStartTime: rec.videoStartTime,
+            startOffset: Math.max(0, startOffset),
+            endOffset,
+        };
+    });
+}
+/**
+ * Canonical-time start offset (seconds) of the latest *placeable* recording
+ * session — the boundary every later-session offset is measured past. A
+ * trailing null-start session can't be anchored (#5051) and is skipped; returns
+ * `null` when there is no placeable session at all.
+ */
+function lastPlaceableSessionStartOffset(recordings, canonicalTimeZero) {
+    if (!recordings)
+        return null;
+    const placeable = placeableRecordings(recordings);
+    const last = placeable[placeable.length - 1];
+    return last ? (last.videoStartTime - canonicalTimeZero) / 1000 : null;
+}
+/**
+ * Total canonical-time span across all sessions. Used as the effective
+ * duration when clamping merged-view events so signals from later sessions
+ * aren't capped by the single-session duration.
+ *
+ * Returns `undefined` when `singleSessionDuration` is unknown: the last
+ * session's length is what extends the span past its start, so without it the
+ * total span is genuinely unknown. Returning the bare `lastStartOffset` instead
+ * (the inter-session gap, zero session content) hands `videoOffsetFromEpoch` a
+ * ceiling that sits exactly on the last session's start, clamping every
+ * later-session offset down onto that boundary → "S2 @ 0:00" (#5538). An
+ * unknown span must stay unknown so offsets are left unclamped.
+ */
+function computeMultiSessionSpan(recordings, canonicalTimeZero, singleSessionDuration) {
+    if (singleSessionDuration === undefined)
+        return undefined;
+    const lastStartOffset = lastPlaceableSessionStartOffset(recordings, canonicalTimeZero) ?? 0;
+    return lastStartOffset + singleSessionDuration;
+}
+/**
+ * Total watchable video length across every recording session, in seconds —
+ * the SUM of each session's MP4 duration, which (unlike a first-start-to-last-end
+ * span) excludes the gaps between sessions where the tester was preparing or
+ * reviewing rather than recording. This is what customer billing charges for: a
+ * customer only ever pays for video they can actually play back.
+ *
+ * Returns `undefined` when there are no recording sessions yet or any
+ * session's `videoDurationMs` is still unresolved — the caller then falls back
+ * to the timestamp-span calculation. Recordings are deduplicated by `s3Key`
+ * first so the dangling-session double-file bug can't double-count a session.
+ */
+function sumSessionVideoSeconds(recordings) {
+    if (!recordings || recordings.length === 0)
+        return undefined;
+    const deduped = deduplicateRecordings(recordings);
+    let totalMs = 0;
+    for (const rec of deduped) {
+        if (rec.videoDurationMs === null || rec.videoDurationMs === undefined)
+            return undefined;
+        totalMs += rec.videoDurationMs;
+    }
+    return totalMs / 1000;
+}
+/**
+ * Resolve the effective video duration (seconds) used to clamp video-relative
+ * offsets to the real recorded span. Never the billing cap (`testDurationSeconds`,
+ * which #4602 clamps to the allotted window) unless that's the only signal left.
+ *
+ *   1. `testerAppEndTime` present and after zero → `(testerAppEndTime −
+ *      canonicalTimeZero)/1000`. For multi-session jobs canonical zero is the
+ *      first recording's start, so this is the full span across every session;
+ *      for single-session jobs it's that session's real length. Most accurate.
+ *   2. No usable app-end signal, multi-session → extend `testDurationSeconds`
+ *      across the sessions via `computeMultiSessionSpan` so later-session events
+ *      aren't capped.
+ *   3. No usable app-end signal, single-session → `testDurationSeconds` as-is.
+ *
+ * Returns `undefined` when nothing anchors the span (offsets then stay unclamped).
+ *
+ * `testerAppEndTime` is `null` until the tester app reports it — which can be
+ * AFTER extraction runs (#5078). A `null` end time must behave exactly like an
+ * absent one: treating `null` as a value computed `(null − zero)/1000 = −zero/1000`,
+ * a negative epoch-scale "duration" that inverted `videoOffsetFromEpoch`'s
+ * `Math.min` clamp and floored every offset to garbage. A non-positive span
+ * (clock-skewed end before zero) is unusable for the same reason — fall through.
+ *
+ * Final guard (#5654): a candidate span that doesn't extend *past* the last
+ * placeable session's start offset is not a real recording length — it's a
+ * present-but-too-small signal from an extraction-time race (a `testerAppEndTime`
+ * written before the last session ran, or a tiny/zero `testDurationSeconds`).
+ * Clamping to it floors every later-session offset onto that boundary → the
+ * "S2 @ 0:00" collapse #5538 only closed for the `undefined` case. So a span at
+ * or below the last session's start is treated as unknown (undefined → offsets
+ * left unclamped), exactly like an absent signal.
+ */
+function resolveEffectiveVideoDuration(job) {
+    const canonicalTimeZero = resolveCanonicalTimeZero(job);
+    const recordings = job.livekitRecordingSessions;
+    const candidate = resolveDurationCandidate(job, canonicalTimeZero, recordings);
+    if (candidate === undefined)
+        return undefined;
+    const lastStartOffset = lastPlaceableSessionStartOffset(recordings, canonicalTimeZero);
+    if (lastStartOffset !== null && candidate <= lastStartOffset)
+        return undefined;
+    return candidate;
+}
+/** The raw span signal, before the too-small guard in {@link resolveEffectiveVideoDuration}. */
+function resolveDurationCandidate(job, canonicalTimeZero, recordings) {
+    if (job.testerAppEndTime != null) {
+        const appSpanSeconds = (job.testerAppEndTime - canonicalTimeZero) / 1000;
+        if (appSpanSeconds > 0)
+            return appSpanSeconds;
+    }
+    if (recordings && recordings.length > 1) {
+        return computeMultiSessionSpan(recordings, canonicalTimeZero, job.testDurationSeconds);
+    }
+    return job.testDurationSeconds;
+}
+/**
+ * Map a canonical-time offset to the session it belongs to and the equivalent
+ * player-relative offset inside that session's MP4.
+ *
+ * Boundaries must be sorted by `startOffset`; `resolveSessionBoundaries()`
+ * already returns them sorted. The last boundary's `endOffset` is expected to
+ * be `Infinity` (or a known `videoDuration`) so any in-span offset finds a
+ * match.
+ *
+ * Throws when called with no boundaries — caller should gate on
+ * `boundaries.length > 0` first (single-session jobs don't need this).
+ */
+function canonicalToSession(canonicalSeconds, boundaries) {
+    if (boundaries.length === 0) {
+        throw new Error('canonicalToSession requires at least one session boundary');
+    }
+    for (const b of boundaries) {
+        if (canonicalSeconds < b.endOffset) {
+            return {
+                sessionIndex: b.sessionIndex,
+                perSessionSeconds: Math.max(0, canonicalSeconds - b.startOffset),
+            };
+        }
+    }
+    const last = boundaries[boundaries.length - 1];
+    return {
+        sessionIndex: last.sessionIndex,
+        perSessionSeconds: Math.max(0, canonicalSeconds - last.startOffset),
+    };
+}
+//# sourceMappingURL=session-boundaries.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/job-filter.js
+/**
+ * Serialize a {@link JobChipFilter} for use as a query string param.
+ *
+ * Returns `undefined` when the filter is empty so callers can drop the param
+ * from the request rather than sending a no-op value.
+ */
+function encodeChipFilter(filter) {
+    if (filter.include.length === 0 && !filter.other)
+        return undefined;
+    return JSON.stringify(filter);
+}
+/**
+ * Parse a serialized {@link JobChipFilter}. Throws on malformed input — callers
+ * that receive this from untrusted sources (handler query params) must catch.
+ */
+function decodeChipFilter(encoded) {
+    const parsed = JSON.parse(encoded);
+    if (!parsed || typeof parsed !== 'object') {
+        throw new Error('chipFilter must be an object');
+    }
+    const raw = parsed;
+    const include = assertMatchers(raw.include, 'include');
+    if (raw.other === undefined)
+        return { include };
+    return { include, other: assertMatchers(raw.other, 'other') };
+}
+function assertMatchers(value, field) {
+    if (!Array.isArray(value)) {
+        throw new Error(`chipFilter.${field} must be an array`);
+    }
+    return value.map((entry, i) => assertMatcher(entry, `${field}[${i}]`));
+}
+function assertMatcher(value, path) {
+    if (!value || typeof value !== 'object') {
+        throw new Error(`chipFilter.${path} must be an object`);
+    }
+    const raw = value;
+    if (!Array.isArray(raw.statuses) || raw.statuses.length === 0 || !raw.statuses.every((s) => typeof s === 'string')) {
+        throw new Error(`chipFilter.${path}.statuses must be a non-empty string[]`);
+    }
+    if (raw.reasons !== undefined) {
+        if (!Array.isArray(raw.reasons) || raw.reasons.length === 0 || !raw.reasons.every((r) => typeof r === 'string')) {
+            throw new Error(`chipFilter.${path}.reasons must be a non-empty string[] when present`);
+        }
+        return { statuses: raw.statuses, reasons: raw.reasons };
+    }
+    return { statuses: raw.statuses };
+}
+//# sourceMappingURL=job-filter.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/chip-groups.js
+
+/**
+ * Default row, shared between admin and non-admin. Customers see only these
+ * 7 chips on the customer Jobs page; admin pages compose them with
+ * {@link REASON_CHIP_GROUPS} via {@link ADMIN_JOB_LIST_CHIP_GROUPS}.
+ *
+ * #4012: also serves as the Status group on `/admin/jobs` — every parent
+ * status an admin would filter by lives here, including Cancelled / Expired
+ * / Failed (previously hidden behind their modifier chips on admin).
+ */
+const BASE_CHIP_GROUPS = [
+    { label: 'Pending', statuses: [JOB_STATUS.PENDING, JOB_STATUS.PREPARING] },
+    { label: 'Queued', statuses: [JOB_STATUS.QUEUED, JOB_STATUS.WAITING] },
+    // `overdue` rolls in here so customers see a single in-flight bucket
+    // (#3835/#4034). Visual differentiation is handled by `StatusLabel`'s
+    // distinct icon (stopwatch vs spinner); the filter chip stays unified.
+    { label: 'Working', statuses: [JOB_STATUS.WORKING, JOB_STATUS.OVERDUE] },
+    { label: 'Completed', statuses: [JOB_STATUS.COMPLETED] },
+    { label: 'Cancelled', statuses: [JOB_STATUS.CANCELLED] },
+    { label: 'Expired', statuses: [JOB_STATUS.EXPIRED] },
+    { label: 'Failed', statuses: [JOB_STATUS.FAILED] },
+];
+/**
+ * Admin-only Reason row — modifier-level chips that split Cancelled / Expired
+ * / Failed into the granular outcomes admins care about for triage, plus the
+ * standalone Overdue + Late submission chips that surface the modifier-driven
+ * distinctions inside Working / Completed.
+ *
+ * Renders alongside (not in place of) {@link BASE_CHIP_GROUPS} on `/admin/jobs`
+ * via {@link ADMIN_JOB_LIST_CHIP_GROUPS}, so admins can filter by parent
+ * status (Failed) or by reason (System error) or by union of both — see
+ * #4012.
+ */
+const REASON_CHIP_GROUPS = [
+    // Working sub-chip — admins want overdue separable from on-time working
+    // even though customers see them combined under the Working chip.
+    { label: 'Overdue', statuses: [JOB_STATUS.OVERDUE] },
+    // Completed sub-chip — late submissions render with a yellow ✓ on every
+    // surface (#4036) and need a corresponding filter for admin triage (#4038).
+    { label: 'Late submission', statuses: [JOB_STATUS.COMPLETED], reasons: ['late_submission'] },
+    // Cancelled modifiers.
+    { label: 'Invalidated', statuses: [JOB_STATUS.CANCELLED], reasons: ['tester_invalidated'] },
+    // `tester_cancellation` is the canonical reason (post-#4079); `tester_cancelled`
+    // is the legacy alias on rows written before the rolling rename.
+    { label: 'Tester cancellation', statuses: [JOB_STATUS.CANCELLED], reasons: ['tester_cancellation', 'tester_cancelled'] },
+    { label: 'Admin terminated', statuses: [JOB_STATUS.CANCELLED], reasons: ['admin_terminated'] },
+    // Expired modifiers.
+    { label: 'No capacity', statuses: [JOB_STATUS.EXPIRED], reasons: ['no_capacity'] },
+    { label: 'Never started', statuses: [JOB_STATUS.EXPIRED], reasons: ['tester_unresponsive'] },
+    { label: 'Dropped', statuses: [JOB_STATUS.EXPIRED], reasons: ['tester_dropped'] },
+    // Failed modifiers.
+    { label: 'AI extraction failed', statuses: [JOB_STATUS.FAILED], reasons: ['ai_extraction_failed'] },
+    { label: 'AI extraction incomplete', statuses: [JOB_STATUS.FAILED], reasons: ['ai_extraction_incomplete'] },
+    { label: 'Unreachable URL', statuses: [JOB_STATUS.FAILED], reasons: ['unreachable_url'] },
+    { label: 'Safety check failed', statuses: [JOB_STATUS.FAILED], reasons: ['safety_check_failed'] },
+    { label: 'Platform issue', statuses: [JOB_STATUS.FAILED], reasons: ['platform_issue'] },
+    { label: 'System error', statuses: [JOB_STATUS.FAILED], reasons: ['system_error'] },
+];
+/**
+ * Flat chip set for the admin `/admin/jobs` list, composed from {@link
+ * BASE_CHIP_GROUPS} (Status group) + {@link REASON_CHIP_GROUPS} (Reason
+ * group). Each chip is independent: selecting `Failed` filters to all
+ * failed/error jobs; selecting `System error` alone filters to system_error
+ * jobs without requiring Failed to also be selected. Selections OR together
+ * — see #4012's union semantics.
+ *
+ * Adding a new modifier to {@link REASON_CHIP_GROUPS} automatically flows
+ * here. Coverage is asserted by the test suite — `JobModifier` values
+ * without a chip (other than `tester_overtime`, which is implicit in the
+ * Overdue status chip) fail compilation.
+ */
+const ADMIN_JOB_LIST_CHIP_GROUPS = [
+    ...BASE_CHIP_GROUPS,
+    ...REASON_CHIP_GROUPS,
+];
+/**
+ * Special chip label that toggles the "only archived rows" filter on the
+ * admin jobs list (`archivedOnly=true`). Lives in the same chip row as the
+ * status chips so admins can combine e.g. `Archived + Completed`.
+ */
+const ARCHIVED_CHIP_LABEL = 'Archived';
+/**
+ * Map of every {@link JobModifier} value to the human-readable label used
+ * by `REASON_CHIP_GROUPS`. Drives the admin-only modifier chip rendered
+ * alongside the base status on cards, tables, and the Admin Tools drawer
+ * (#4079) — keeps a single source of truth for the modifier vocabulary
+ * across the filter chips and the inline outcome chips.
+ *
+ * `tester_overtime` is the always-set modifier on the `overdue` status and
+ * has no dedicated chip in `REASON_CHIP_GROUPS`; it doesn't surface in
+ * the inline modifier chip either (the base `Overdue` status already
+ * communicates everything the label would), so it's omitted here. The
+ * `Exclude` on the record's key set keeps that omission compile-checked.
+ */
+const MODIFIER_LABELS = {
+    late_submission: 'Late submission',
+    tester_dropped: 'Dropped',
+    tester_unresponsive: 'Never started',
+    no_capacity: 'No capacity',
+    // Both the canonical `tester_cancellation` and the legacy `tester_cancelled`
+    // resolve to the same display label — the rolling rename is transparent to
+    // every reader (#4079). "Tester cancellation" leads with the disambiguating
+    // word so the inline modifier chip stays informative when truncated to a
+    // narrow column.
+    tester_cancellation: 'Tester cancellation',
+    tester_cancelled: 'Tester cancellation',
+    tester_invalidated: 'Invalidated',
+    admin_terminated: 'Admin terminated',
+    platform_issue: 'Platform issue',
+    system_error: 'System error',
+    ai_extraction_failed: 'AI extraction failed',
+    ai_extraction_incomplete: 'AI extraction incomplete',
+    unreachable_url: 'Unreachable URL',
+    safety_check_failed: 'Safety check failed',
+};
+/**
+ * Resolve a {@link JobModifier} to its human-readable label. Returns `null`
+ * for modifiers that intentionally don't surface as an inline chip (today,
+ * only `tester_overtime` — see {@link MODIFIER_LABELS}).
+ */
+function getModifierLabel(modifier) {
+    if (modifier === 'tester_overtime')
+        return null;
+    return MODIFIER_LABELS[modifier];
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _modifierLabelsExhaustive = true;
+/**
+ * Compressed terminal-status chips used by the Recent tab on the unified
+ * `JobsTabs` cluster (Tester Portal / Admin Home). Drawn from {@link
+ * BASE_CHIP_GROUPS} so testers and admins see the same vocabulary on
+ * Recent that they see on the customer Jobs page.
+ */
+const TERMINAL_CHIP_GROUPS = BASE_CHIP_GROUPS.filter((g) => g.label === 'Completed' || g.label === 'Cancelled' || g.label === 'Expired' || g.label === 'Failed');
+/** Set of all terminal `JobStatus` values addressed by `TERMINAL_CHIP_GROUPS`. */
+const TERMINAL_STATUS_SET = new Set(TERMINAL_CHIP_GROUPS.flatMap((g) => g.statuses));
+/**
+ * Resolve the set of selected chip labels to the underlying {@link JobStatus}
+ * values they represent. An empty input returns the all-statuses set so a
+ * "no chips active" state behaves as "no filter" instead of "match nothing".
+ */
+function terminalStatusSetForLabels(activeLabels) {
+    if (activeLabels.length === 0)
+        return TERMINAL_STATUS_SET;
+    const out = new Set();
+    for (const label of activeLabels) {
+        const group = TERMINAL_CHIP_GROUPS.find((g) => g.label === label);
+        if (group)
+            for (const s of group.statuses)
+                out.add(s);
+    }
+    return out;
+}
+function groupToMatcher(group) {
+    return group.reasons ? { statuses: group.statuses, reasons: group.reasons } : { statuses: group.statuses };
+}
+/** Resolve a chip label to its group, searching base + reason groups. */
+function findChipGroup(label) {
+    return BASE_CHIP_GROUPS.find((g) => g.label === label)
+        ?? REASON_CHIP_GROUPS.find((g) => g.label === label);
+}
+/**
+ * Build the wire-format {@link JobChipFilter} from the set of active chip
+ * labels. Returns `undefined` when nothing is active so callers can omit the
+ * request param entirely (drops back to the default unfiltered list).
+ */
+function buildChipFilter(activeLabels) {
+    if (activeLabels.length === 0)
+        return undefined;
+    const include = [];
+    for (const label of activeLabels) {
+        const group = findChipGroup(label);
+        if (group)
+            include.push(groupToMatcher(group));
+    }
+    return include.length > 0 ? { include } : undefined;
+}
+/** True when any currently-active chip is a Reason (modifier-level) chip. */
+function hasActiveReasonChip(activeLabels) {
+    return activeLabels.some((label) => REASON_CHIP_GROUPS.some((g) => g.label === label));
+}
+/** True when `label` is a Reason (modifier-level) chip. */
+function isReasonLabel(label) {
+    return REASON_CHIP_GROUPS.some((g) => g.label === label);
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _chipModifierExhaustivenessGuard = true;
+//# sourceMappingURL=chip-groups.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/effective-description.js
+/**
+ * Get the effective description for a job.
+ * Uses augmentedDescription (AI-generated test plan) if available, otherwise the original description.
+ */
+function getEffectiveDescription(job) {
+    return job.augmentedDescription && job.augmentedDescription.length > 0
+        ? job.augmentedDescription
+        : job.description;
+}
+//# sourceMappingURL=effective-description.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/job-title.js
+/**
+ * Resolves a display title for a job. Single source of truth shared by the
+ * web frontend (job lists, detail modal headers) AND the backend (admin /jobs
+ * list, activity log) so both surfaces always agree on what to call a job.
+ *
+ * Lives in `@runhuman/shared` so the API can resolve titles server-side from
+ * raw DB columns and ship a single `title` field on the wire — instead of
+ * bloating every list-row payload with `metadata` + `augmentedDescription` +
+ * `error` and re-deriving on the client.
+ */
+function truncateAtWord(text, maxLength) {
+    if (text.length <= maxLength)
+        return text;
+    const truncated = text.slice(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+    return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + '...';
+}
+function getFailurePrefix(status) {
+    if (status === 'untestable')
+        return 'Untestable';
+    if (status === 'failed')
+        return 'Error';
+    return undefined;
+}
+function extractHostname(url) {
+    if (!url)
+        return undefined;
+    // URL constructor throws on malformed input. Historical job rows may store
+    // non-URL strings, so treat parse failure as "no hostname available"
+    // and fall through to the next layer of the resolution chain.
+    try {
+        return new URL(url).hostname;
+    }
+    catch {
+        return undefined;
+    }
+}
+function getPlaceholder(status) {
+    if (status === 'untestable')
+        return 'Untestable job';
+    if (status === 'failed')
+        return 'Errored job';
+    return 'Untitled job';
+}
+/**
+ * Resolves a display title for a job, guaranteed non-empty.
+ *
+ * For failure statuses (`untestable`, `failed`), the specific `error` message
+ * is preferred over any AI-generated `metadata.title`: auto-generated titles
+ * can be misleadingly generic (e.g. "Verify user authentication..." on a job
+ * the AI later ruled untestable).
+ *
+ * Resolution order:
+ * 1. Status-prefixed error for failure statuses with an `error` — `"Untestable: {reason}"`
+ * 2. `metadata.title` (AI-generated)
+ * 3. Effective description (`augmentedDescription` > `description`)
+ * 4. URL hostname — prefixed with status for failure statuses
+ * 5. Status-based placeholder — guarantees a non-empty return
+ */
+function getJobTitle(job, maxLength) {
+    const truncate = (text) => maxLength ? truncateAtWord(text, maxLength) : text;
+    const metadata = job.metadata;
+    const metadataTitle = typeof metadata?.title === 'string' && metadata.title.length > 0
+        ? metadata.title
+        : undefined;
+    const failurePrefix = getFailurePrefix(job.status);
+    if (failurePrefix && job.error && job.error.length > 0) {
+        return `${failurePrefix}: ${truncate(job.error)}`;
+    }
+    if (metadataTitle)
+        return truncate(metadataTitle);
+    const effectiveDesc = (job.augmentedDescription && job.augmentedDescription.length > 0)
+        ? job.augmentedDescription
+        : (job.description && job.description.length > 0 ? job.description : undefined);
+    if (effectiveDesc)
+        return truncate(effectiveDesc);
+    const hostname = extractHostname(job.url);
+    if (hostname) {
+        return failurePrefix ? `${failurePrefix}: ${hostname}` : hostname;
+    }
+    return getPlaceholder(job.status);
+}
+//# sourceMappingURL=job-title.js.map
+;// CONCATENATED MODULE: ../shared/dist/job/executed-via-os.js
+/**
+ * "Executed via" OS chip vocabulary used by the Recent tab's filter
+ * (#3801). Each completed job records the OS its tester actually ran the
+ * test on via `metadata.testerClient.os`. This module owns the mapping
+ * between the raw `TesterClientOs` values (data) and the user-facing chip
+ * labels (UI) — so `Linux` and pre-rollout `null` jobs both surface under
+ * a single `Other` bucket without losing them from the list.
+ *
+ * Adding a new OS chip means: (a) add a value to the `TesterClientOs`
+ * union in `job-metadata.types.ts`, (b) add a label entry below, and
+ * (c) update the chip group order if order matters.
+ */
+/** Chip labels in render order. `Other` always last. */
+const EXECUTED_VIA_OS_CHIP_LABELS = ['iOS', 'Android', 'Mac', 'Windows', 'Other'];
+/**
+ * Map a recorded `TesterClientOs` (or its absence) to the chip label
+ * that should match it. Linux + missing data both fall through to
+ * `Other` — that bucket holds anything we either can't categorize into
+ * the four common buckets (Linux desktops) or don't yet have data for
+ * (pre-#3801 jobs, pre-rollout clients).
+ */
+function osToExecutedViaLabel(os) {
+    if (os === 'ios')
+        return 'iOS';
+    if (os === 'android')
+        return 'Android';
+    if (os === 'mac')
+        return 'Mac';
+    if (os === 'windows')
+        return 'Windows';
+    return 'Other';
+}
+/**
+ * Resolve the chip label for a given recent-job row. Falls through to
+ * `Other` when the job has no `executedViaOs` set — covering both
+ * pre-#3801 jobs (field is `null`) and rows submitted by clients that
+ * haven't yet been updated to populate it.
+ */
+function executedViaOsLabelForJob(job) {
+    return osToExecutedViaLabel(job.executedViaOs);
+}
+//# sourceMappingURL=executed-via-os.js.map
 ;// CONCATENATED MODULE: ../shared/dist/job/termination-copy.js
 const TERMINATION_COPY = {
     'cancelled/admin_terminated': {
@@ -59394,25 +59941,141 @@ function accessEndedCopyFor(info) {
     return UNKNOWN_ACCESS_ENDED_COPY;
 }
 //# sourceMappingURL=termination-copy.js.map
-;// CONCATENATED MODULE: ../shared/dist/job/index.js
+;// CONCATENATED MODULE: ../shared/dist/job/failure-message.js
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//# sourceMappingURL=index.js.map
+const FAILURE_TITLES = {
+    failed: "Your test couldn't be completed",
+    cancelled: 'Your test was cancelled',
+    expired: 'Your test expired',
+};
+/** Body used when the row carries no modifier — the status-level default. */
+const FAILURE_STATUS_BODIES = {
+    failed: "We couldn't complete your test. You won't be charged for this run.",
+    cancelled: "Your test was cancelled before it could be completed. You won't be charged for this run.",
+    expired: "Your test expired before a tester could complete it. You won't be charged for this run.",
+};
+/** Modifier-specific body — the "dynamically filled" copy per failure reason. */
+const FAILURE_MODIFIER_BODIES = {
+    // failed
+    platform_issue: "We hit a platform issue while running your test, so it couldn't be completed. You won't be charged for this run.",
+    system_error: "An unexpected system error stopped your test before it could finish. Our team has been notified, and you won't be charged for this run.",
+    ai_extraction_failed: "We couldn't extract structured results from the tester's response, so the run was marked failed. You won't be charged for this run.",
+    ai_extraction_incomplete: "The tester's response was missing details we needed to produce complete results. You won't be charged for this run.",
+    unreachable_url: "We couldn't reach the URL you submitted, so the test couldn't run. Double-check the link is publicly reachable. You won't be charged for this run.",
+    safety_check_failed: "Your test was blocked by an automated safety check and didn't run. You won't be charged for this run.",
+    // cancelled
+    tester_cancellation: "The tester cancelled this test before submitting any results. You won't be charged for this run.",
+    tester_invalidated: "This test run was invalidated, so no results were produced. You won't be charged for this run.",
+    admin_terminated: "An administrator cancelled this test before it was completed. You won't be charged for this run.",
+    // expired
+    tester_dropped: "The assigned tester dropped this test, so it expired before completion. You won't be charged for this run.",
+    tester_unresponsive: "The assigned tester never started, so the test expired. You won't be charged for this run.",
+    no_capacity: "No tester was available in time, so the test expired before it could run. You won't be charged for this run.",
+};
+/**
+ * Resolve creator-facing `{ title, body }` for a terminal-failure outcome.
+ * Walks: explicit modifier copy → status-level default (null modifier or a
+ * modifier outside the failure set, which can only occur on a mis-tagged
+ * row).
+ */
+function describeJobFailure(status, modifier) {
+    const title = FAILURE_TITLES[status];
+    if (modifier === null) {
+        return { title, body: FAILURE_STATUS_BODIES[status] };
+    }
+    const canonical = canonicalModifier(modifier);
+    if (canonical in FAILURE_MODIFIER_BODIES) {
+        return { title, body: FAILURE_MODIFIER_BODIES[canonical] };
+    }
+    return { title, body: FAILURE_STATUS_BODIES[status] };
+}
+//# sourceMappingURL=failure-message.js.map
+;// CONCATENATED MODULE: ../shared/dist/activity/activity-action.js
+/** action → { label, category }. Both backend and frontend read this one table. */
+const ACTION_REGISTRY = {
+    job_created: { label: 'Job Created', category: 'created' },
+    job_rerun: { label: 'Re-run', category: 'created' },
+    reposted: { label: 'Reposted to Slack', category: 'reposted' },
+    claimed: { label: 'Claimed', category: 'transition' },
+    released_by_tester: { label: 'Released by tester', category: 'transition' },
+    force_released_by_admin: { label: 'Force-released by admin', category: 'transition' },
+    placed_on_hold: { label: 'Placed on hold', category: 'transition' },
+    resumed_from_hold: { label: 'Resumed from hold', category: 'transition' },
+    marked_overdue: { label: 'Marked overdue', category: 'transition' },
+    status_changed: { label: 'Status change', category: 'transition' },
+    completed: { label: 'Completed', category: 'terminated' },
+    cancelled_by_tester: { label: 'Cancelled by tester', category: 'terminated' },
+    invalidated_by_tester: { label: 'Invalidated by tester', category: 'terminated' },
+    admin_terminated: { label: 'Terminated by admin', category: 'terminated' },
+    expired: { label: 'Expired', category: 'terminated' },
+    errored: { label: 'Errored', category: 'terminated' },
+    admin_override_completed: { label: 'Admin marked complete', category: 'terminated' },
+    late_submission_declined: { label: 'Late submission declined', category: 'terminated' },
+};
+/** ActorRole → display label for the activity-log Actor column. */
+const ACTOR_ROLE_LABEL = {
+    tester: 'Tester',
+    admin: 'Admin',
+    customer: 'User',
+    system: 'System',
+};
+const RECORDED_ACTION_ALIASES = {
+    // Pre-#5124 override rows persisted this value; normalize to the enum.
+    admin_override_complete: 'admin_override_completed',
+};
+function isActivityAction(value) {
+    return value in ACTION_REGISTRY;
+}
+/**
+ * Resolve the semantic action for a row. Recorded action wins; otherwise derive
+ * a best-effort action from the coarse `type` + `from`/`to` (historical rows).
+ */
+function resolveActivityAction(input) {
+    if (input.recordedAction) {
+        const normalized = RECORDED_ACTION_ALIASES[input.recordedAction] ?? input.recordedAction;
+        if (isActivityAction(normalized))
+            return normalized;
+    }
+    switch (input.type) {
+        case 'job_created': return 'job_created';
+        case 'job_rerun': return 'job_rerun';
+        case 'job_reposted': return 'reposted';
+        case 'status_change': return deriveFromTransition(input.from, input.to);
+    }
+}
+function deriveFromTransition(from, to) {
+    if (to === 'admin_hold')
+        return 'placed_on_hold';
+    if (from === 'admin_hold')
+        return 'resumed_from_hold';
+    if (to === 'overdue')
+        return 'marked_overdue';
+    if (to === 'working')
+        return 'claimed';
+    if (to === 'waiting')
+        return 'released_by_tester';
+    if (to === 'completed')
+        return 'completed';
+    if (to === 'cancelled')
+        return 'cancelled_by_tester';
+    if (to === 'expired')
+        return 'expired';
+    if (to === 'failed')
+        return 'errored';
+    return 'status_changed';
+}
+//# sourceMappingURL=activity-action.js.map
+;// CONCATENATED MODULE: ../shared/dist/activity/activity-log.types.js
+// ---- Filter options for querying ----
+/**
+ * Sentinel value for `actorUserId` that selects entries with NO actor
+ * (system-initiated). Used because the wire shape encodes filters as a flat
+ * string map; the alternative — a tagged union — would force every consumer
+ * to discriminate on `kind`. The sentinel keeps the surface area tiny and is
+ * immediately legible in URL logs.
+ */
+const SYSTEM_ACTOR_FILTER = '__system__';
+//# sourceMappingURL=activity-log.types.js.map
 ;// CONCATENATED MODULE: ../shared/dist/pagination/pagination.types.js
 const PAGINATION_DEFAULTS = {
     limit: 50,
@@ -59425,9 +60088,6 @@ function parsePaginationParams(query) {
     return { limit, offset };
 }
 //# sourceMappingURL=pagination.types.js.map
-;// CONCATENATED MODULE: ../shared/dist/pagination/index.js
-
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/github-issues/github-issues.types.js
 /**
  * GitHub Issues shared types
@@ -59587,6 +60247,30 @@ function isKnownMediaHost(url) {
     }
 }
 //# sourceMappingURL=issue-media-extractor.js.map
+;// CONCATENATED MODULE: ../shared/dist/github-issues/review-state.types.js
+/**
+ * Tester review state shared by every extracted artifact a tester reviews
+ * before the pipeline finalizes (#5352).
+ *
+ * After issue extraction the pipeline pauses and presents each extracted Issue
+ * and Feedback item to the tester, who picks one action per item. The chosen
+ * action rides on the item itself (persisted in the `extracted_issues` /
+ * `extracted_feedback` JSONB), so the re-extraction LLM call and the downstream
+ * finalize stages can both read it without a side table.
+ */
+/** An item the tester explicitly accepted — the only items finalize counts. */
+function isAcceptedForResult(item) {
+    return item.reviewStatus === 'accepted';
+}
+/** An item still awaiting a decision — its presence blocks "Continue". */
+function isAwaitingReview(item) {
+    return item.reviewStatus === 'unchosen';
+}
+/** An item the tester asked to reprocess with a correction. */
+function isMarkedForRevision(item) {
+    return item.reviewStatus === 'revise';
+}
+//# sourceMappingURL=review-state.types.js.map
 ;// CONCATENATED MODULE: ../shared/dist/github-issues/issue-scope.js
 function isIncidentalIssue(issue) {
     return issue.scopedToTest === false;
@@ -59626,6 +60310,23 @@ function formatVideoTimeForLink(seconds) {
     return `${mm}:${ss}`;
 }
 //# sourceMappingURL=format-utils.js.map
+;// CONCATENATED MODULE: ../shared/dist/github-issues/timecode-link.js
+
+
+function buildTimecodeLink(jobUrl, canonicalSeconds, boundaries) {
+    if (boundaries && boundaries.length > 1) {
+        const { sessionIndex, perSessionSeconds } = canonicalToSession(canonicalSeconds, boundaries);
+        return {
+            url: `${jobUrl}?session=${sessionIndex}&t=${perSessionSeconds}`,
+            label: `S${sessionIndex + 1} ${formatVideoTimeForLink(perSessionSeconds)}`,
+        };
+    }
+    return {
+        url: `${jobUrl}?t=${canonicalSeconds}`,
+        label: formatVideoTimeForLink(canonicalSeconds),
+    };
+}
+//# sourceMappingURL=timecode-link.js.map
 ;// CONCATENATED MODULE: ../shared/dist/github-issues/issue-body-renderer.js
 
 
@@ -59634,24 +60335,25 @@ function formatVideoTimeForLink(seconds) {
 
 const DEFAULT_MAX_SCREENSHOTS = 3;
 const INCIDENTAL_DESCRIPTION_MAX = 140;
+/**
+ * Inline ` [▶ label](url)` fragment for an evidence row / repro step. Empty when
+ * the entry has no video anchor or the context has no job URL. Resolves the
+ * session anchor for multi-session jobs via the shared timecode-link builder.
+ */
+function inlineTimecode(offset, ctx) {
+    if (offset === null || offset === undefined || !ctx.jobUrl)
+        return '';
+    const { url, label } = buildTimecodeLink(ctx.jobUrl, offset, ctx.sessionBoundaries);
+    return ` [▶ ${label}](${url})`;
+}
 function renderReproductionSteps(issue, ctx) {
     return issue.reproductionSteps
-        .map((step, i) => {
-        const timecodeLink = step.videoOffsetSeconds !== undefined && ctx.jobUrl
-            ? ` [▶ ${formatVideoTimeForLink(step.videoOffsetSeconds)}](${ctx.jobUrl}?t=${step.videoOffsetSeconds})`
-            : '';
-        return `${i + 1}. ${step.text}${timecodeLink}`;
-    })
+        .map((step, i) => `${i + 1}. ${step.text}${inlineTimecode(step.videoOffsetSeconds, ctx)}`)
         .join('\n');
 }
 function renderEvidenceCitations(citations, ctx) {
     return citations
-        .map((c) => {
-        const timecodeLink = c.videoOffsetSeconds !== null && ctx.jobUrl
-            ? ` [▶ ${formatVideoTimeForLink(c.videoOffsetSeconds)}](${ctx.jobUrl}?t=${c.videoOffsetSeconds})`
-            : '';
-        return `- **[${c.source}]** ${c.summary}${timecodeLink}`;
-    })
+        .map((c) => `- **[${c.source}]** ${c.summary}${inlineTimecode(c.videoOffsetSeconds, ctx)}`)
         .join('\n');
 }
 function renderRelatedEvidence(evidence, ctx) {
@@ -59666,12 +60368,7 @@ function renderRelatedEvidence(evidence, ctx) {
     const sections = [];
     for (const [category, entries] of byCategory) {
         const items = entries
-            .map((e) => {
-            const timecodeLink = e.videoOffsetSeconds !== null && ctx.jobUrl
-                ? ` [▶ ${formatVideoTimeForLink(e.videoOffsetSeconds)}](${ctx.jobUrl}?t=${e.videoOffsetSeconds})`
-                : '';
-            return `- ${e.summary}${timecodeLink}`;
-        })
+            .map((e) => `- ${e.summary}${inlineTimecode(e.videoOffsetSeconds, ctx)}`)
             .join('\n');
         sections.push(`**${category}**\n${items}`);
     }
@@ -59700,8 +60397,8 @@ function buildMediaSection(job, ctx, options = {}) {
     if (videoUrl && ctx.jobUrl) {
         section += `[Watch Recording](${ctx.jobUrl})`;
         if (options.videoOffsetSeconds !== undefined) {
-            const ts = formatVideoTimeForLink(options.videoOffsetSeconds);
-            section += ` | [▶ Jump to bug at ${ts}](${ctx.jobUrl}?t=${options.videoOffsetSeconds})`;
+            const { url, label } = buildTimecodeLink(ctx.jobUrl, options.videoOffsetSeconds, ctx.sessionBoundaries);
+            section += ` | [▶ Jump to bug at ${label}](${url})`;
         }
     }
     if (screenshots.length > 0) {
@@ -59735,18 +60432,6 @@ function buildFooter(ctx) {
     }
     footer += 'Powered by [Runhuman](https://runhuman.com)';
     return footer;
-}
-function capitalize(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
-}
-/**
- * Build an issue title with a device class prefix derived from the job.
- * e.g. "[Mobile] Button doesn't work" or "[Desktop] Layout breaks".
- */
-function buildIssueTitle(title, job) {
-    if (!job.deviceClass)
-        return title;
-    return `[${capitalize(job.deviceClass)}] ${title}`;
 }
 function buildDeviceClassCallout(job) {
     if (!job.deviceClass)
@@ -59849,7 +60534,13 @@ function buildIssueBody(issue, job, ctx) {
         sections.push(`## Test Context\n${testContextParts.join('  \n')}`);
     }
     if (ctx.jobUrl) {
-        sections.push(`## Runhuman Job\n**Job ID:** [\`${job.id}\`](${ctx.jobUrl})`);
+        // Deep-link the Job ID to the issue's primary moment so the triager lands
+        // on the bug, not 0:00. Falls back to the bare job URL when the issue has
+        // no video offset. Resolves multi-session anchors via the shared builder.
+        const jobIdUrl = issue.videoOffsetSeconds === undefined
+            ? ctx.jobUrl
+            : buildTimecodeLink(ctx.jobUrl, issue.videoOffsetSeconds, ctx.sessionBoundaries).url;
+        sections.push(`## Runhuman Job\n**Job ID:** [\`${job.id}\`](${jobIdUrl})`);
     }
     const mediaSection = buildMediaSection(job, ctx, { videoOffsetSeconds: issue.videoOffsetSeconds });
     if (mediaSection)
@@ -59892,36 +60583,40 @@ function buildDuplicateCommentBody(issue, job, ctx, matchReason) {
  * suggestion / observation faithfully and grounds it in the timeline.
  */
 const feedback_body_renderer_INCIDENTAL_DESCRIPTION_MAX = 140;
+/**
+ * Inline ` [▶ label](url)` fragment for a feedback evidence row. Empty when the
+ * entry has no video anchor or the context has no job URL. Resolves the session
+ * anchor for multi-session jobs via the shared timecode-link builder.
+ */
+function feedback_body_renderer_inlineTimecode(offset, ctx) {
+    if (offset === null || offset === undefined || ctx.jobUrl === undefined)
+        return '';
+    const { url, label } = buildTimecodeLink(ctx.jobUrl, offset, ctx.sessionBoundaries);
+    return ` [▶ ${label}](${url})`;
+}
 function feedback_body_renderer_renderEvidenceCitations(citations, ctx) {
     if (citations.length === 0)
         return '';
-    const lines = citations.map((c) => {
-        const offset = c.videoOffsetSeconds;
-        const link = offset !== null && ctx.jobUrl !== undefined
-            ? ` [▶ ${formatVideoTimeForLink(offset)}](${ctx.jobUrl}?t=${offset})`
-            : '';
-        return `- **[${c.source}]** ${c.summary}${link}`;
-    });
+    const lines = citations.map((c) => `- **[${c.source}]** ${c.summary}${feedback_body_renderer_inlineTimecode(c.videoOffsetSeconds, ctx)}`);
     return ['### Evidence', ...lines].join('\n');
 }
 function feedback_body_renderer_renderRelatedEvidence(related, ctx) {
     if (related === undefined || related.length === 0)
         return '';
-    const lines = related.map((r) => {
-        const offset = r.videoOffsetSeconds;
-        const link = offset !== null && ctx.jobUrl !== undefined
-            ? ` [▶ ${formatVideoTimeForLink(offset)}](${ctx.jobUrl}?t=${offset})`
-            : '';
-        return `- **[${r.category}]** ${r.summary}${link}`;
-    });
+    const lines = related.map((r) => `- **[${r.category}]** ${r.summary}${feedback_body_renderer_inlineTimecode(r.videoOffsetSeconds, ctx)}`);
     return ['### Page-state evidence', ...lines].join('\n');
 }
 function renderRecording(job, feedback, ctx) {
     if (ctx.jobUrl === undefined)
         return '';
-    const link = feedback.videoOffsetSeconds !== undefined
-        ? `[▶ Watch at ${formatVideoTimeForLink(feedback.videoOffsetSeconds)}](${ctx.jobUrl}?t=${feedback.videoOffsetSeconds})`
-        : `[▶ Watch recording](${ctx.jobUrl})`;
+    let link;
+    if (feedback.videoOffsetSeconds !== undefined) {
+        const { url, label } = buildTimecodeLink(ctx.jobUrl, feedback.videoOffsetSeconds, ctx.sessionBoundaries);
+        link = `[▶ Watch at ${label}](${url})`;
+    }
+    else {
+        link = `[▶ Watch recording](${ctx.jobUrl})`;
+    }
     return ['### Recording', link].join('\n');
 }
 function renderIncidentalBlockquote(feedback, job) {
@@ -59966,20 +60661,14 @@ function buildFeedbackBody(feedback, job, ctx) {
     return sections.filter((s) => s.length > 0).join('\n\n');
 }
 /**
- * Title prefix the feedback filer applies on creation. Doubles as the visual
- * marker in GH issue lists AND as the dedup-scoping signal — the filer
- * filters existing issues by title-starts-with this prefix when looking for
- * feedback duplicates, so we don't depend on the repo having a `feedback`
+ * Default feedback title prefix, used only when a project hasn't configured its
+ * own (`filingConfig.<vendor>.feedback.titlePrefix`, #5570). The prefix doubles
+ * as the visual marker in GH issue lists AND as the dedup-scoping signal — the
+ * filer scopes existing-issue candidates by title-starts-with the *resolved*
+ * prefix, so feedback dedup doesn't depend on the repo having a `feedback`
  * label (which most repos don't).
  */
-const FEEDBACK_TITLE_PREFIX = '[Feedback] ';
-function buildFeedbackTitle(feedback, _job) {
-    // Prefix the title so feedback issues are visually distinct in GH lists
-    // and so the dedup query can scope candidates without relying on a label.
-    if (feedback.title.startsWith(FEEDBACK_TITLE_PREFIX))
-        return feedback.title;
-    return `${FEEDBACK_TITLE_PREFIX}${feedback.title}`;
-}
+const DEFAULT_FEEDBACK_TITLE_PREFIX = '[Feedback] ';
 /**
  * Build the cross-reference comment posted on a matched existing GitHub feedback
  * issue when duplicate detection fires on the auto-create path. Mirrors
@@ -59999,15 +60688,6 @@ function buildFeedbackDuplicateCommentBody(feedback, job, ctx, matchReason) {
     return sections.join('\n\n');
 }
 //# sourceMappingURL=feedback-body-renderer.js.map
-;// CONCATENATED MODULE: ../shared/dist/github-issues/index.js
-
-
-
-
-
-
-
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/routes/route-builder.js
 /**
  * Type-safe route builder system
@@ -60112,6 +60792,12 @@ const webRoutes = {
     adminJobs: defineRoute('/admin/jobs'),
     /** Admin deep-link to a specific job (bypasses org membership checks) */
     adminJobDetail: defineRoute('/admin/jobs/:jobId'),
+    /**
+     * Dedicated full-screen admin Job Details page (#5349) — the job details as
+     * a standalone page (no jobs list behind it), opened in a new tab from the
+     * Job Details drawer. Back returns to {@link adminJobs}.
+     */
+    adminJobPage: defineRoute('/admin/job/:jobId'),
     /** Admin tester approvals */
     adminTesters: defineRoute('/admin/testers'),
     /**
@@ -60153,6 +60839,8 @@ const webRoutes = {
     adminHomeJob: defineRoute('/admin/home/:jobId'),
     /** Admin tester schedules */
     adminSchedules: defineRoute('/admin/schedules'),
+    /** Admin Shift Reconciliations queue (#5764) — under the Operations nav group. */
+    adminShiftReconciliations: defineRoute('/admin/shift-reconciliations'),
     /**
      * Cross-org admin browse of upcoming scheduled job runs (#3784). Read-only
      * table, defaults to today → +7 days. Lives under the Dashboard admin nav
@@ -60173,12 +60861,6 @@ const webRoutes = {
      * the Dashboard nav group.
      */
     adminJobsOverview: defineRoute('/admin/jobs-overview'),
-    /**
-     * Admin tester timesheets (#3756) — per-day scheduled / worked / break /
-     * unpaid breakdown for any tester, surfaced under the "Tester" admin nav
-     * group. Mirrors `/tester/timesheet` but with a tester picker on top.
-     */
-    adminTesterTimesheets: defineRoute('/admin/tester-timesheets'),
     /**
      * Admin Tester Reviews (#4564) — fairness-driven semi-daily queue of one
      * job per active tester with a per-row 1-5 rating + report dialog. Two
@@ -60205,6 +60887,14 @@ const webRoutes = {
     testerReviewPopout: defineRoute('/tester/reviews/popout/:reviewId'),
     /** Admin organizations directory — token balances + org metadata (Polar IDs, etc.). Surfaced as "Organizations" under the "Directory" admin nav group. */
     adminOrganizations: defineRoute('/admin/organizations'),
+    /**
+     * Admin organization profile — full-page detail view for a single
+     * organization, the richer counterpart to the `AdminOrgDetailsDialog`
+     * glance. The organization ID is carried as an `?org=` query param so
+     * admins can deep-link, share, and page-swap without breaking the URL
+     * contract — the same pattern `adminTesterProfile` uses for `?tester=`.
+     */
+    adminOrganizationProfile: defineRoute('/admin/organization-profile'),
     /** Admin user management */
     adminUsers: defineRoute('/admin/users'),
     /** Admin view of the testing knowledge base (mirrors `/tester/notes`, surfaced under the "Directory" admin nav group). */
@@ -60328,6 +61018,12 @@ const webRoutes = {
     jobs: defineRoute('/dashboard/:projectId/jobs'),
     /** Single job detail page */
     job: defineRoute('/dashboard/:projectId/jobs/:jobId'),
+    /**
+     * Dedicated full-screen owner Job Details page (#5349) — the job details as
+     * a standalone page (no jobs list behind it), opened in a new tab from the
+     * Job Details drawer. Back returns to the originating project's job list.
+     */
+    jobPage: defineRoute('/dashboard/job/:jobId'),
     /** Templates page */
     templates: defineRoute('/dashboard/:projectId/templates'),
     /** Single template detail (modal) */
@@ -60352,12 +61048,6 @@ const webRoutes = {
     schedules: defineRoute('/dashboard/:projectId/schedules'),
     /** Project-scoped notes (customer-facing — admins manage notes for this project) */
     notes: defineRoute('/dashboard/:projectId/notes'),
-    /** Flow charts page */
-    flowCharts: defineRoute('/dashboard/:projectId/flowcharts'),
-    /** Single flow chart detail (embedded in dashboard - deprecated, use flowChartView) */
-    flowChart: defineRoute('/dashboard/:projectId/flowcharts/:flowchartId'),
-    /** Full-page flow chart viewer (outside dashboard layout) */
-    flowChartView: defineRoute('/view/flowchart/:projectId/:flowchartId'),
     // ============================================
     // External/public routes
     // ============================================
@@ -60459,15 +61149,15 @@ const apiRoutes = {
     /** Get public job (no auth required, token-secured) */
     publicJob: defineRoute('/public/jobs/:jobId/:token'),
     /**
-     * Resolve a rendered enhanced-video artifact for a publicly-shared job.
+     * Resolve a rendered baked-demo-video artifact for a publicly-shared job.
      * Mirrors `publicJob`: gates on `job.metadata.publicToken` so the same
      * share-link kill switch covers both the job page and the enhanced video.
      * Server returns a 302 redirect to a freshly-signed S3 URL so the share
      * URL never expires and never leaks the bucket name. See #3516.
      */
-    publicEnhancedVideo: defineRoute('/public/enhanced-video/:jobId/:token'),
-    /** Status of the latest enhanced-video render for a job (auth: dashboard). */
-    enhancedVideoStatus: defineRoute('/jobs/:jobId/enhanced-video-status'),
+    publicBakedDemoVideo: defineRoute('/public/baked-demo-video/:jobId/:token'),
+    /** Status of the latest baked-demo-video render for a job (auth: dashboard). */
+    bakedDemoVideoStatus: defineRoute('/jobs/:jobId/baked-demo-video-status'),
     /**
      * Read-only "popout" payload for the standalone /jobs/:jobId/popout view (#3849).
      * Returns the public-tester-visible slice of the job (description,
@@ -60479,23 +61169,27 @@ const apiRoutes = {
      */
     jobPopoutDetails: defineRoute('/jobs/:jobId/popout-details'),
     /**
-     * Trigger an enhanced-video render against an already-completed job (#3837).
+     * Trigger a baked-demo-video render against an already-completed job (#3837).
      * Idempotent: if a render is already queued/running/succeeded for the job,
      * the existing row's status is returned and no new row is enqueued. Only
      * enqueues when no row exists or the latest row is `failed`.
      */
-    enhancedVideoRender: defineRoute('/jobs/:jobId/enhanced-video'),
+    bakedDemoVideoRender: defineRoute('/jobs/:jobId/baked-demo-video'),
     // ============================================
     // Tester App Job endpoints (secured by testerToken)
     // ============================================
     /** Get/update job for tester app */
     testerJob: defineRoute('/tester/jobs/:jobId'),
+    /** Page-open engagement ping — stamps the durable tester_engaged_at witness (#5724) */
+    testerJobOpened: defineRoute('/tester/jobs/:jobId/opened'),
     /** Get presigned upload URLs for artifacts */
     testerJobUploadUrls: defineRoute('/tester/jobs/:jobId/upload-urls'),
     /** Process test results with AI */
     testerJobProcessResults: defineRoute('/tester/jobs/:jobId/process-results'),
     /** Get processing status */
     testerJobProcessingStatus: defineRoute('/tester/jobs/:jobId/processing/:processingJobId'),
+    /** Submit tester decisions on extracted issues/feedback, then reprocess or continue (#5352) */
+    testerJobIssueReview: defineRoute('/tester/jobs/:jobId/issue-review'),
     /** Extract frames from video */
     testerJobExtractFrames: defineRoute('/tester/jobs/:jobId/extract-frames'),
     /** Unified end-job endpoint (clear&release | clear&cancel | save&cancel) */
@@ -60538,6 +61232,8 @@ const apiRoutes = {
     livekitDiscardSession: defineRoute('/tester/jobs/:jobId/livekit-discard-session/:sessionIndex'),
     /** Get presigned recording URLs for tester (testerToken auth) */
     testerLivekitRecording: defineRoute('/tester/jobs/:jobId/livekit-recording'),
+    /** Force-strip audio from a recording — recovery + after-the-fact removal (testerToken auth, #5053/#4721) */
+    testerStripAudio: defineRoute('/tester/jobs/:jobId/strip-audio'),
     /** Get viewer token for live watching (Clerk JWT auth) */
     livekitViewerToken: defineRoute('/jobs/:jobId/livekit-viewer-token'),
     /** Check if LiveKit session is active (Clerk JWT or testerToken auth) */
@@ -60567,6 +61263,16 @@ const apiRoutes = {
     /** Get PAT info from header (for authenticated requests) */
     patInfo: defineRoute('/pat-info'),
     // ============================================
+    // Platform service-key endpoints (#5742)
+    // Gated to first-party `rh_svc_` keys; read the global tester pool.
+    // ============================================
+    /** List the global tester roster (capabilities + live availability, no PII) */
+    platformTesters: defineRoute('/platform/testers'),
+    /** A tester's merged schedule/availability over a date range */
+    platformTesterSchedule: defineRoute('/platform/testers/:testerId/schedule'),
+    /** Dispatch a job to one specific human (pool-of-one) */
+    platformJobs: defineRoute('/platform/jobs'),
+    // ============================================
     // Projects endpoints
     // ============================================
     /** List projects (GET) or create project (POST) */
@@ -60575,6 +61281,8 @@ const apiRoutes = {
     project: defineRoute('/projects/:projectId'),
     /** Get jobs for a project */
     projectJobs: defineRoute('/projects/:projectId/jobs'),
+    /** At-a-glance summary metrics for a project (dashboard tiles) */
+    projectSummary: defineRoute('/projects/:projectId/summary'),
     /** Get API keys for a project */
     projectApiKeys: defineRoute('/projects/:projectId/api-keys'),
     /** Transfer a project to another user or organization */
@@ -60626,6 +61334,10 @@ const apiRoutes = {
     githubIssueLabels: defineRoute('/github/issues/labels'),
     /** Get assignees for a repo */
     githubIssueAssignees: defineRoute('/github/issues/assignees'),
+    /** Get milestones for a repo (filing-config picker, #5570) */
+    githubIssueMilestones: defineRoute('/github/issues/milestones'),
+    /** Preview LLM-selected labels for an in-progress filing config (#5570) */
+    githubLabelPreview: defineRoute('/github/issues/label-preview'),
     /** Test a single issue */
     githubIssueTest: defineRoute('/github/issues/test'),
     /** Bulk test multiple issues */
@@ -60655,8 +61367,16 @@ const apiRoutes = {
     jiraInstallationDelete: defineRoute('/organizations/:organizationId/jira/installations/:installationId'),
     /** List Jira projects accessible via the org's installation (for project picker) */
     jiraProjects: defineRoute('/organizations/:organizationId/jira/projects'),
+    /** List creatable issue types for a Jira project (for the issue-type picker) */
+    jiraProjectIssueTypes: defineRoute('/organizations/:organizationId/jira/projects/:projectKey/issue-types'),
+    /** Filing taxonomy (labels + components) for a Jira project (#5570) */
+    jiraProjectTaxonomy: defineRoute('/organizations/:organizationId/jira/projects/:projectKey/taxonomy'),
+    /** Preview LLM-selected labels for an in-progress Jira filing config (#5570) */
+    jiraLabelPreview: defineRoute('/organizations/:organizationId/jira/projects/:projectKey/label-preview'),
     /** Manually create a Jira issue from a job's extracted finding */
     jiraIssueCreateManual: defineRoute('/jobs/:jobId/issues/:extractedIssueId/jira'),
+    /** Undo the cross-reference comment on a manually-filed Jira duplicate (#5539) */
+    jiraUndoComment: defineRoute('/jobs/:jobId/issues/:extractedIssueId/jira/undo-comment'),
     /** Get the jira_filed_issues mapping for a job (to rehydrate button state) */
     jiraIssuesForJob: defineRoute('/jobs/:jobId/jira-issues'),
     /** Manually create a Jira issue from a job's extracted feedback (#3483) */
@@ -60698,6 +61418,10 @@ const apiRoutes = {
     linearTeams: defineRoute('/organizations/:organizationId/linear/teams'),
     /** List Linear projects accessible to a chosen team (teamId is required via query) */
     linearProjects: defineRoute('/organizations/:organizationId/linear/projects'),
+    /** Filing taxonomy (labels + states) for a Linear team (#5570) */
+    linearTeamTaxonomy: defineRoute('/organizations/:organizationId/linear/teams/:teamId/taxonomy'),
+    /** Preview LLM-selected labels for an in-progress Linear filing config (#5570) */
+    linearLabelPreview: defineRoute('/organizations/:organizationId/linear/teams/:teamId/label-preview'),
     /** Manually file a Linear issue from a job's extracted finding (idempotent) */
     linearIssueCreateManual: defineRoute('/jobs/:jobId/issues/:extractedIssueId/linear'),
     /** Get the linear_filed_issues mapping for a job (to rehydrate button state) */
@@ -60972,6 +61696,8 @@ const apiRoutes = {
     testerApply: defineRoute('/tester/apply'),
     /** Get/update own tester profile */
     testerProfile: defineRoute('/tester/profile'),
+    /** Project the reconciliation discrepancies going offline now would create (#5766) */
+    testerOfflinePreview: defineRoute('/tester/offline-preview'),
     /** Get public tester profile */
     testerPublicProfile: defineRoute('/testers/:testerId/profile'),
     /**
@@ -61004,10 +61730,6 @@ const apiRoutes = {
     testerConfig: defineRoute('/tester/config'),
     /** Get latest versions of tester tools (extension + mobile app) */
     testerVersions: defineRoute('/tester/versions'),
-    /** List recent browser-extension and mobile-app releases + unread count (authenticated tester) */
-    testerInstallReleases: defineRoute('/tester/install-releases'),
-    /** Mark all current install releases as read for the authenticated tester */
-    testerInstallReleasesMarkRead: defineRoute('/tester/install-releases/mark-read'),
     /** Register/unregister Expo push token for mobile notifications */
     testerPushToken: defineRoute('/tester/push-token'),
     /** Get/update per-priority notification preferences */
@@ -61035,6 +61757,17 @@ const apiRoutes = {
      * numbers stay accurate even when the visible page is filtered down.
      */
     adminTestersStatusCounts: defineRoute('/admin/testers/status-counts'),
+    /**
+     * Lightweight active(+pending) tester list for selection dropdowns (#4841).
+     *
+     * Distinct from the paginated `adminTesters` directory: no pagination, no
+     * handle enrichment, no metrics — just enough to populate a picker. Unlike
+     * `adminTesterUtilization`, it enumerates straight from `tester_profiles`,
+     * so it lists testers regardless of completed-job activity (the empty-window
+     * bug it exists to fix). A static segment, so it resolves ahead of the
+     * `:testerId` route below.
+     */
+    adminTesterOptions: defineRoute('/admin/testers/options'),
     /** Update any tester profile fields (admin) — status writes go through the transitions endpoint, not this one */
     adminTester: defineRoute('/admin/testers/:testerId'),
     /**
@@ -61131,6 +61864,18 @@ const apiRoutes = {
     testerBreakRequestProposals: defineRoute('/tester/break-requests/:requestId/proposals'),
     /** Admin: list outstanding break requests (GET) */
     adminBreakRequests: defineRoute('/admin/break-requests'),
+    /**
+     * Admin: fetch a single break request with its decision options (GET, #4687).
+     * Single-row sibling of {@link adminBreakRequests} for the inbox detail
+     * dialog (#4680). Same payload shape as one element of the list endpoint's
+     * `requests[]`.
+     */
+    adminBreakRequest: defineRoute('/admin/break-requests/:requestId'),
+    /** Admin: paginated Shift Reconciliations queue (#5764). */
+    adminShiftReconciliations: defineRoute('/admin/shift-reconciliations'),
+    /** Admin: get or resolve a shift-punch-delta reconciliation (#5560). */
+    adminShiftReconciliation: defineRoute('/admin/shift-reconciliation/:id'),
+    adminShiftReconciliationResolve: defineRoute('/admin/shift-reconciliation/:id/resolve'),
     /** Admin: pre-suggest a break to a tester (POST) */
     adminBreakRequestSuggest: defineRoute('/admin/break-requests/suggest'),
     /**
@@ -61143,6 +61888,24 @@ const apiRoutes = {
     adminBreakRequestSchedule: defineRoute('/admin/break-requests/schedule'),
     /** Admin: decide on a tester-originated break request (POST) */
     adminBreakRequestDecide: defineRoute('/admin/break-requests/:requestId/decide'),
+    /**
+     * Admin: cancel an already-approved break, removing it from the schedule
+     * (#5365). Transitions the row `approved → cancelled` (zero debit) and
+     * notifies the affected tester. Distinct from the tester's own
+     * `testerBreakRequestCancelApproved` — same state machine, but admin-actor
+     * and it emits the tester a `break_request_removed_by_admin` row.
+     */
+    adminBreakRequestCancel: defineRoute('/admin/break-requests/:requestId/cancel'),
+    /**
+     * Admin: withdraw a suggestion they originated (#5462). Only valid on
+     * `suggested` rows with `proposedBy='admin'`.
+     */
+    adminBreakRequestCancelSuggestion: defineRoute('/admin/break-requests/:requestId/cancel-suggestion'),
+    /**
+     * Admin: edit an already-approved break window (#5463). Only valid on
+     * `approved` rows that have not been returned or cancelled.
+     */
+    adminBreakRequestEdit: defineRoute('/admin/break-requests/:requestId/edit'),
     /**
      * Admin: manually escalate a tester-originated break request (POST).
      * Stamps `escalated_at` and posts the interactive ops-channel message —
@@ -61161,6 +61924,17 @@ const apiRoutes = {
     adminBreakRequestCounter: defineRoute('/admin/break-requests/:requestId/counter'),
     /** Admin: per-request counter-offer chain history (#3772). */
     adminBreakRequestProposals: defineRoute('/admin/break-requests/:requestId/proposals'),
+    // ============================================
+    // Time-off request endpoints (#4620, epic #4504)
+    // ============================================
+    /** Tester: apply for time off (POST). */
+    testerTimeOffRequests: defineRoute('/tester/time-off-requests'),
+    /** Tester: cancel own pending time-off request (DELETE, hard-delete). */
+    testerTimeOffRequest: defineRoute('/tester/time-off-requests/:requestId'),
+    /** Admin: approve/decline a pending time-off request (POST). */
+    adminTimeOffRequestDecide: defineRoute('/admin/time-off-requests/:requestId/decide'),
+    /** Admin: pending time-off queue across all testers, oldest first (GET). */
+    adminTimeOffRequestsPending: defineRoute('/admin/time-off-requests/pending'),
     // ============================================
     // Break-completion endpoints (#3756 — tester timesheets, break-aware)
     // ============================================
@@ -61288,6 +62062,8 @@ const apiRoutes = {
     organizationUsage: defineRoute('/organizations/:organizationId/usage'),
     /** Get organization billing balance (Polar) */
     organizationBilling: defineRoute('/organizations/:organizationId/billing'),
+    /** Preview the billing impact of deleting this org (whether its subscription will be cancelled) */
+    organizationDeletionPreview: defineRoute('/organizations/:organizationId/deletion-preview'),
     /** List repo-index status (#2892 code-context module) for the org's linked repos */
     organizationRepoIndexes: defineRoute('/organizations/:organizationId/repo-indexes'),
     /** Cancel an in-flight reindex for a single (org, repo) — Cancel button (#3399). */
@@ -61411,17 +62187,12 @@ const apiRoutes = {
     // Admin Floor Manager scheduling endpoints (#3663)
     // ============================================
     /**
-     * List or create Floor Manager on-duty blocks (admin GET / POST).
+     * List projected FM blocks in a window (admin GET).
      *
-     * `GET ?from&to` returns blocks overlapping the half-open window
-     * `[from, to)`. `POST` creates a single block; the `fm_user_id`
-     * must already have `is_floor_manager = TRUE` (DB-level guard).
+     * `GET ?from&to` returns projected occurrences from FM-designated testers'
+     * own effective schedules, overlapping the half-open window `[from, to)`.
      */
     adminFloorManagerBlocks: defineRoute('/admin/floor-manager-blocks'),
-    /**
-     * Update or delete a single Floor Manager block (admin PATCH / DELETE).
-     */
-    adminFloorManagerBlock: defineRoute('/admin/floor-manager-blocks/:blockId'),
     /**
      * Roster of users eligible to be assigned a block (admin GET).
      * Returns only users with `is_floor_manager = TRUE`. Drives the
@@ -61437,6 +62208,16 @@ const apiRoutes = {
      * dashboard). Read-only — assignment lives under `adminFloorManagerBlocks`.
      */
     floorManagerOnDuty: defineRoute('/floor-manager/on-duty'),
+    /**
+     * Tester-readable Floor Manager blocks-in-window (signed-in user, GET).
+     *
+     * `GET ?from&to` returns every FM block overlapping the half-open window
+     * `[from, to)`, each with the minimal identity the tester Team Schedule
+     * grid (#4892) needs to render it. Mirrors the shape of the admin
+     * `adminFloorManagerBlocks` GET but read-only and web-user-gated — no
+     * admin-only fields, no mutation routes.
+     */
+    floorManagerBlocks: defineRoute('/floor-manager/blocks'),
     // ============================================
     // Test Session endpoints (SDK + extension data ingestion)
     // ============================================
@@ -61500,12 +62281,30 @@ const apiRoutes = {
     mppWalletDeposit: defineRoute('/mpp/wallet/deposit'),
     /** Check MPP wallet balance (GET) — requires wallet token */
     mppWalletBalance: defineRoute('/mpp/wallet/balance'),
+    /**
+     * Cross-user job list with pagination + filtering (admin GET). Powers the
+     * admin /jobs table. Static segments (`filter-options`, `stuck-jobs`) sit
+     * alongside this and resolve ahead of the `:jobId` param route.
+     */
+    adminJobs: defineRoute('/admin/jobs'),
+    /** Distinct testers across all jobs — Tester filter combobox (admin GET). */
+    adminJobsFilterTesters: defineRoute('/admin/jobs/filter-options/testers'),
+    /** Distinct projects across all jobs — Project filter combobox (admin GET). */
+    adminJobsFilterProjects: defineRoute('/admin/jobs/filter-options/projects'),
+    /** Distinct organizations across all jobs — Org filter combobox (admin GET). */
+    adminJobsFilterOrganizations: defineRoute('/admin/jobs/filter-options/organizations'),
+    /** Working jobs + the stuck subset, with the grace-period summary (admin GET). */
+    adminStuckJobs: defineRoute('/admin/stuck-jobs'),
+    /** Force-abandon jobs stuck in `working` past a cutoff; `dryRun` previews (admin POST). */
+    adminCleanupStuckJobs: defineRoute('/admin/cleanup-stuck-jobs'),
     /** Fetch a single job with full admin detail (admin GET) */
     adminJob: defineRoute('/admin/jobs/:jobId'),
     /** Recently-terminal jobs across the platform (admin oversight; Recent tab on /admin/home, #3765) */
     adminRecent: defineRoute('/admin/recent'),
     /** Orchestrated reprocess: retranscribe and/or re-run processing pipeline (admin POST) */
     adminJobReprocess: defineRoute('/admin/jobs/:jobId/reprocess'),
+    /** Curate a job's AI-extracted issues/feedback then reprocess or finalize (admin POST, #5689) */
+    adminJobIssueReview: defineRoute('/admin/jobs/:jobId/issue-review'),
     /** Poll an admin processing job's status (admin GET) */
     adminJobProcessingStatus: defineRoute('/admin/jobs/:jobId/processing/:processingJobId'),
     // ============================================
@@ -61517,6 +62316,8 @@ const apiRoutes = {
     testerMyJobDetail: defineRoute('/tester/my-jobs/:jobId'),
     /** Retranscribe a job's recording — async via ProcessingJobStore (admin POST) */
     adminJobRetranscribe: defineRoute('/admin/jobs/:jobId/retranscribe'),
+    /** Force-strip audio from a recording — ops recovery for a stalled strip (admin POST, #5053) */
+    adminStripAudio: defineRoute('/admin/jobs/:jobId/strip-audio'),
     /** Re-run the v2 processing pipeline on a completed job — synchronous (admin POST) */
     adminJobRunProcessingPipeline: defineRoute('/admin/jobs/:jobId/run-processing-pipeline'),
     /** Terminate a running job (admin POST) */
@@ -61536,15 +62337,14 @@ const apiRoutes = {
      */
     adminJobUnhold: defineRoute('/admin/jobs/:jobId/unhold'),
     /**
-     * Admin "Re-run Pipeline (Override)" entry point (#4576): re-runs the AI
-     * pipeline on a terminal-failed job and transitions it directly to
-     * `completed`, with a deadline-derived modifier (`late_submission` or
-     * null) and a single-charge billing guarantee enforced by the
-     * idempotency record on `jobs`. Rejects tester-abandonment failures and
-     * any non-terminal-failure status. The only sanctioned terminal-to-
-     * terminal transition in the system.
+     * Admin "Review & Submit" entry point (#5355): finalise an `admin_hold` job
+     * on the tester's behalf. The admin reviews (and may edit) the AI-extracted
+     * result — summary + results document — then submits it, completing the job
+     * with the same allotted-time billing the tester's own submit would use.
+     * Only valid on `admin_hold` jobs that already have a result from AI
+     * processing.
      */
-    adminJobOverrideComplete: defineRoute('/admin/jobs/:jobId/override-complete'),
+    adminJobReviewSubmit: defineRoute('/admin/jobs/:jobId/review-submit'),
     /** Reassign a job to a different API key (admin POST) */
     adminJobReassign: defineRoute('/admin/jobs/:jobId/reassign'),
     /**
@@ -61552,6 +62352,68 @@ const apiRoutes = {
      * The corresponding archive action reuses DELETE /admin/jobs/:jobId.
      */
     adminJobUnarchive: defineRoute('/admin/jobs/:jobId/unarchive'),
+    // ============================================
+    // Admin Activity Log (admin only)
+    // ============================================
+    /** Paginated cross-user activity-log feed (admin GET). */
+    adminActivityLog: defineRoute('/admin/activity-log'),
+    /** CSV export of the filtered (unpaginated) activity-log feed (admin GET). */
+    adminActivityLogExport: defineRoute('/admin/activity-log/export'),
+    /** Distinct actors in the activity log — Actor filter combobox (admin GET). */
+    adminActivityLogActors: defineRoute('/admin/activity-log/actors'),
+    /** Distinct projects in the activity log — Project filter combobox (admin GET). */
+    adminActivityLogProjects: defineRoute('/admin/activity-log/projects'),
+    /** Distinct organizations in the activity log — Org filter combobox (admin GET). */
+    adminActivityLogOrganizations: defineRoute('/admin/activity-log/organizations'),
+    // ============================================
+    // Admin Balances (admin only)
+    // ============================================
+    /** Paginated organizations + current Polar balance + owner (admin GET). */
+    adminBalances: defineRoute('/admin/balances'),
+    /** Grant credits to an organization (admin POST). */
+    adminBalanceCredit: defineRoute('/admin/balances/:organizationId/credit'),
+    /** List Polar billing events for an organization (admin GET). */
+    adminBalanceEvents: defineRoute('/admin/balances/:organizationId/events'),
+    // ============================================
+    // Admin Short Links (admin only)
+    // ============================================
+    /** List active short links (admin GET) / create a new short link (admin POST). */
+    adminShortLinks: defineRoute('/admin/short-links'),
+    /** Update (admin PUT) / soft-delete (admin DELETE) a single short link by id. */
+    adminShortLink: defineRoute('/admin/short-links/:id'),
+    // ============================================
+    // Admin Feedback Submissions (admin only)
+    // ============================================
+    /** Paginated feedback submissions with status/type filters (admin GET). */
+    adminFeedbackSubmissions: defineRoute('/admin/feedback-submissions'),
+    /** Update a feedback submission's status: new → read → archived (admin PATCH). */
+    adminFeedbackSubmissionStatus: defineRoute('/admin/feedback-submissions/:submissionId/status'),
+    // ============================================
+    // Admin API Keys (admin only)
+    // ============================================
+    /** List all API keys across every organization, paginated + searchable (admin GET). */
+    adminApiKeys: defineRoute('/admin/api-keys'),
+    // ============================================
+    // Admin Tester Utilization (admin only)
+    // ============================================
+    /** Per-tester utilization summaries over a date range (admin GET). */
+    adminTesterUtilization: defineRoute('/admin/testers/utilization'),
+    // ============================================
+    // Admin Status (web-user auth — returns isAdmin flag)
+    // ============================================
+    /** Whether the current user is an admin; gated on web-user (not admin) auth. */
+    adminStatus: defineRoute('/admin/status'),
+    // ============================================
+    // Admin Flow Charts / cross-org projects (admin only)
+    // ============================================
+    /** Cross-org project list with pagination, search, sorting (admin GET). */
+    adminProjects: defineRoute('/admin/projects'),
+    /** List flow charts for any project, bypassing ownership checks (admin GET). */
+    adminProjectFlowCharts: defineRoute('/admin/projects/:projectId/flowcharts'),
+    /** Upload a flow-chart zip to any project, bypassing ownership checks (admin POST). */
+    adminProjectFlowChartsUpload: defineRoute('/admin/projects/:projectId/flowcharts/upload'),
+    /** Delete a flow chart from any project, bypassing ownership checks (admin DELETE). */
+    adminProjectFlowChart: defineRoute('/admin/projects/:projectId/flowcharts/:flowchartId'),
     /** Read / update the day-ahead ops digest singleton settings (admin GET / PUT). See #3577. */
     adminOpsDigestSettings: defineRoute('/admin/ops-digest/settings'),
     /** Manually post the ops digest now, bypassing the once-per-day and digest-hour gates (admin POST). See #3577. */
@@ -61584,6 +62446,12 @@ const apiRoutes = {
      * Usage page uses.
      */
     adminOrgUsage: defineRoute('/admin/organizations/:organizationId/usage'),
+    /**
+     * Tester Proficiency chart for the org-profile Statistics tab (#5513).
+     * One row per tester with a nonzero count of completed jobs billed to the
+     * org, over all time (lifetime). Reuses the TesterOverviewRow shape.
+     */
+    adminOrgTesterProficiency: defineRoute('/admin/organizations/:organizationId/tester-proficiency'),
     /**
      * Composed payload for the Project Details dialog (Overview tab).
      * Identity, parent org, total job count, and connected integrations
@@ -61622,8 +62490,8 @@ const apiRoutes = {
     notificationUnsubscribeNuclear: defineRoute('/notifications/unsubscribe/nuclear'),
     /** Authenticated nuclear reset — same effect as the unsubscribe-link variant, but reachable from Settings → Notifications. See #3514. */
     notificationNuclearReset: defineRoute('/notifications/nuclear-reset'),
-    /** Authenticated read/write of the current user's per-project email-on-completion preference. See #3514. */
-    projectEmailPreference: defineRoute('/projects/:projectId/email-preference'),
+    /** Authenticated read/write of the current user's per-project notification preference (4 axes). See #3514, #4863. */
+    projectNotificationPreference: defineRoute('/projects/:projectId/notification-preference'),
     // ============================================
     // Admin notifications (test-dispatch harness)
     // ============================================
@@ -61642,6 +62510,12 @@ const apiRoutes = {
     adminAnnouncementBroadcast: defineRoute('/admin/announcements/broadcast'),
     /** Probe for the current opt-in promotional audience size — used by the broadcast confirm dialog (admin GET). */
     adminAnnouncementAudienceCount: defineRoute('/admin/announcements/audience-count'),
+    /** List pending scheduled broadcasts for the composer's scheduled list (admin GET). See #5695. */
+    adminAnnouncementScheduledList: defineRoute('/admin/announcements/scheduled'),
+    /** Cancel a still-scheduled broadcast before it fires (admin POST). See #5695. */
+    adminAnnouncementScheduledCancel: defineRoute('/admin/announcements/scheduled/:broadcastId/cancel'),
+    /** Presigned upload URL for an announcement image / GIF → announcement-assets bucket (admin GET). See #5693. */
+    adminAnnouncementImageUploadUrl: defineRoute('/admin/announcements/image-upload-url'),
     // ============================================
     // KNOWLEDGE BASE — TESTER + PROJECT-OWNER SURFACES (#3901)
     // ============================================
@@ -61688,10 +62562,34 @@ const apiRoutes = {
     notifications: defineRoute('/notifications'),
     /** Cumulative unread badge — `{ tester, admin }` for the navbar icon. */
     notificationsUnreadCounts: defineRoute('/notifications/unread-counts'),
+    /**
+     * Single-row notification fetch for the click-to-dialog rework (#4680).
+     * Recipient-scoped — 404s on both unknown ids and rows owned by another
+     * user so existence isn't leaked.
+     */
+    notificationDetail: defineRoute('/notifications/:notificationId'),
     /** Mark a single notification read (modal row click). */
     notificationRead: defineRoute('/notifications/:notificationId/read'),
+    /**
+     * Inverse of {@link notificationRead}: clear `read_at` so the row reappears
+     * as unread. Wires the read/unread toggle introduced with the uniform row
+     * (#4688). Same ownership gate as the mark-read route.
+     */
+    notificationUnread: defineRoute('/notifications/:notificationId/unread'),
     /** Mark every unread row in one audience as read (modal-tab open). */
     notificationsReadAll: defineRoute('/notifications/read-all'),
+    /**
+     * Trash every read, non-trashed row in the given audience + category
+     * scope (#4755). Mirrors `notificationsReadAll`'s shape — same call
+     * sites compose.
+     */
+    notificationsTrashAllRead: defineRoute('/notifications/trash-all-read'),
+    /**
+     * Hard-delete every trashed row in the given audience + category scope
+     * (#4795). Powers the trash-tab variant of the drawer's bulk button —
+     * no Restore after this fires.
+     */
+    notificationsPermanentDeleteAllTrashed: defineRoute('/notifications/permanent-delete-all-trashed'),
     /** Send a single notification to Trash (#4629 layered soft-delete). */
     notificationTrash: defineRoute('/notifications/:notificationId/trash'),
     /** Restore a single trashed notification back to the inbox. */
@@ -61708,6 +62606,16 @@ const apiRoutes = {
      * for direct API/CLI/MCP callers that set the flag.
      */
     playgroundKbEligibility: defineRoute('/playground/kb-eligibility'),
+    /**
+     * POST — synchronously expand a draft instruction against the project's
+     * KB and return the enhanced text (the "enhance in place" modal). Unlike
+     * the persistent `enhanceInstructions` flag (applied in a background
+     * worker), this runs the planner→retrieval→consolidator pass inline so
+     * the author can preview and edit the result before running a job.
+     * Enforces the same gates as job creation: 403 below Enterprise tier,
+     * 422 when the project has no KB.
+     */
+    instructionsEnhance: defineRoute('/projects/:projectId/instructions/enhance'),
     // ============================================
     // Internal endpoints (worker → API only, shared-secret auth) (#4353 + #4463)
     // ============================================
@@ -61746,30 +62654,6 @@ const apiRoutes = {
     testerMyReviews: defineRoute('/tester/me/reviews'),
 };
 //# sourceMappingURL=api-routes.js.map
-;// CONCATENATED MODULE: ../shared/dist/routes/index.js
-/**
- * Type-safe route management system
- *
- * @example
- * import { webRoutes, apiRoutes, defineRoute } from '@runhuman/shared/routes';
- *
- * // Navigate to a project page
- * navigate(webRoutes.playground.build({ projectId: 'abc' }));
- *
- * // Make an API call
- * apiClient(apiRoutes.job.build({ jobId: '123' }));
- *
- * // Create a custom route
- * const customRoute = defineRoute('/custom/:id');
- * customRoute.build({ id: 'xyz' });
- */
-// Core route builder
-
-// Web (frontend) routes
-
-// API routes
-
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/issue-testing/session-events.types.js
 /**
  * Type guard to create a StorageUrl from a string.
@@ -62015,14 +62899,6 @@ const LINEAR_QA_LABELS = Object.freeze([
     LINEAR_QA_LABEL_FAILED,
 ]);
 //# sourceMappingURL=linear-qa-labels.js.map
-;// CONCATENATED MODULE: ../shared/dist/issue-testing/index.js
-
-
-// Jira QA label constants applied by the Jira test queue
-
-// Linear QA label constants applied by the Linear test queue
-
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/template/template-filter-sort.js
 function filterTemplates(items, criteria) {
     let result = [...items];
@@ -62142,99 +63018,6 @@ function parseTemplateListQuery(query) {
     return { criteria, sort };
 }
 //# sourceMappingURL=template-query.js.map
-;// CONCATENATED MODULE: ../shared/dist/template/index.js
-
-
-//# sourceMappingURL=index.js.map
-;// CONCATENATED MODULE: ../shared/dist/tester/tester-meta.js
-const DEVICE_META = {
-    ios: { iconClass: 'fa-brands fa-apple', label: 'iOS' },
-    android: { iconClass: 'fa-brands fa-android', label: 'Android' },
-    pc: { iconClass: 'fa-brands fa-windows', label: 'PC' },
-    mac: { iconClass: 'fa-solid fa-desktop', label: 'Mac' },
-};
-/** Render order for device chips/icons across every surface. */
-const DEVICE_ORDER = ['ios', 'android', 'pc', 'mac'];
-const LANGUAGE_LABELS = {
-    english: 'English',
-    spanish: 'Spanish',
-};
-function sortedDevices(devices) {
-    return DEVICE_ORDER.filter((d) => devices.includes(d));
-}
-//# sourceMappingURL=tester-meta.js.map
-;// CONCATENATED MODULE: ../shared/dist/tester/schedule-window.js
-const HOUR_MS = 60 * 60 * 1000;
-const CELL_COUNT = 24;
-/**
- * Project a merged schedule onto a fixed 24-hour forward window and identify
- * the next on-shift hour beyond `now`. UTC throughout — the UI converts to
- * the viewer's local time for display.
- */
-function computeScheduleWindow(merged, now) {
-    const kindByHour = collectKindByHour(merged);
-    const startMs = startOfUtcHour(now).getTime();
-    const cells = [];
-    for (let i = 0; i < CELL_COUNT; i++) {
-        const startUtc = new Date(startMs + i * HOUR_MS);
-        const kind = kindByHour.get(startUtc.getTime()) ?? 'off';
-        cells.push({ startUtc, kind });
-    }
-    const nextScheduledAt = findNextOnShiftAfter(kindByHour, now);
-    return { cells, nextScheduledAt };
-}
-/**
- * Walk the merged segments twice so `step-away` always wins over shift sources
- * at the same hour, regardless of segment order in the input. A single pass
- * that trusted input ordering would be fragile against backend changes — the
- * merged schedule contract doesn't promise a particular ordering.
- */
-function collectKindByHour(merged) {
-    const map = new Map();
-    for (const day of merged.days) {
-        for (const segment of day.segments) {
-            if (segment.source === 'override-remove')
-                continue;
-            if (segment.source === 'step-away')
-                continue;
-            forEachHour(segment.startsAt, segment.endsAt, (ms) => map.set(ms, 'on-shift'));
-        }
-    }
-    for (const day of merged.days) {
-        for (const segment of day.segments) {
-            if (segment.source !== 'step-away')
-                continue;
-            forEachHour(segment.startsAt, segment.endsAt, (ms) => map.set(ms, 'on-break'));
-        }
-    }
-    return map;
-}
-function forEachHour(startsAt, endsAt, visit) {
-    const startMs = Date.parse(startsAt);
-    const endMs = Date.parse(endsAt);
-    const firstHourMs = Math.floor(startMs / HOUR_MS) * HOUR_MS;
-    for (let ms = firstHourMs; ms < endMs; ms += HOUR_MS) {
-        visit(ms);
-    }
-}
-function findNextOnShiftAfter(kindByHour, now) {
-    const cutoff = startOfUtcHour(now).getTime() + HOUR_MS;
-    let soonest = null;
-    for (const [t, kind] of kindByHour) {
-        if (kind !== 'on-shift')
-            continue;
-        if (t >= cutoff && (soonest === null || t < soonest)) {
-            soonest = t;
-        }
-    }
-    return soonest === null ? null : new Date(soonest);
-}
-function startOfUtcHour(d) {
-    const out = new Date(d);
-    out.setUTCMinutes(0, 0, 0);
-    return out;
-}
-//# sourceMappingURL=schedule-window.js.map
 ;// CONCATENATED MODULE: ../shared/dist/tester/capability-registry.js
 /**
  * Centralized capability registry — single source of truth for all tester pool dimensions.
@@ -62347,6 +63130,13 @@ function checkPoolRequirements(requirements, profile) {
     }
     if (requirements.requireSideload && !profile.canSideloadApps) {
         missingRequirements.push(SIDELOAD_INSTALL_CAPABILITY.missingMessage);
+    }
+    // Identity targeting (#5743): a pool-of-one job is claimable only by the
+    // named tester(s). Fails closed when the caller can't be identified.
+    if (requirements.requiredTesterProfileIds && requirements.requiredTesterProfileIds.length > 0) {
+        if (profile.id === undefined || !requirements.requiredTesterProfileIds.includes(profile.id)) {
+            missingRequirements.push('This job is reserved for a specific tester');
+        }
     }
     return {
         eligible: missingRequirements.length === 0,
@@ -62467,96 +63257,6 @@ function filterRecentJobs(jobs, filters) {
     });
 }
 //# sourceMappingURL=queue-filter.js.map
-;// CONCATENATED MODULE: ../shared/dist/tester/sideload-platform.js
-/**
- * Sideload pool ↔ platform-device coupling.
- *
- * A job that requires the sideload tester pool (`requireSideload === true`)
- * must:
- *   1. run on a mobile device class (`deviceClass === 'mobile'`) — sideload
- *      testers install IPA/APK builds onto a phone, so a desktop test is
- *      meaningless for this pool, AND
- *   2. declare exactly one of `'ios'` or `'android'` in `requiredDevices`,
- *      and no other devices — a tester who can sideload IPAs cannot fulfill
- *      an Android APK job and vice versa.
- *
- * Shared by:
- * - server-side validation in `create-job` and template handlers
- * - client-side Playground form gating
- * - Slack message rendering (extracts `platform` from a stored job)
- *
- * All surfaces use the same helper so the rule is defined once.
- */
-const SIDELOAD_PLATFORMS = ['ios', 'android'];
-/**
- * Validate the sideload + deviceClass + required-devices coupling.
- *
- * - When `requireSideload` is falsy: returns `{ valid: true, platform: null }`
- *   regardless of `deviceClass` / `requiredDevices`. Sideload is the only
- *   constraint this helper enforces; other combinations are unrelated.
- * - When `requireSideload` is true:
- *   - `deviceClass` must be `'mobile'` — sideload jobs cannot target a
- *     desktop test, and an unset/undefined deviceClass also fails so the
- *     coupling is explicit at the call site.
- *   - `requiredDevices` must contain exactly one of `'ios'` or `'android'`
- *     and no other entries.
- *   Returns `{ valid: true, platform }` on success, or `{ valid: false, error }`.
- */
-function checkSideloadPlatform(requireSideload, requiredDevices, deviceClass) {
-    if (!requireSideload)
-        return { valid: true, platform: null };
-    if (deviceClass !== 'mobile') {
-        return {
-            valid: false,
-            error: 'Sideload jobs must run on a mobile device — set Device Class to Mobile.',
-        };
-    }
-    const devices = Array.isArray(requiredDevices) ? requiredDevices : [];
-    const sideloadPlatformsSelected = devices.filter((d) => SIDELOAD_PLATFORMS.includes(d));
-    const otherDevices = devices.filter((d) => !SIDELOAD_PLATFORMS.includes(d));
-    if (sideloadPlatformsSelected.length === 0) {
-        return { valid: false, error: 'Sideload jobs require either iOS or Android in Devices (pick one).' };
-    }
-    if (sideloadPlatformsSelected.length > 1) {
-        return { valid: false, error: 'Sideload jobs must target exactly one platform — pick iOS or Android, not both.' };
-    }
-    if (otherDevices.length > 0) {
-        return {
-            valid: false,
-            error: `Sideload jobs cannot include other devices alongside the platform; remove ${otherDevices.join(', ')}.`,
-        };
-    }
-    return { valid: true, platform: sideloadPlatformsSelected[0] };
-}
-//# sourceMappingURL=sideload-platform.js.map
-;// CONCATENATED MODULE: ../shared/dist/tester/notification-preferences.types.js
-/**
- * Per-priority notification preferences for testers.
- * Controls how testers are alerted based on job priority level.
- */
-/**
- * How a tester wants to be notified for a given priority tier.
- *
- * - `push_sound`: Full push notification with audible alert
- * - `silent`: Silent push (badge update only, no sound)
- * - `off`: No notification at all (job visible in queue only)
- */
-const PUSH_NOTIFICATION_BEHAVIORS = ['push_sound', 'silent', 'off'];
-/**
- * Default preferences for new testers:
- * - High priority: push with sound
- * - Medium priority: silent (badge only)
- * - Low priority: off (queue only)
- */
-const DEFAULT_TESTER_NOTIFICATION_PREFERENCES = {
-    high: 'push_sound',
-    medium: 'silent',
-    low: 'off',
-};
-function isPushNotificationBehavior(value) {
-    return typeof value === 'string' && PUSH_NOTIFICATION_BEHAVIORS.includes(value);
-}
-//# sourceMappingURL=notification-preferences.types.js.map
 ;// CONCATENATED MODULE: ../shared/dist/tester/claim-errors.js
 /**
  * Claim error codes + tester-facing message mapping.
@@ -62755,7 +63455,7 @@ function predictClaimError(job, surface, profile) {
 //# sourceMappingURL=claim-eligibility.js.map
 ;// CONCATENATED MODULE: ../shared/dist/tester/sort-queue.js
 /**
- * Three-tier sort for the Queue tab (#4239).
+ * Three-tier sort for the Queue tab (#4239, dynamic score #5115).
  *
  * Within a tester's queue, ordering should answer "what should I look at
  * first?":
@@ -62763,49 +63463,112 @@ function predictClaimError(job, surface, profile) {
  *   1. **Claimability** — jobs the tester *can* claim above jobs they can't
  *      (those still render so they retain the disabled-look + IneligibleClaim
  *      dialog from #3505, but they fall to the bottom of the list).
- *   2. **Priority** — within each claimability bucket, higher-priority jobs
- *      first via `PRIORITY_SORT_WEIGHT`.
- *   3. **Time remaining** — within each priority bucket, the soonest-to-
- *      expire row first. Lifetime is priority-derived so within a tier this
- *      equals oldest-first, mirroring the snapshot service's existing
- *      `byPriorityThenAge` tiebreaker.
+ *   2. **Dynamic queue score** — within each claimability bucket, the shared
+ *      {@link compareQueueByScore}: priority blended with how far each job is
+ *      through its own claim window, soonest-expiry breaking ties. The very
+ *      same comparator orders the server-side snapshot, so the two surfaces
+ *      can never diverge.
  *
  * Claimability is per-tester, so this sort lives client-side; the snapshot
- * service still feeds every tester from one priority+age-ordered cache.
+ * service feeds every tester from one score-ordered cache.
  *
  * Admin viewers without a tester profile pass `profile: null` — every row
  * buckets as claimable (the surface-only path in `predictClaimError` returns
  * `null` for `any`/desktop jobs when the chip selection is desktop) and the
- * sort degenerates to priority + time. Still useful for admin oversight.
+ * sort degenerates to the dynamic score. Still useful for admin oversight.
  */
 
 
+
+/** Claimable-and-visible first, then not-yet-visible (pending), then unclaimable. */
+const RANK_VISIBLE = 0;
+const RANK_PENDING = 1;
+const RANK_UNCLAIMABLE = 2;
 /**
- * Return a new array of jobs sorted by (claimability asc, priority asc,
- * expiresAt asc). Stable: jobs with identical keys retain their input order.
+ * Per-job placement: which bucket it falls in, and (for pending jobs) when it
+ * reveals so they can be ordered soonest-first. `counts` undefined ⇒ the caller
+ * opted out of staggered visibility, so nothing is ever pending.
  */
-function sortQueueForTester(jobs, surface, profile) {
-    // Decorate-sort-undecorate so each row's claimability is computed once.
+function placeJob(job, surface, profile, counts, now) {
+    if (predictClaimError(job, surface, profile) !== null)
+        return { rank: RANK_UNCLAIMABLE, revealAt: 0 };
+    const threshold = job.effectiveThreshold;
+    const orgId = job.organizationId;
+    if (counts === undefined || orgId === undefined || threshold === undefined || threshold <= 0) {
+        return { rank: RANK_VISIBLE, revealAt: 0 };
+    }
+    const testerCount = orgId in counts ? counts[orgId] : 0;
+    const visibility = {
+        testerCount,
+        effectiveThreshold: threshold,
+        createdAt: job.createdAt,
+        expiresAt: job.expiresAt,
+    };
+    if (isVisibleToTester(visibility, now))
+        return { rank: RANK_VISIBLE, revealAt: 0 };
+    return { rank: RANK_PENDING, revealAt: revealAtMs(visibility) };
+}
+/**
+ * Return a new array of jobs sorted into three buckets:
+ *
+ *   1. **Claimable & visible** — ordered by the shared dynamic
+ *      {@link compareQueueByScore} (priority blended with elapsed-fraction).
+ *   2. **Pending** (#5162) — claimable but not yet revealed to this tester by
+ *      staggered visibility; greyed at the bottom, ordered soonest-reveal first.
+ *   3. **Unclaimable** — surface/profile-ineligible, rendered disabled.
+ *
+ * Stable within a bucket: jobs with identical keys retain input order. `now` is
+ * injectable for deterministic tests. `orgCompletedCounts` is the per-tester
+ * experience map; omit it (admin views, or before counts load) to disable
+ * staggered visibility entirely — the sort then degrades to claimability+score.
+ */
+function sortQueueForTester(jobs, surface, profile, now = Date.now(), orgCompletedCounts) {
+    // Decorate-sort-undecorate so each row's placement is computed once.
     const decorated = jobs.map((job, index) => ({
         job,
         index,
-        unclaimable: predictClaimError(job, surface, profile) !== null,
-        priorityWeight: PRIORITY_SORT_WEIGHT[job.priority],
-        expiresAtMs: new Date(job.expiresAt).getTime(),
+        ...placeJob(job, surface, profile, orgCompletedCounts, now),
     }));
     decorated.sort((a, b) => {
-        if (a.unclaimable !== b.unclaimable)
-            return a.unclaimable ? 1 : -1;
-        if (a.priorityWeight !== b.priorityWeight)
-            return a.priorityWeight - b.priorityWeight;
-        if (a.expiresAtMs !== b.expiresAtMs)
-            return a.expiresAtMs - b.expiresAtMs;
+        if (a.rank !== b.rank)
+            return a.rank - b.rank;
+        if (a.rank === RANK_PENDING) {
+            if (a.revealAt !== b.revealAt)
+                return a.revealAt - b.revealAt;
+            return a.index - b.index;
+        }
+        const byScore = compareQueueByScore(a.job, b.job, now);
+        if (byScore !== 0)
+            return byScore;
         return a.index - b.index;
     });
     return decorated.map((d) => d.job);
 }
 //# sourceMappingURL=sort-queue.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/floor-manager-thresholds.js
+/**
+ * Floor managers monitor the floor (from Discord/Slack, the admin portal, the
+ * roster) rather than claiming jobs or mutating tester data, so the ordinary
+ * activity signals rarely fire for them. To stop them from sliding to
+ * Away/Missing/Offline while actively covering, every inactivity threshold is
+ * stretched by this multiplier for floor-manager accounts.
+ *
+ * Single source of truth shared by the server-side presence sweep
+ * (auto-away / auto-offline) and the client-side `isMissing` overlay so a
+ * floor manager's persisted demotions and their displayed "Missing" treatment
+ * stay in lock-step at the same 2× factor.
+ */
+const FLOOR_MANAGER_THRESHOLD_MULTIPLIER = 2;
+/**
+ * Stretches a base inactivity threshold (in minutes) for floor managers.
+ * Returns the base unchanged for everyone else.
+ */
+function floorManagerAdjustedMinutes(baseMinutes, isFloorManager) {
+    return isFloorManager ? baseMinutes * FLOOR_MANAGER_THRESHOLD_MULTIPLIER : baseMinutes;
+}
+//# sourceMappingURL=floor-manager-thresholds.js.map
 ;// CONCATENATED MODULE: ../shared/dist/tester/presence-derivations.js
+
 const STATUS_LABELS = {
     online: 'Online',
     busy: 'Busy',
@@ -62855,7 +63618,8 @@ function isMissing(tester, ctx) {
     if (tester.activeJob)
         return false;
     const lastActive = new Date(tester.lastActiveAt).getTime();
-    const cutoff = ctx.nowMs - ctx.missingThresholdMinutes * 60 * 1000;
+    const thresholdMinutes = floorManagerAdjustedMinutes(ctx.missingThresholdMinutes, tester.isFloorManager);
+    const cutoff = ctx.nowMs - thresholdMinutes * 60 * 1000;
     return lastActive < cutoff;
 }
 /**
@@ -62962,6 +63726,17 @@ function getMenuGroup(tester, ctx) {
  * `/tester/presence` handler) and the grouping does not perturb it.
  */
 function groupTestersByMenuGroup(testers, ctx) {
+    return groupTestersByStatus(testers, (t) => getMenuGroup(t, ctx));
+}
+/**
+ * Bucket testers by a caller-supplied status function rather than the default
+ * `getMenuGroup`. `buildPresenceSections` uses this to group the non-FM-section
+ * remainder with an *on-duty-aware* status (an on-duty FM is derived as an
+ * on-shift floor manager even when their static roster fields lag), so a
+ * fallen-through Missing FM lands in the Missing bucket — not the Away bucket
+ * its stale `scheduleState` would otherwise imply.
+ */
+function groupTestersByStatus(testers, statusOf) {
     const groups = {
         online: [],
         busy: [],
@@ -62977,7 +63752,7 @@ function groupTestersByMenuGroup(testers, ctx) {
         // skip it here so the same row doesn't get force-bucketed into Offline.
         if (t.availability === 'invisible')
             continue;
-        groups[getMenuGroup(t, ctx)].push(t);
+        groups[statusOf(t)].push(t);
     }
     return groups;
 }
@@ -62995,6 +63770,173 @@ function getAliasInitial(alias) {
     return trimmed.charAt(0).toUpperCase();
 }
 //# sourceMappingURL=menu-groups.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/presence-sections.js
+
+
+/**
+ * Presence statuses that keep an on-shift floor manager pinned to the Floor
+ * Manager section. A floor manager who is **Missing** or **Offline** (or
+ * `inactive`) drops out of the FM section and shows in their status group
+ * instead — when they aren't reachable, the roster should surface that under
+ * the same bucket as everyone else rather than implying live coverage.
+ */
+const FLOOR_MANAGER_SECTION_STATUSES = new Set([
+    'online',
+    'busy',
+    'away',
+]);
+/**
+ * The on-duty resolver (`resolveActiveBlocks`, #5169) is authoritative that a
+ * tester is an on-shift floor manager *right now*, even when their static
+ * roster fields lag — e.g. a same-day `remove`/`record-correction` override
+ * leaves `scheduleState: 'off-schedule'`, or the account simply isn't flagged
+ * `isFloorManager`. Presence for an on-duty member is therefore derived against
+ * this schedule-truthful view, so the Missing overlay (on-shift-gated, with the
+ * FM-doubled threshold) fires for an absent on-duty FM exactly as it would for
+ * any rostered on-shift FM.
+ */
+function onDutyPresenceView(tester) {
+    return { ...tester, scheduleState: 'on-shift', isFloorManager: true };
+}
+/**
+ * Splits the presence roster into the Floor Manager section and the six status
+ * groups, deduping so a reachable on-duty floor manager appears *only* under
+ * Floor Manager.
+ *
+ * On-duty membership is the authoritative on-duty set from the FM resolver
+ * (`resolveActiveBlocks`, #5169), joined to the roster by `testerProfileId`.
+ * The roster's own `isFloorManager` flag no longer gates the section — that
+ * static flag can disagree with the schedule-truthful resolver (a same-day
+ * `remove`/`record-correction` override). A tester is in the section iff they
+ * are in `onDutyTesterProfileIds` **and** reachable now; an on-duty FM who is
+ * Missing/Offline falls through to their status group.
+ */
+function buildPresenceSections(testers, ctx, onDutyTesterProfileIds) {
+    // On-duty members derive their status against the schedule-truthful view;
+    // everyone else against their own row. The same status drives both the
+    // FM-section gate and the fall-through grouping, so an absent on-duty FM
+    // reads Missing in both places.
+    const statusOf = (t) => getPresenceStatus(onDutyTesterProfileIds.has(t.id) ? onDutyPresenceView(t) : t, ctx);
+    const floorManagers = testers.filter((t) => onDutyTesterProfileIds.has(t.id) && FLOOR_MANAGER_SECTION_STATUSES.has(statusOf(t)));
+    const promotedIds = new Set(floorManagers.map((t) => t.id));
+    const remaining = testers.filter((t) => !promotedIds.has(t.id));
+    return { floorManagers, groups: groupTestersByStatus(remaining, statusOf) };
+}
+//# sourceMappingURL=presence-sections.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/availability.js
+/**
+ * Availabilities that mean "not actively present".
+ *
+ * A tester in one of these states does not refresh their last-active
+ * heartbeat: the server skips the `lastActiveAt` bump when a tester sets one
+ * (an admin going `invisible` shouldn't keep their presence alive), and the
+ * client's optimistic "back online" patch only bumps `lastActiveAt` when the
+ * new availability is *not* one of these. Single source of truth shared by
+ * the update-profile handler, the presence sweep, and the web optimistic
+ * cache patch.
+ */
+const NON_ACTIVE_AVAILABILITIES = new Set([
+    'offline',
+    'invisible',
+]);
+/**
+ * True when the availability counts as the tester being actively present —
+ * i.e. setting it should refresh their last-active timestamp.
+ */
+function isActiveAvailability(availability) {
+    return !NON_ACTIVE_AVAILABILITIES.has(availability);
+}
+//# sourceMappingURL=availability.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/sideload-platform.js
+/**
+ * Sideload pool ↔ platform-device coupling.
+ *
+ * A job that requires the sideload tester pool (`requireSideload === true`)
+ * must:
+ *   1. run on a mobile device class (`deviceClass === 'mobile'`) — sideload
+ *      testers install IPA/APK builds onto a phone, so a desktop test is
+ *      meaningless for this pool, AND
+ *   2. declare exactly one of `'ios'` or `'android'` in `requiredDevices`,
+ *      and no other devices — a tester who can sideload IPAs cannot fulfill
+ *      an Android APK job and vice versa.
+ *
+ * Shared by:
+ * - server-side validation in `create-job` and template handlers
+ * - client-side Playground form gating
+ * - Slack message rendering (extracts `platform` from a stored job)
+ *
+ * All surfaces use the same helper so the rule is defined once.
+ */
+const SIDELOAD_PLATFORMS = ['ios', 'android'];
+/**
+ * Validate the sideload + deviceClass + required-devices coupling.
+ *
+ * - When `requireSideload` is falsy: returns `{ valid: true, platform: null }`
+ *   regardless of `deviceClass` / `requiredDevices`. Sideload is the only
+ *   constraint this helper enforces; other combinations are unrelated.
+ * - When `requireSideload` is true:
+ *   - `deviceClass` must be `'mobile'` — sideload jobs cannot target a
+ *     desktop test, and an unset/undefined deviceClass also fails so the
+ *     coupling is explicit at the call site.
+ *   - `requiredDevices` must contain exactly one of `'ios'` or `'android'`
+ *     and no other entries.
+ *   Returns `{ valid: true, platform }` on success, or `{ valid: false, error }`.
+ */
+function checkSideloadPlatform(requireSideload, requiredDevices, deviceClass) {
+    if (!requireSideload)
+        return { valid: true, platform: null };
+    if (deviceClass !== 'mobile') {
+        return {
+            valid: false,
+            error: 'Sideload jobs must run on a mobile device — set Device Class to Mobile.',
+        };
+    }
+    const devices = Array.isArray(requiredDevices) ? requiredDevices : [];
+    const sideloadPlatformsSelected = devices.filter((d) => SIDELOAD_PLATFORMS.includes(d));
+    const otherDevices = devices.filter((d) => !SIDELOAD_PLATFORMS.includes(d));
+    if (sideloadPlatformsSelected.length === 0) {
+        return { valid: false, error: 'Sideload jobs require either iOS or Android in Devices (pick one).' };
+    }
+    if (sideloadPlatformsSelected.length > 1) {
+        return { valid: false, error: 'Sideload jobs must target exactly one platform — pick iOS or Android, not both.' };
+    }
+    if (otherDevices.length > 0) {
+        return {
+            valid: false,
+            error: `Sideload jobs cannot include other devices alongside the platform; remove ${otherDevices.join(', ')}.`,
+        };
+    }
+    return { valid: true, platform: sideloadPlatformsSelected[0] };
+}
+//# sourceMappingURL=sideload-platform.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/notification-preferences.types.js
+/**
+ * Per-priority notification preferences for testers.
+ * Controls how testers are alerted based on job priority level.
+ */
+/**
+ * How a tester wants to be notified for a given priority tier.
+ *
+ * - `push_sound`: Full push notification with audible alert
+ * - `silent`: Silent push (badge update only, no sound)
+ * - `off`: No notification at all (job visible in queue only)
+ */
+const PUSH_NOTIFICATION_BEHAVIORS = ['push_sound', 'silent', 'off'];
+/**
+ * Default preferences for new testers:
+ * - High priority: push with sound
+ * - Medium priority: silent (badge only)
+ * - Low priority: off (queue only)
+ */
+const DEFAULT_TESTER_NOTIFICATION_PREFERENCES = {
+    high: 'push_sound',
+    medium: 'silent',
+    low: 'off',
+};
+function isPushNotificationBehavior(value) {
+    return typeof value === 'string' && PUSH_NOTIFICATION_BEHAVIORS.includes(value);
+}
+//# sourceMappingURL=notification-preferences.types.js.map
 ;// CONCATENATED MODULE: ../shared/dist/tester/test-page-url.js
 /**
  * Single source of truth for the testerToken-encoded URL that lands a tester
@@ -63020,6 +63962,95 @@ function buildTesterTestUrl(input) {
     return `${trimmed}${path}`;
 }
 //# sourceMappingURL=test-page-url.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/tester-meta.js
+const DEVICE_META = {
+    ios: { iconClass: 'fa-brands fa-apple', label: 'iOS' },
+    android: { iconClass: 'fa-brands fa-android', label: 'Android' },
+    pc: { iconClass: 'fa-brands fa-windows', label: 'PC' },
+    mac: { iconClass: 'fa-solid fa-desktop', label: 'Mac' },
+};
+/** Render order for device chips/icons across every surface. */
+const DEVICE_ORDER = ['ios', 'android', 'pc', 'mac'];
+const LANGUAGE_LABELS = {
+    english: 'English',
+    spanish: 'Spanish',
+};
+function sortedDevices(devices) {
+    return DEVICE_ORDER.filter((d) => devices.includes(d));
+}
+//# sourceMappingURL=tester-meta.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/schedule-window.js
+const HOUR_MS = 60 * 60 * 1000;
+const CELL_COUNT = 24;
+/**
+ * Project a merged schedule onto a fixed 24-hour forward window and identify
+ * the next on-shift hour beyond `now`. UTC throughout — the UI converts to
+ * the viewer's local time for display.
+ */
+function computeScheduleWindow(merged, now) {
+    const kindByHour = collectKindByHour(merged);
+    const startMs = startOfUtcHour(now).getTime();
+    const cells = [];
+    for (let i = 0; i < CELL_COUNT; i++) {
+        const startUtc = new Date(startMs + i * HOUR_MS);
+        const kind = kindByHour.get(startUtc.getTime()) ?? 'off';
+        cells.push({ startUtc, kind });
+    }
+    const nextScheduledAt = findNextOnShiftAfter(kindByHour, now);
+    return { cells, nextScheduledAt };
+}
+/**
+ * Walk the merged segments twice so `step-away` always wins over shift sources
+ * at the same hour, regardless of segment order in the input. A single pass
+ * that trusted input ordering would be fragile against backend changes — the
+ * merged schedule contract doesn't promise a particular ordering.
+ */
+function collectKindByHour(merged) {
+    const map = new Map();
+    for (const day of merged.days) {
+        for (const segment of day.segments) {
+            if (segment.source === 'override-remove')
+                continue;
+            if (segment.source === 'step-away')
+                continue;
+            forEachHour(segment.startsAt, segment.endsAt, (ms) => map.set(ms, 'on-shift'));
+        }
+    }
+    for (const day of merged.days) {
+        for (const segment of day.segments) {
+            if (segment.source !== 'step-away')
+                continue;
+            forEachHour(segment.startsAt, segment.endsAt, (ms) => map.set(ms, 'on-break'));
+        }
+    }
+    return map;
+}
+function forEachHour(startsAt, endsAt, visit) {
+    const startMs = Date.parse(startsAt);
+    const endMs = Date.parse(endsAt);
+    const firstHourMs = Math.floor(startMs / HOUR_MS) * HOUR_MS;
+    for (let ms = firstHourMs; ms < endMs; ms += HOUR_MS) {
+        visit(ms);
+    }
+}
+function findNextOnShiftAfter(kindByHour, now) {
+    const cutoff = startOfUtcHour(now).getTime() + HOUR_MS;
+    let soonest = null;
+    for (const [t, kind] of kindByHour) {
+        if (kind !== 'on-shift')
+            continue;
+        if (t >= cutoff && (soonest === null || t < soonest)) {
+            soonest = t;
+        }
+    }
+    return soonest === null ? null : new Date(soonest);
+}
+function startOfUtcHour(d) {
+    const out = new Date(d);
+    out.setUTCMinutes(0, 0, 0);
+    return out;
+}
+//# sourceMappingURL=schedule-window.js.map
 ;// CONCATENATED MODULE: ../shared/dist/tester/tester-state-transitions.js
 /**
  * Compute the target status for `action` given the tester's current status.
@@ -63133,25 +64164,87 @@ function deriveTesterColor(alias) {
     return FALLBACK_PALETTE[index];
 }
 //# sourceMappingURL=derive-color.js.map
-;// CONCATENATED MODULE: ../shared/dist/tester/index.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/performance-rating.js
+/**
+ * Presentation helpers for a tester's **Performance Rating** (#4951) — the
+ * average of the admin-authored internal review star ratings (1–5). Pure
+ * formatting only; the numeric average + review count come from the server
+ * (`TesterMetrics.performanceRating` / `TesterMetrics.reviewCount`).
+ *
+ * Distinct from the per-review integer star string in the web `review-display`
+ * helper: this one renders a *fractional* average (half-star granularity) and
+ * the "across N reviews" subtitle shared by the web display surfaces.
+ */
+/** Number of stars the rating renders across. */
+const PERFORMANCE_RATING_STAR_COUNT = 5;
+/**
+ * Review counts at or below this show the exact grouped number; anything
+ * strictly above collapses to "10k+" so the subtitle never balloons.
+ */
+const REVIEW_COUNT_DISPLAY_CAP = 10_000;
+/**
+ * The five star fills for a 1–5 average, rounded to the nearest half star.
+ * A 4.6 average rounds to 4½ (`['full','full','full','full','half']`) even
+ * though the hover tooltip still surfaces the precise "4.6".
+ */
+function performanceRatingStars(rating) {
+    const rounded = Math.round(rating * 2) / 2;
+    const fullCount = Math.floor(rounded);
+    const hasHalf = rounded - fullCount === 0.5;
+    return Array.from({ length: PERFORMANCE_RATING_STAR_COUNT }, (_unused, index) => {
+        if (index < fullCount)
+            return 'full';
+        if (index === fullCount && hasHalf)
+            return 'half';
+        return 'empty';
+    });
+}
+/** Precise one-decimal value for the hover tooltip, e.g. `4.6`. */
+function formatPerformanceRatingValue(rating) {
+    return rating.toFixed(1);
+}
+/**
+ * The "Rating across N reviews" subtitle. Singular for one review, grouped
+ * thousands below the cap, and "10k+" once the count goes over it. Only ever
+ * called for testers with at least one review — the empty state is the
+ * caller's concern.
+ */
+function formatReviewCountLabel(reviewCount) {
+    if (reviewCount === 1)
+        return 'Rating across 1 review';
+    const countLabel = reviewCount > REVIEW_COUNT_DISPLAY_CAP ? '10k+' : reviewCount.toLocaleString('en-US');
+    return `Rating across ${countLabel} reviews`;
+}
+//# sourceMappingURL=performance-rating.js.map
+;// CONCATENATED MODULE: ../shared/dist/tester/offline-preview.js
+function durationMinutes(item) {
+    return Math.max(1, Math.round((item.endMs - item.startMs) / 60_000));
+}
+/**
+ * Plain, tester-facing one-liner for a single preview item, shared verbatim by
+ * the web and mobile go-offline modals so the two never drift. Keyed on the
+ * discrepancy `type` (not the FM-phrased `causeLabel`) — a tester clicking
+ * "offline" wants to know what their action does to their shift, not the
+ * floor-manager bookkeeping word for it.
+ */
+function describeOfflinePreviewItem(item) {
+    const min = durationMinutes(item);
+    switch (item.type) {
+        case 'early_out':
+            return `You're going offline about ${min} min before your shift ends, leaving a ${min}-min gap.`;
+        case 'late_in':
+            return `Your shift started about ${min} min before you came online, leaving a ${min}-min gap.`;
+        case 'interior_blip':
+            return `There's a ${min}-min gap in the middle of your shift where you were offline.`;
+        case 'early_in':
+            return `You came online about ${min} min before your shift started.`;
+        case 'late_out':
+            return `You're going offline about ${min} min after your shift ended.`;
+        case 'off_shift':
+            return `You were online for about ${min} min outside any scheduled shift.`;
+    }
+}
+//# sourceMappingURL=offline-preview.js.map
 ;// CONCATENATED MODULE: ../shared/dist/utils/url-validation.js
 /**
  * URL validation utilities shared across all packages
@@ -63456,6 +64549,314 @@ function formatShortDate(date, now) {
     });
 }
 //# sourceMappingURL=format-last-seen.js.map
+;// CONCATENATED MODULE: ../shared/dist/utils/post-dates.js
+/**
+ * Date/time helpers for Updates posts (#5093).
+ *
+ * The post date lines (the `/updates` list + detail and the notification-drawer
+ * post dialog) render the date only ("Month Day, Year"); the time of day
+ * surfaces only on hover, via a tooltip that spells the moment out in sentence
+ * form. These pure formatters are the single source of truth shared by
+ * `@runhuman/web` and `@runhuman/static-site` so the two surfaces can never
+ * drift in wording. (The date-only inline string comes from each package's own
+ * `formatPostDate`.)
+ *
+ * `formatPostDateTime` reads e.g. "January 5, 2026 at 2:30 PM" — `dateStyle:
+ * 'long'` + `timeStyle: 'short'` gives the localized "at" connector for en-US,
+ * which the tooltip sentences reuse verbatim ("…on January 5, 2026 at 2:30 PM").
+ * It powers the tooltips only; the inline date line is date-only.
+ */
+const POST_DATE_TIME_FORMAT = new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'long',
+    timeStyle: 'short',
+});
+/** "January 5, 2026 at 2:30 PM" — the inline date line with time of day. */
+function formatPostDateTime(dateStr) {
+    return POST_DATE_TIME_FORMAT.format(new Date(dateStr));
+}
+/**
+ * Tooltip for a post's original-publish date. When the post was later edited
+ * it reads "originally posted on …" (to distinguish it from the edit date);
+ * otherwise the plainer "posted on …".
+ */
+function postedDateTooltip(dateStr, wasEdited) {
+    const verb = wasEdited ? 'originally posted on' : 'posted on';
+    return `${verb} ${formatPostDateTime(dateStr)}`;
+}
+/** Tooltip for a post's last-edited date — "edited on …". */
+function editedDateTooltip(dateStr) {
+    return `edited on ${formatPostDateTime(dateStr)}`;
+}
+//# sourceMappingURL=post-dates.js.map
+;// CONCATENATED MODULE: ../shared/dist/utils/schedule-csv.js
+/**
+ * CSV (de)serialization for the admin tester schedule import/export feature.
+ *
+ * The wire format is **minute-resolution** and mirrors the duration-typed
+ * schedule model 1:1 — one row per recurring rule or per override window, never
+ * exploded to per-hour cells.
+ *
+ * **Every data column is an integer**, so the file survives a round-trip
+ * through Excel / Google Sheets untouched (those reformat `HH:MM` into time
+ * serials and `YYYY-MM-DD` into locale dates on save, which would corrupt the
+ * file — plain integers are left alone). A row is either:
+ *
+ *   • a recurring weekly rule — `day_of_week` (0-6 UTC) + `start_minute` /
+ *     `end_minute` as UTC minute-of-day past the weekday's midnight.
+ *     `end_minute` may exceed `1440` (up to `2880`) to encode a rule that
+ *     crosses UTC midnight into the next weekday.
+ *   • a date-specific override — `date` as a `YYYYMMDD` integer (e.g.
+ *     `20260623`) + `start_minute` / `end_minute` measured from that date's UTC
+ *     midnight. `end_minute > 1440` encodes a window spanning into later days
+ *     (e.g. multi-day time-off). `override_add` extends a shift,
+ *     `override_remove` carves a hole (approved time-off).
+ *
+ * `day_of_week` / `date` and `start_minute` / `end_minute` are reused across
+ * both kinds (`kind` disambiguates), keeping the column count minimal while
+ * round-tripping any window the model can store.
+ */
+const SCHEDULE_CSV_HEADER = [
+    'tester_email',
+    'kind',
+    'day_of_week',
+    'date',
+    'start_minute',
+    'end_minute',
+];
+const SCHEDULE_CSV_KINDS = ['recurring', 'override_add', 'override_remove'];
+const schedule_csv_MS_PER_MINUTE = 60_000;
+const MINUTES_PER_DAY = 1440;
+// Mirror of the DB CHECK constraints on `tester_recurring_schedule_rules` so a
+// malformed CSV is rejected with a line number instead of a 500 at insert time.
+const MAX_START_MINUTE = 1439;
+const MAX_END_MINUTE = 2880;
+const MAX_DURATION_MINUTES = 1440;
+// A sane upper bound on a single override window (one year) — catches typo'd
+// `end_minute` values without rejecting legitimate multi-day time-off.
+const MAX_OVERRIDE_MINUTES = 366 * MINUTES_PER_DAY;
+// ---- Serialization ----
+function serializeScheduleCsv(rows) {
+    const lines = [SCHEDULE_CSV_HEADER.join(',')];
+    for (const row of rows) {
+        if (row.kind === 'recurring') {
+            lines.push([
+                escapeCsvField(row.testerEmail),
+                row.kind,
+                String(row.weekday),
+                '',
+                String(row.startsAtMinute),
+                String(row.endsAtMinute),
+            ].join(','));
+        }
+        else {
+            const { dateInt, startMinute, endMinute } = overrideToColumns(row.startsAt, row.endsAt);
+            lines.push([escapeCsvField(row.testerEmail), row.kind, '', String(dateInt), String(startMinute), String(endMinute)].join(','));
+        }
+    }
+    return lines.join('\n') + '\n';
+}
+/** Project a `[startsAt, endsAt)` UTC window onto a `YYYYMMDD` date + minute offsets from that date's midnight. */
+function overrideToColumns(startsAt, endsAt) {
+    const startMs = Date.parse(startsAt);
+    const endMs = Date.parse(endsAt);
+    const dayIso = new Date(startMs).toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+    const dayMidnightMs = Date.parse(`${dayIso}T00:00:00.000Z`);
+    return {
+        dateInt: Number(dayIso.replace(/-/g, '')),
+        startMinute: Math.round((startMs - dayMidnightMs) / schedule_csv_MS_PER_MINUTE),
+        endMinute: Math.round((endMs - dayMidnightMs) / schedule_csv_MS_PER_MINUTE),
+    };
+}
+function escapeCsvField(value) {
+    if (/[",\r\n]/.test(value)) {
+        return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+}
+// ---- Parsing ----
+function parseScheduleCsv(text) {
+    const stripped = text.replace(/^\uFEFF/, '');
+    const lines = stripped.split(/\r?\n/);
+    const errors = [];
+    const rows = [];
+    const headerLine = lines[0];
+    if (headerLine === undefined || headerLine.trim() === '') {
+        return { rows: [], errors: [{ line: 1, message: 'CSV is empty; expected a header row' }] };
+    }
+    const headerFields = parseCsvLine(headerLine).map((f) => f.trim().toLowerCase());
+    const columnIndex = new Map();
+    headerFields.forEach((name, i) => columnIndex.set(name, i));
+    for (const required of SCHEDULE_CSV_HEADER) {
+        if (!columnIndex.has(required)) {
+            errors.push({ line: 1, message: `Header is missing required column: ${required}` });
+        }
+    }
+    if (errors.length > 0) {
+        return { rows: [], errors };
+    }
+    const expectedColumnCount = headerFields.length;
+    for (let i = 1; i < lines.length; i++) {
+        const raw = lines[i];
+        if (raw === '' || raw.trim() === '')
+            continue;
+        const lineNumber = i + 1;
+        const fields = parseCsvLine(raw);
+        if (fields.length !== expectedColumnCount) {
+            errors.push({
+                line: lineNumber,
+                message: `expected ${expectedColumnCount} columns, got ${fields.length}`,
+            });
+            continue;
+        }
+        const row = buildRow(fields, columnIndex, lineNumber, errors);
+        if (row !== null)
+            rows.push(row);
+    }
+    if (errors.length > 0) {
+        return { rows: [], errors };
+    }
+    return { rows, errors: [] };
+}
+function buildRow(fields, columnIndex, line, errors) {
+    const get = (name) => fields[columnIndex.get(name)].trim();
+    const testerEmail = get('tester_email');
+    const kindRaw = get('kind');
+    if (testerEmail === '') {
+        errors.push({ line, message: 'tester_email is required' });
+    }
+    const kind = SCHEDULE_CSV_KINDS.includes(kindRaw)
+        ? kindRaw
+        : null;
+    if (kind === null) {
+        errors.push({
+            line,
+            message: `kind must be one of ${SCHEDULE_CSV_KINDS.join(', ')} (got "${kindRaw}")`,
+        });
+        return null;
+    }
+    const row = kind === 'recurring'
+        ? buildRecurringRow(testerEmail, get('day_of_week'), get('start_minute'), get('end_minute'), line, errors)
+        : buildOverrideRow(kind, testerEmail, get('day_of_week'), get('date'), get('start_minute'), get('end_minute'), line, errors);
+    return testerEmail === '' ? null : row;
+}
+function buildRecurringRow(testerEmail, dayOfWeekRaw, startRaw, endRaw, line, errors) {
+    const before = errors.length;
+    const weekday = parseIntStrict(dayOfWeekRaw);
+    if (weekday === null || weekday < 0 || weekday > 6) {
+        errors.push({ line, message: `day_of_week must be an integer 0-6 (got "${dayOfWeekRaw}")` });
+    }
+    const startsAtMinute = parseIntStrict(startRaw);
+    if (startsAtMinute === null || startsAtMinute < 0 || startsAtMinute > MAX_START_MINUTE) {
+        errors.push({ line, message: `start_minute must be an integer 0-${MAX_START_MINUTE} (got "${startRaw}")` });
+    }
+    const endsAtMinute = parseIntStrict(endRaw);
+    if (endsAtMinute === null || endsAtMinute < 1 || endsAtMinute > MAX_END_MINUTE) {
+        errors.push({ line, message: `end_minute must be an integer 1-${MAX_END_MINUTE} (got "${endRaw}")` });
+    }
+    if (startsAtMinute !== null && endsAtMinute !== null) {
+        if (endsAtMinute <= startsAtMinute) {
+            errors.push({ line, message: `end_minute (${endRaw}) must be greater than start_minute (${startRaw})` });
+        }
+        else if (endsAtMinute - startsAtMinute > MAX_DURATION_MINUTES) {
+            errors.push({ line, message: `recurring window cannot exceed 24h (got ${endsAtMinute - startsAtMinute}m)` });
+        }
+    }
+    if (errors.length > before)
+        return null;
+    return { kind: 'recurring', testerEmail, weekday: weekday, startsAtMinute: startsAtMinute, endsAtMinute: endsAtMinute };
+}
+function buildOverrideRow(kind, testerEmail, dayOfWeekRaw, dateRaw, startRaw, endRaw, line, errors) {
+    const before = errors.length;
+    if (dayOfWeekRaw !== '') {
+        errors.push({ line, message: `day_of_week must be empty when kind=${kind}` });
+    }
+    const dayMidnightMs = parseYyyymmdd(dateRaw);
+    if (dayMidnightMs === null) {
+        errors.push({ line, message: `date must be a YYYYMMDD integer, e.g. 20260623 (got "${dateRaw}")` });
+    }
+    const startMinute = parseIntStrict(startRaw);
+    if (startMinute === null || startMinute < 0 || startMinute > MAX_START_MINUTE) {
+        errors.push({ line, message: `start_minute must be an integer 0-${MAX_START_MINUTE} (got "${startRaw}")` });
+    }
+    const endMinute = parseIntStrict(endRaw);
+    if (endMinute === null || endMinute < 1 || endMinute > MAX_OVERRIDE_MINUTES) {
+        errors.push({ line, message: `end_minute must be an integer 1-${MAX_OVERRIDE_MINUTES} (got "${endRaw}")` });
+    }
+    if (startMinute !== null && endMinute !== null && endMinute <= startMinute) {
+        errors.push({ line, message: `end_minute (${endRaw}) must be greater than start_minute (${startRaw})` });
+    }
+    if (errors.length > before)
+        return null;
+    return {
+        kind,
+        testerEmail,
+        startsAt: new Date(dayMidnightMs + startMinute * schedule_csv_MS_PER_MINUTE).toISOString(),
+        endsAt: new Date(dayMidnightMs + endMinute * schedule_csv_MS_PER_MINUTE).toISOString(),
+    };
+}
+/** Parse a `YYYYMMDD` integer to its UTC-midnight epoch ms, or null if it isn't a real calendar date. */
+function parseYyyymmdd(raw) {
+    if (!/^\d{8}$/.test(raw))
+        return null;
+    const year = Number(raw.slice(0, 4));
+    const month = Number(raw.slice(4, 6));
+    const day = Number(raw.slice(6, 8));
+    const iso = `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}T00:00:00.000Z`;
+    const ms = Date.parse(iso);
+    // Reject roll-overs (e.g. 20260631 → Jul 1): the round-trip must equal the input.
+    if (!Number.isFinite(ms))
+        return null;
+    const d = new Date(ms);
+    if (d.getUTCFullYear() !== year || d.getUTCMonth() + 1 !== month || d.getUTCDate() !== day)
+        return null;
+    return ms;
+}
+function parseIntStrict(raw) {
+    if (!/^-?\d+$/.test(raw))
+        return null;
+    const n = Number.parseInt(raw, 10);
+    return Number.isFinite(n) ? n : null;
+}
+function parseCsvLine(line) {
+    const fields = [];
+    let current = '';
+    let inQuotes = false;
+    let i = 0;
+    while (i < line.length) {
+        const ch = line[i];
+        if (inQuotes) {
+            if (ch === '"') {
+                if (line[i + 1] === '"') {
+                    current += '"';
+                    i += 2;
+                    continue;
+                }
+                inQuotes = false;
+                i += 1;
+                continue;
+            }
+            current += ch;
+            i += 1;
+            continue;
+        }
+        if (ch === '"' && current === '') {
+            inQuotes = true;
+            i += 1;
+            continue;
+        }
+        if (ch === ',') {
+            fields.push(current);
+            current = '';
+            i += 1;
+            continue;
+        }
+        current += ch;
+        i += 1;
+    }
+    fields.push(current);
+    return fields;
+}
+//# sourceMappingURL=schedule-csv.js.map
 ;// CONCATENATED MODULE: ../shared/dist/utils/local-tz-bucket.js
 /**
  * Local-timezone day bucketing for schedule rendering (#4358).
@@ -63631,212 +65032,111 @@ function utcQueryRangeForLocalRange(startLocalDate, endLocalDate) {
     };
 }
 //# sourceMappingURL=local-tz-bucket.js.map
-;// CONCATENATED MODULE: ../shared/dist/utils/schedule-csv.js
+;// CONCATENATED MODULE: ../shared/dist/utils/shift-group-window.js
 /**
- * CSV (de)serialization for the admin tester schedule import/export feature.
+ * Shift-group windowing for break-allowance bucketing (#4870).
  *
- * One row per scheduled hour. A row is either a recurring weekly slot
- * (populated day_of_week, empty date) or a date-specific override
- * (empty day_of_week, populated date).
+ * Break allowance is a pure on-read derivation (PT 30 / FT 60 on-clock minutes
+ * per period). Bucketing it by wall-clock calendar day lapses the budget in the
+ * middle of a shift that crosses local midnight — an evening shift gets two
+ * partial buckets. This helper re-keys the bucket to the tester's local-tz
+ * **shift-group window** so the budget tracks the shift group, not the clock.
+ *
+ * A "shift group" is the set of shifts whose start falls within one local-tz
+ * 24h window, anchored to the local-tz date of the group's start. Contiguous /
+ * overlapping shifts coalesce into one window; two same-local-day shifts that
+ * sit apart still share an anchor date (they started the same local day) and
+ * therefore draw from the same budget. The "reset on a new group" behaviour is
+ * emergent from the anchor key — no stored counter, no reset action.
+ *
+ * The same rule keys both derivation sites: the server timesheet bucketing
+ * (fed the tester's effective merged-shift segments) and the client allowance
+ * hint (fed the tester's merged schedule). Both pass the tester's saved local
+ * timezone (#4862) so the window matches wherever it is read.
  */
-const SCHEDULE_CSV_HEADER = [
-    'tester_email',
-    'kind',
-    'day_of_week',
-    'date',
-    'hour_utc',
-];
-const SCHEDULE_CSV_KINDS = ['recurring', 'override_add', 'override_remove'];
-// ---- Serialization ----
-function serializeScheduleCsv(rows) {
-    const lines = [SCHEDULE_CSV_HEADER.join(',')];
-    for (const row of rows) {
-        lines.push([
-            escapeCsvField(row.testerEmail),
-            row.kind,
-            row.dayOfWeek === null ? '' : String(row.dayOfWeek),
-            row.date === null ? '' : row.date,
-            String(row.hourUtc),
-        ].join(','));
-    }
-    return lines.join('\n') + '\n';
+
+/**
+ * Local-tz anchor date (`YYYY-MM-DD`) of the shift group containing `atMs`, or
+ * `null` when `atMs` falls outside every shift (the caller decides the
+ * off-shift fallback). `shiftWindows` are the tester's effective positive
+ * shift segments; they may arrive unsorted and with contiguous/overlapping
+ * neighbours — both are coalesced here so a shift crossing local midnight
+ * resolves to a single window anchored on its start.
+ */
+function shiftGroupAnchorDate(shiftWindows, atMs, timeZone) {
+    const containing = pickGroupContaining(coalesce(shiftWindows), atMs);
+    if (!containing)
+        return null;
+    return localDateInTz(new Date(containing.startMs).toISOString(), timeZone);
 }
-function escapeCsvField(value) {
-    if (/[",\r\n]/.test(value)) {
-        return `"${value.replace(/"/g, '""')}"`;
-    }
-    return value;
-}
-// ---- Parsing ----
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-function parseScheduleCsv(text) {
-    const stripped = text.replace(/^\uFEFF/, '');
-    const lines = stripped.split(/\r?\n/);
-    const errors = [];
-    const rows = [];
-    const headerLine = lines[0];
-    if (headerLine === undefined || headerLine.trim() === '') {
-        return { rows: [], errors: [{ line: 1, message: 'CSV is empty; expected a header row' }] };
-    }
-    const headerFields = parseCsvLine(headerLine).map((f) => f.trim().toLowerCase());
-    const columnIndex = new Map();
-    headerFields.forEach((name, i) => columnIndex.set(name, i));
-    for (const required of SCHEDULE_CSV_HEADER) {
-        if (!columnIndex.has(required)) {
-            errors.push({ line: 1, message: `Header is missing required column: ${required}` });
-        }
-    }
-    if (errors.length > 0) {
-        return { rows: [], errors };
-    }
-    const expectedColumnCount = headerFields.length;
-    for (let i = 1; i < lines.length; i++) {
-        const raw = lines[i];
-        if (raw === '' || raw.trim() === '')
-            continue;
-        const lineNumber = i + 1;
-        const fields = parseCsvLine(raw);
-        if (fields.length !== expectedColumnCount) {
-            errors.push({
-                line: lineNumber,
-                message: `expected ${expectedColumnCount} columns, got ${fields.length}`,
-            });
-            continue;
-        }
-        const row = buildRow(fields, columnIndex, lineNumber, errors);
-        if (row !== null)
-            rows.push(row);
-    }
-    if (errors.length > 0) {
-        return { rows: [], errors };
-    }
-    return { rows, errors: [] };
-}
-function buildRow(fields, columnIndex, lineNumber, errors) {
-    const get = (name) => fields[columnIndex.get(name)].trim();
-    const testerEmail = get('tester_email');
-    const kindRaw = get('kind');
-    const dayOfWeekRaw = get('day_of_week');
-    const dateRaw = get('date');
-    const hourUtcRaw = get('hour_utc');
-    let hasError = false;
-    if (testerEmail === '') {
-        errors.push({ line: lineNumber, message: 'tester_email is required' });
-        hasError = true;
-    }
-    const kind = SCHEDULE_CSV_KINDS.includes(kindRaw)
-        ? kindRaw
-        : null;
-    if (kind === null) {
-        errors.push({
-            line: lineNumber,
-            message: `kind must be one of ${SCHEDULE_CSV_KINDS.join(', ')} (got "${kindRaw}")`,
-        });
-        hasError = true;
-    }
-    const hourUtc = parseIntStrict(hourUtcRaw);
-    if (hourUtc === null || hourUtc < 0 || hourUtc > 23) {
-        errors.push({
-            line: lineNumber,
-            message: `hour_utc must be an integer 0-23 (got "${hourUtcRaw}")`,
-        });
-        hasError = true;
-    }
-    let dayOfWeek = null;
-    let date = null;
-    if (kind === 'recurring') {
-        if (dayOfWeekRaw === '') {
-            errors.push({ line: lineNumber, message: 'day_of_week is required when kind=recurring' });
-            hasError = true;
+function coalesce(shiftWindows) {
+    const sorted = shiftWindows
+        .map((w) => ({ startMs: Date.parse(w.startsAt), endMs: Date.parse(w.endsAt) }))
+        .filter((w) => w.endMs > w.startMs)
+        .sort((a, b) => a.startMs - b.startMs);
+    const merged = [];
+    for (const cur of sorted) {
+        const last = merged[merged.length - 1];
+        if (last && cur.startMs <= last.endMs) {
+            merged[merged.length - 1] = { startMs: last.startMs, endMs: Math.max(last.endMs, cur.endMs) };
         }
         else {
-            const parsed = parseIntStrict(dayOfWeekRaw);
-            if (parsed === null || parsed < 0 || parsed > 6) {
-                errors.push({
-                    line: lineNumber,
-                    message: `day_of_week must be an integer 0-6 (got "${dayOfWeekRaw}")`,
-                });
-                hasError = true;
-            }
-            else {
-                dayOfWeek = parsed;
-            }
+            merged.push(cur);
         }
     }
-    else if (kind === 'override_add' || kind === 'override_remove') {
-        if (dateRaw === '') {
-            errors.push({ line: lineNumber, message: `date is required when kind=${kind}` });
-            hasError = true;
-        }
-        else if (!DATE_PATTERN.test(dateRaw)) {
-            errors.push({
-                line: lineNumber,
-                message: `date must be formatted YYYY-MM-DD (got "${dateRaw}")`,
-            });
-            hasError = true;
-        }
-        else {
-            date = dateRaw;
-        }
+    return merged;
+}
+function pickGroupContaining(intervals, atMs) {
+    for (const i of intervals) {
+        if (i.startMs <= atMs && atMs < i.endMs)
+            return i;
     }
-    if (hasError || kind === null || hourUtc === null)
-        return null;
-    return { testerEmail, kind, dayOfWeek, date, hourUtc };
+    return null;
 }
-function parseIntStrict(raw) {
-    if (!/^-?\d+$/.test(raw))
-        return null;
-    const n = Number.parseInt(raw, 10);
-    return Number.isFinite(n) ? n : null;
+//# sourceMappingURL=shift-group-window.js.map
+;// CONCATENATED MODULE: ../shared/dist/utils/strip-markdown.js
+/**
+ * Converts CommonMark / GFM source into a compact plain-text preview.
+ *
+ * Strips heading markers, list bullets, emphasis, code fences, blockquote
+ * markers, link / image syntax, autolinks, task-list checkboxes, and
+ * horizontal rules. Preserves single line breaks so structure stays
+ * readable; collapses runs of horizontal whitespace and consecutive empty
+ * lines.
+ *
+ * Used wherever a markdown source needs to render as plain text — Discord
+ * announcement previews, inbox-row body previews (`displayBodyPreview`),
+ * tester note cards. Lives in `@runhuman/shared` so server-side stamping
+ * and client-side rendering apply identical rules; drift between the two
+ * is how raw `###` markers leak into UI previews.
+ */
+function stripMarkdown(source) {
+    let text = source
+        .replace(/```[\s\S]*?```/g, ' ')
+        .replace(/`([^`]*)`/g, '$1')
+        .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+        .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+        .replace(/<https?:\/\/[^>]+>/g, '');
+    // Repeatedly strip line-leading block markers until stable, so nested
+    // constructs like `> # Heading` or `> - item` are fully cleaned.
+    const blockPrefix = /^[ \t]{0,3}(?:>[ \t]?|#{1,6}[ \t]+|[-*+][ \t]+|\d+\.[ \t]+)/gm;
+    let previous;
+    do {
+        previous = text;
+        text = text.replace(blockPrefix, '');
+    } while (text !== previous);
+    return text
+        .replace(/\[[ xX]\][ \t]+/g, '')
+        .replace(/(\*\*|__)(.*?)\1/g, '$2')
+        .replace(/(\*|_)(.*?)\1/g, '$2')
+        .replace(/~~(.*?)~~/g, '$1')
+        .replace(/^[ \t]*([-*_])\1{2,}[ \t]*$/gm, '')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/[ \t]*\n[ \t]*/g, '\n')
+        .replace(/\n{2,}/g, '\n')
+        .trim();
 }
-function parseCsvLine(line) {
-    const fields = [];
-    let current = '';
-    let inQuotes = false;
-    let i = 0;
-    while (i < line.length) {
-        const ch = line[i];
-        if (inQuotes) {
-            if (ch === '"') {
-                if (line[i + 1] === '"') {
-                    current += '"';
-                    i += 2;
-                    continue;
-                }
-                inQuotes = false;
-                i += 1;
-                continue;
-            }
-            current += ch;
-            i += 1;
-            continue;
-        }
-        if (ch === '"' && current === '') {
-            inQuotes = true;
-            i += 1;
-            continue;
-        }
-        if (ch === ',') {
-            fields.push(current);
-            current = '';
-            i += 1;
-            continue;
-        }
-        current += ch;
-        i += 1;
-    }
-    fields.push(current);
-    return fields;
-}
-//# sourceMappingURL=schedule-csv.js.map
-;// CONCATENATED MODULE: ../shared/dist/utils/index.js
-
-
-
-
-
-
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=strip-markdown.js.map
 ;// CONCATENATED MODULE: ../shared/dist/api/job-api.types.js
 /**
  * API Contract Types for Job Operations
@@ -64601,10 +65901,6 @@ function convertSchemaToMDForm(schema) {
     return lines.join('\n');
 }
 //# sourceMappingURL=schema-to-mdform.js.map
-;// CONCATENATED MODULE: ../shared/dist/mdform/index.js
-
-
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/config/feature-flags.js
 /**
  * Feature Flags Module
@@ -64657,13 +65953,55 @@ function isFeatureEnabled(flag) {
  * `claimedAt + target` (= `responseDeadline - maxExtension`).
  */
 /** Default total overtime budget in minutes. */
-const DEFAULT_MAX_EXTENSION_MINUTES = 15;
+const DEFAULT_MAX_EXTENSION_MINUTES = 5;
 /** Maximum allowed total session time in minutes (target + overtime budget). */
 const SYSTEM_MAX_SESSION_MINUTES = 120;
 /** Setup buffer in minutes added to the hard cutoff for tester orientation. */
 const SETUP_BUFFER_MINUTES = 3;
 /** Default target duration for a test job (minutes). */
-const DEFAULT_TARGET_DURATION_MINUTES = 30;
+const DEFAULT_TARGET_DURATION_MINUTES = 15;
+/**
+ * Bounds for AI-driven per-job session-time estimation (#5120).
+ *
+ * When an AI writes a job's instructions (the `preparing` flow), an AI also
+ * rightsizes the tester's session window by reading those instructions. The
+ * estimate is bounded to `[floor, ceiling]`:
+ *   - The CEILING is the most an unattended estimate may allot. A `preparing`
+ *     job created without an explicit override seeds these values, so the
+ *     funds hold reserved at creation already covers the worst case and the
+ *     estimate (always ≤ ceiling) never needs re-reservation. An explicit
+ *     caller duration overrides the ceiling — the estimate still can't exceed
+ *     it, so a caller value caps rather than fixes the window.
+ *   - The FLOOR is the least we'll allot, so a trivial-scope job is never
+ *     rushed below a workable minimum. It is clamped to never exceed the
+ *     ceiling (see {@link clampEstimatedSession}) so lower-budget paths can't
+ *     invert the window.
+ */
+const ESTIMATION_CEILING_TARGET_MINUTES = 30;
+const ESTIMATION_CEILING_EXTENSION_MINUTES = 10;
+const ESTIMATION_FLOOR_TARGET_MINUTES = 12;
+const ESTIMATION_FLOOR_EXTENSION_MINUTES = 5;
+function clampToRange(value, floor, ceiling) {
+    return Math.max(floor, Math.min(value, ceiling));
+}
+/**
+ * Clamp a raw AI duration estimate to `[floor, ceiling]`, where the ceiling is
+ * the job's configured budget and the floor is the global minimum clamped to
+ * never exceed that ceiling. Rounds to whole minutes. Throws on a non-finite
+ * estimate — a malformed model output is a bug to surface, not a value to
+ * paper over.
+ */
+function clampEstimatedSession(estimate, ceilingTargetMinutes, ceilingExtensionMinutes) {
+    if (!Number.isFinite(estimate.targetDurationMinutes) || !Number.isFinite(estimate.maxExtensionMinutes)) {
+        throw new Error(`Non-finite session-time estimate: target=${estimate.targetDurationMinutes}, extension=${estimate.maxExtensionMinutes}`);
+    }
+    const targetFloor = Math.min(ESTIMATION_FLOOR_TARGET_MINUTES, ceilingTargetMinutes);
+    const extensionFloor = Math.min(ESTIMATION_FLOOR_EXTENSION_MINUTES, ceilingExtensionMinutes);
+    return {
+        targetDurationMinutes: Math.round(clampToRange(estimate.targetDurationMinutes, targetFloor, ceilingTargetMinutes)),
+        maxExtensionMinutes: Math.round(clampToRange(estimate.maxExtensionMinutes, extensionFloor, ceilingExtensionMinutes)),
+    };
+}
 /**
  * Window during which a tester whose claim went `overdue` can still submit
  * late or drop the work. Matched to the tester JWT lifetime (`JWT_EXPIRY`
@@ -64709,6 +66047,42 @@ function clampDurationSecondsToAllotted(durationSeconds, targetDurationMinutes, 
     return Math.min(durationSeconds, capSeconds);
 }
 /**
+ * Grace added to the stable `responseDeadline` before a `working` job is
+ * considered past its hard deadline (#3997). Lets a tester finish up after
+ * the deadline lands before the monitor flips them to `overdue`.
+ */
+const HARD_TIMEOUT_GRACE_MINUTES = 2;
+/**
+ * Grace used by the `claimedAt`-anchored fallback when `responseDeadline`
+ * is absent (e.g. a mobile claim bug, #2363). Wider than
+ * {@link HARD_TIMEOUT_GRACE_MINUTES} because the reconstructed deadline is
+ * itself approximate.
+ */
+const FALLBACK_TIMEOUT_GRACE_MINUTES = 5;
+/**
+ * Wall-clock moment a `working` job is considered past its hard deadline —
+ * the threshold the monitor uses to flip it to `overdue`, and the same
+ * threshold admin-unhold uses to decide whether a job recovered without an
+ * activity-log prior-status row should return to `working` or `overdue`
+ * (#5748).
+ *
+ * Prefers the stable `responseDeadline` (+{@link HARD_TIMEOUT_GRACE_MINUTES}).
+ * Falls back to reconstructing from the claim anchor
+ * (`claimedAt + target + maxExtension + {@link FALLBACK_TIMEOUT_GRACE_MINUTES}`)
+ * when the deadline column is absent. Returns null when neither input set is
+ * available — the caller has no basis to judge the deadline and must not.
+ */
+function computeWorkingTimeoutCutoff(job) {
+    if (job.responseDeadline) {
+        return new Date(new Date(job.responseDeadline).getTime() + HARD_TIMEOUT_GRACE_MINUTES * 60 * 1000);
+    }
+    if (job.claimedAt && job.targetDurationMinutes) {
+        const totalMinutes = job.targetDurationMinutes + job.maxExtensionMinutes + FALLBACK_TIMEOUT_GRACE_MINUTES;
+        return new Date(new Date(job.claimedAt).getTime() + totalMinutes * 60 * 1000);
+    }
+    return null;
+}
+/**
  * Absolute hard cutoff time for a session — the moment recording must
  * stop regardless of tester action. Adds a setup buffer on top of the
  * full window so tester orientation doesn't eat into testing time.
@@ -64732,10 +66106,34 @@ function validateExtensionConfig(targetDurationMinutes, maxExtensionMinutes) {
     return errors;
 }
 //# sourceMappingURL=timing.js.map
-;// CONCATENATED MODULE: ../shared/dist/config/index.js
-
-
-//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/config/playground-timing.js
+/**
+ * Playground default session timing (#5224).
+ *
+ * The Playground form's default duration is **affordability-aware**: a funded
+ * org opens at the preferred 20/5 (20-min target + 5-min overtime budget); a
+ * new/free org whose balance can't cover a 20/5 run falls back to the 10/5
+ * floor. The decision is made server-side from #5058's cost model (the funds
+ * gate reserves the full `target + maxExtension` window up front, so a 20/5 job
+ * holds ~25 min of credit — more than a brand-new org's signup grant) and
+ * surfaced on the `billingBalance` response the Playground already polls.
+ *
+ * These four constants are the only place the two duration pairs are declared,
+ * shared by the backend (which picks between them) and the web app (which uses
+ * the floor as the safe value shown while the balance is still loading).
+ *
+ * Distinct from the shared system default `DEFAULT_TARGET_DURATION_MINUTES`
+ * (15/5, see ./timing.ts) used by programmatic job creation (API/MCP/CI/
+ * project-setup) — #5224 deliberately left that untouched; only the Playground
+ * form adapts.
+ */
+/** Preferred Playground default — used when the org can afford the full window. */
+const PLAYGROUND_PREFERRED_TARGET_DURATION_MINUTES = 20;
+const PLAYGROUND_PREFERRED_MAX_EXTENSION_MINUTES = 5;
+/** Affordable floor — used for orgs that can't (yet) cover a 20/5 run. */
+const PLAYGROUND_FLOOR_TARGET_DURATION_MINUTES = 10;
+const PLAYGROUND_FLOOR_MAX_EXTENSION_MINUTES = 5;
+//# sourceMappingURL=playground-timing.js.map
 ;// CONCATENATED MODULE: ../shared/dist/organization/sso.types.js
 /**
  * SSO/SAML types for Enterprise Pro organizations.
@@ -64751,9 +66149,6 @@ const SAML_PROVIDERS = {
     saml_custom: { name: 'Custom SAML', icon: 'fa-solid fa-key' },
 };
 //# sourceMappingURL=sso.types.js.map
-;// CONCATENATED MODULE: ../shared/dist/organization/index.js
-
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/extension/extension-event.types.js
 /**
  * Extension event types for browser data streaming.
@@ -64808,6 +66203,117 @@ function normalizeSlackNotificationConfig(config, fallbackInstallationId) {
     return { ...config, channels: [] };
 }
 //# sourceMappingURL=normalize-slack-config.js.map
+;// CONCATENATED MODULE: ../shared/dist/schedule/timezone.js
+// West-to-east. When two zones share an offset, the first is the normalization
+// target for that offset (e.g. UTC+0 → Reykjavik, which like Etc/GMT has no DST).
+const TIMEZONE_DEFS = [
+    { value: 'Etc/GMT+12', region: 'Baker Island', offsetMinutes: -720 },
+    { value: 'Pacific/Pago_Pago', region: 'American Samoa', abbr: 'SST', offsetMinutes: -660 },
+    { value: 'Pacific/Honolulu', region: 'Hawaii', abbr: 'HST', offsetMinutes: -600 },
+    { value: 'Pacific/Marquesas', region: 'Marquesas Islands', offsetMinutes: -570 },
+    { value: 'America/Anchorage', region: 'Alaska', abbr: 'AKST', offsetMinutes: -540 },
+    { value: 'America/Los_Angeles', region: 'Pacific Time', abbr: 'PT', offsetMinutes: -480 },
+    { value: 'America/Denver', region: 'Mountain Time', abbr: 'MT', offsetMinutes: -420 },
+    { value: 'America/Chicago', region: 'Central Time', abbr: 'CT', offsetMinutes: -360 },
+    { value: 'America/New_York', region: 'Eastern Time', abbr: 'ET', offsetMinutes: -300 },
+    { value: 'America/Halifax', region: 'Atlantic Canada', abbr: 'AST', offsetMinutes: -240 },
+    { value: 'America/St_Johns', region: 'Newfoundland', abbr: 'NST', offsetMinutes: -210 },
+    { value: 'America/Sao_Paulo', region: 'Brasilia', abbr: 'BRT', offsetMinutes: -180 },
+    { value: 'America/Argentina/Buenos_Aires', region: 'Buenos Aires', abbr: 'ART', offsetMinutes: -180 },
+    { value: 'Atlantic/South_Georgia', region: 'South Georgia', offsetMinutes: -120 },
+    { value: 'Atlantic/Cape_Verde', region: 'Cape Verde', offsetMinutes: -60 },
+    { value: 'Atlantic/Reykjavik', region: 'Iceland', abbr: 'GMT', offsetMinutes: 0 },
+    { value: 'Europe/London', region: 'London', abbr: 'GMT', offsetMinutes: 0 },
+    { value: 'Europe/Paris', region: 'Central Europe', abbr: 'CET', offsetMinutes: 60 },
+    { value: 'Europe/Helsinki', region: 'Eastern Europe', abbr: 'EET', offsetMinutes: 120 },
+    { value: 'Africa/Nairobi', region: 'East Africa', abbr: 'EAT', offsetMinutes: 180 },
+    { value: 'Asia/Tehran', region: 'Iran', abbr: 'IRST', offsetMinutes: 210 },
+    { value: 'Asia/Dubai', region: 'Dubai', abbr: 'GST', offsetMinutes: 240 },
+    { value: 'Asia/Kabul', region: 'Afghanistan', offsetMinutes: 270 },
+    { value: 'Asia/Karachi', region: 'Pakistan', abbr: 'PKT', offsetMinutes: 300 },
+    { value: 'Asia/Kolkata', region: 'India', abbr: 'IST', offsetMinutes: 330 },
+    { value: 'Asia/Kathmandu', region: 'Nepal', offsetMinutes: 345 },
+    { value: 'Asia/Dhaka', region: 'Bangladesh', abbr: 'BST', offsetMinutes: 360 },
+    { value: 'Asia/Yangon', region: 'Myanmar', offsetMinutes: 390 },
+    { value: 'Asia/Bangkok', region: 'Indochina', abbr: 'ICT', offsetMinutes: 420 },
+    { value: 'Asia/Shanghai', region: 'China', abbr: 'CST', offsetMinutes: 480 },
+    { value: 'Asia/Tokyo', region: 'Japan', abbr: 'JST', offsetMinutes: 540 },
+    { value: 'Australia/Adelaide', region: 'Adelaide', abbr: 'ACST', offsetMinutes: 570 },
+    { value: 'Australia/Sydney', region: 'Sydney', abbr: 'AEST', offsetMinutes: 600 },
+    { value: 'Pacific/Norfolk', region: 'Norfolk Island', offsetMinutes: 660 },
+    { value: 'Pacific/Auckland', region: 'New Zealand', abbr: 'NZST', offsetMinutes: 720 },
+    { value: 'Pacific/Chatham', region: 'Chatham Islands', offsetMinutes: 765 },
+    { value: 'Pacific/Tongatapu', region: 'Tonga', offsetMinutes: 780 },
+    { value: 'Pacific/Kiritimati', region: 'Line Islands', offsetMinutes: 840 },
+];
+/** `-360` → `UTC-6`, `540` → `UTC+9`, `330` → `UTC+5:30`, `0` → `UTC+0`. */
+function formatUtcOffset(offsetMinutes) {
+    const sign = offsetMinutes < 0 ? '-' : '+';
+    const abs = Math.abs(offsetMinutes);
+    const hours = Math.floor(abs / 60);
+    const minutes = abs % 60;
+    const hhmm = minutes === 0 ? `${hours}` : `${hours}:${String(minutes).padStart(2, '0')}`;
+    return `UTC${sign}${hhmm}`;
+}
+function formatTimezoneLabel(def) {
+    const offset = formatUtcOffset(def.offsetMinutes);
+    return def.abbr ? `${def.region} (${def.abbr} · ${offset})` : `${def.region} (${offset})`;
+}
+/**
+ * Parse a POSIX `Etc/GMT±N` zone into its real standard offset in minutes.
+ * The POSIX sign is inverted (`Etc/GMT+6` is UTC-6), and bare `Etc/GMT` is
+ * UTC+0. Returns `null` for anything that isn't a fixed-offset Etc/GMT zone.
+ */
+function parseEtcGmtOffsetMinutes(value) {
+    if (value === 'Etc/GMT')
+        return 0;
+    const match = /^Etc\/GMT([+-])(\d{1,2})$/.exec(value);
+    if (!match)
+        return null;
+    const hours = Number(match[2]);
+    return match[1] === '+' ? -hours * 60 : hours * 60;
+}
+/**
+ * Picker options ({@link TimezonePicker}) — `{ value, label }` derived from the
+ * single definition list so the dropdown and every read-only surface render the
+ * identical label.
+ */
+const TIMEZONE_OPTIONS = TIMEZONE_DEFS.map((def) => ({
+    value: def.value,
+    label: formatTimezoneLabel(def),
+}));
+/**
+ * Human-readable label for a stored timezone. Curated zones render as
+ * `Region (ABBR · UTC±N)`. An un-curated fixed-offset `Etc/GMT±N` value borrows
+ * the colloquial label of the curated region at the same standard offset (so it
+ * reads "Central Time (CT · UTC-6)", consistent with what normalization stores,
+ * rather than a stark "UTC-6"); only an offset with no curated region falls back
+ * to a bare `UTC±N`. Anything else returns the raw string.
+ */
+function timezoneLabel(value) {
+    const def = TIMEZONE_DEFS.find((d) => d.value === value);
+    if (def)
+        return formatTimezoneLabel(def);
+    const offset = parseEtcGmtOffsetMinutes(value);
+    if (offset === null)
+        return value;
+    const region = TIMEZONE_DEFS.find((d) => d.offsetMinutes === offset);
+    return region ? formatTimezoneLabel(region) : formatUtcOffset(offset);
+}
+/**
+ * Coerce a fixed-offset `Etc/GMT±N` zone (which browsers report on machines
+ * configured with a bare UTC offset) to the curated region zone at the same
+ * standard offset. Already-curated zones and ordinary region zones pass through
+ * untouched — only the offset-only POSIX zones are normalized.
+ */
+function normalizeTimezone(value) {
+    const offset = parseEtcGmtOffsetMinutes(value);
+    if (offset === null)
+        return value;
+    const region = TIMEZONE_DEFS.find((def) => def.offsetMinutes === offset);
+    return region ? region.value : value;
+}
+//# sourceMappingURL=timezone.js.map
 ;// CONCATENATED MODULE: ../shared/dist/schedule/schedule.types.js
 // ============================================================================
 // Constants
@@ -64850,150 +66356,11 @@ const WEEKDAY_SHORT_LABELS = {
 };
 /** All valid weekdays for iteration */
 const SCHEDULE_WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
-/** Timezone options covering all 24 UTC offsets plus half-hour zones, west-to-east */
-const TIMEZONE_OPTIONS = [
-    // UTC-12 to UTC-9
-    { value: 'Etc/GMT+12', label: 'Baker Island (UTC-12)' },
-    { value: 'Pacific/Pago_Pago', label: 'American Samoa (UTC-11)' },
-    { value: 'Pacific/Honolulu', label: 'Hawaii (HST)' },
-    { value: 'Pacific/Marquesas', label: 'Marquesas Islands (UTC-9:30)' },
-    { value: 'America/Anchorage', label: 'Alaska (AKST)' },
-    // UTC-8 to UTC-5
-    { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-    { value: 'America/Denver', label: 'Mountain Time (MT)' },
-    { value: 'America/Chicago', label: 'Central Time (CT)' },
-    { value: 'America/New_York', label: 'Eastern Time (ET)' },
-    // UTC-4 to UTC-2
-    { value: 'America/Halifax', label: 'Atlantic Canada (AST)' },
-    { value: 'America/St_Johns', label: "Newfoundland (NST, UTC-3:30)" },
-    { value: 'America/Sao_Paulo', label: 'Brasilia (BRT)' },
-    { value: 'America/Argentina/Buenos_Aires', label: 'Buenos Aires (ART)' },
-    { value: 'Atlantic/South_Georgia', label: 'South Georgia (UTC-2)' },
-    // UTC-1 to UTC+1
-    { value: 'Atlantic/Cape_Verde', label: 'Cape Verde (UTC-1)' },
-    { value: 'Atlantic/Reykjavik', label: 'Iceland (GMT)' },
-    { value: 'Europe/London', label: 'London (GMT/BST)' },
-    { value: 'Europe/Paris', label: 'Central Europe (CET)' },
-    // UTC+2 to UTC+4
-    { value: 'Europe/Helsinki', label: 'Eastern Europe (EET)' },
-    { value: 'Africa/Nairobi', label: 'East Africa (EAT)' },
-    { value: 'Asia/Tehran', label: 'Iran (IRST, UTC+3:30)' },
-    { value: 'Asia/Dubai', label: 'Dubai (GST)' },
-    { value: 'Asia/Kabul', label: 'Afghanistan (UTC+4:30)' },
-    // UTC+5 to UTC+7
-    { value: 'Asia/Karachi', label: 'Pakistan (PKT)' },
-    { value: 'Asia/Kolkata', label: 'India (IST, UTC+5:30)' },
-    { value: 'Asia/Kathmandu', label: 'Nepal (UTC+5:45)' },
-    { value: 'Asia/Dhaka', label: 'Bangladesh (BST)' },
-    { value: 'Asia/Yangon', label: 'Myanmar (UTC+6:30)' },
-    { value: 'Asia/Bangkok', label: 'Indochina (ICT)' },
-    // UTC+8 to UTC+10
-    { value: 'Asia/Shanghai', label: 'China (CST)' },
-    { value: 'Asia/Tokyo', label: 'Japan (JST)' },
-    { value: 'Australia/Adelaide', label: 'Adelaide (ACST, UTC+9:30)' },
-    { value: 'Australia/Sydney', label: 'Sydney (AEST)' },
-    // UTC+11 to UTC+14
-    { value: 'Pacific/Norfolk', label: 'Norfolk Island (UTC+11)' },
-    { value: 'Pacific/Auckland', label: 'New Zealand (NZST)' },
-    { value: 'Pacific/Chatham', label: 'Chatham Islands (UTC+12:45)' },
-    { value: 'Pacific/Tongatapu', label: 'Tonga (UTC+13)' },
-    { value: 'Pacific/Kiritimati', label: 'Line Islands (UTC+14)' },
-];
+// Timezone options, labels, and normalization live in `./timezone.ts` — one
+// structured definition list drives the picker, the display label, and the
+// Etc/GMT offset → region coercion. Re-exported through `./index.ts`.
 /** Valid quarter-hour minutes */
 const QUARTER_HOUR_MINUTES = [0, 15, 30, 45];
-// ============================================================================
-// Legacy Compatibility
-// ============================================================================
-// The old schema used a `time_window` label (morning/afternoon/evening/overnight)
-// and a single `weekday` column. The new schema uses `scheduled_hour`,
-// `scheduled_minute`, and a `weekdays` array.
-//
-// Both column sets coexist in the database with a bi-directional sync trigger
-// (see migration 20260402000001). However, if the trigger somehow misses a
-// case, or data is manipulated directly, the application read path also
-// normalizes: it prefers new columns but derives from old columns when the
-// new columns look like untouched defaults.
-//
-// A follow-up migration will drop the old columns + trigger once the new
-// schema is validated in production.
-/** Maps time_window label → hour. Used by both trigger (SQL) and app (TS). */
-const TIME_WINDOW_TO_HOUR = {
-    morning: 9,
-    afternoon: 12,
-    evening: 17,
-    overnight: 22,
-    anytime: 9,
-};
-/** Maps a scheduled hour to the closest legacy time_window label */
-function hourToLegacyTimeWindow(hour) {
-    if (hour < 12)
-        return 'morning';
-    if (hour < 17)
-        return 'afternoon';
-    if (hour < 21)
-        return 'evening';
-    return 'overnight';
-}
-/**
- * Derives the legacy single `weekday` value from the new `weekdays` array.
- * Returns the first selected day, or null if none selected.
- */
-function weekdaysToLegacyWeekday(weekdays) {
-    return weekdays.length > 0 ? weekdays[0] : null;
-}
-/**
- * Normalizes a schedule read from the database, ensuring the new fields are
- * populated even if the row was last written by old code.
- *
- * Handles two cases:
- *
- * 1. **Legacy frequency**: `frequency='weekdays'` is converted to `'weekly'`
- *    with `weekdays=[1,2,3,4,5]` (Mon-Fri). The DB value is left untouched
- *    so old code can still read it, but the returned object uses the new
- *    representation.
- *
- * 2. **Stale new columns**: If `scheduledHour` is at the default (9) and
- *    `scheduledMinute` is 0 and `weekdays` is empty, but `timeWindow` has a
- *    non-morning value or `weekday` has a value, the old columns are more
- *    authoritative and we derive from them.
- *
- * The DB trigger handles most of this on write, so this is a belt-and-
- * suspenders safety net for the read path.
- */
-function normalizeSchedule(schedule) {
-    let result = schedule;
-    // Convert legacy 'weekdays' frequency → 'weekly' with Mon-Fri.
-    // The DB still stores 'weekdays' for old code compatibility, but
-    // new code treats it as weekly with explicit day selection.
-    if (result.frequency === 'weekdays') {
-        result = {
-            ...result,
-            frequency: 'weekly',
-            weekdays: [1, 2, 3, 4, 5],
-        };
-    }
-    // Detect rows written by old code where new columns have default values
-    // but old columns have real data.
-    const newColumnsAtDefaults = result.scheduledHour === 9
-        && result.scheduledMinute === 0
-        && (!result.weekdays || result.weekdays.length === 0);
-    const oldColumnsHaveData = (result.timeWindow !== undefined && result.timeWindow !== 'morning')
-        || (result.weekday !== undefined && result.weekday !== null);
-    if (newColumnsAtDefaults && oldColumnsHaveData) {
-        const derivedHour = result.timeWindow
-            ? (TIME_WINDOW_TO_HOUR[result.timeWindow] ?? 9)
-            : 9;
-        const derivedWeekdays = result.weekday !== undefined && result.weekday !== null
-            ? [result.weekday]
-            : [];
-        result = {
-            ...result,
-            scheduledHour: derivedHour,
-            weekdays: derivedWeekdays,
-        };
-    }
-    return result;
-}
 //# sourceMappingURL=schedule.types.js.map
 ;// CONCATENATED MODULE: ../shared/dist/schedule/next-execution.js
 const next_execution_ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -65215,10 +66582,6 @@ function findNextBiweeklyDay(now, timezone, hour, minute, weekdays, anchor) {
     throw new Error('Failed to find next biweekly execution within 14 days');
 }
 //# sourceMappingURL=next-execution.js.map
-;// CONCATENATED MODULE: ../shared/dist/schedule/index.js
-
-
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/contracts/billing.contract.js
 /**
  * Billing endpoint contracts.
@@ -65246,97 +66609,6 @@ const TOPUP_BUCKETS_USD = [25, 50, 100, 250];
 /** Set for O(1) bucket validation. */
 const TOPUP_BUCKETS_SET = new Set(TOPUP_BUCKETS_USD);
 //# sourceMappingURL=billing.contract.js.map
-;// CONCATENATED MODULE: ../shared/dist/contracts/tester-job.contract.js
-/**
- * Tester Job endpoint contracts.
- *
- * Defines request/response shapes for tester app job endpoints.
- * These routes authenticate via Authorization: Bearer <testerToken> header.
- * Used by: /tester/jobs/:jobId/*
- */
-/**
- * Discriminator for the retriable 409 returned by `POST /tester/jobs/:jobId/retranscribe`
- * (see {@link RetranscribeFinalizingResponse}). Shared so the API emitter and the
- * web client classifier agree on one string.
- */
-const RECORDING_FINALIZING_CODE = 'recording_finalizing';
-//# sourceMappingURL=tester-job.contract.js.map
-;// CONCATENATED MODULE: ../shared/dist/contracts/recurring-rule-hour-shim.js
-/**
- * Hour-resolution shim over the duration-typed recurring schedule model.
- *
- * The DB stores recurring intent as `(weekday, startsAtMinute, endsAtMinute)`
- * windows. Two surfaces still consume hour-resolution shapes:
- *
- *   1. The CSV wire format (one row per UTC hour) — fixed for back-compat
- *      with the FM team's spreadsheet workflow.
- *   2. The admin tester editor — still a 7×24 hour-cell grid until #3771
- *      ships the 15-min UI.
- *
- * These helpers expand on read and collapse on write at the boundary so the
- * rest of the stack only deals with durations. Sub-hour-aligned rules can't
- * round-trip through hour-cells; the expand path throws so callers never
- * silently drop minute boundaries.
- */
-/**
- * Expand each duration rule into one cell per whole UTC hour it covers.
- * Throws on sub-hour-aligned rules — the grid/CSV wire format is hour-only
- * and minute boundaries would otherwise vanish silently.
- *
- * Cross-UTC-midnight rules (`endsAtMinute > 24*60`, #4489) wrap into the next
- * weekday: a `(weekday=2, startsAtMinute=1320, endsAtMinute=1560)` rule
- * yields `[{Tue, 22}, {Tue, 23}, {Wed, 0}, {Wed, 1}]`.
- */
-function expandRulesToHourCells(rules) {
-    const cells = [];
-    for (const rule of rules) {
-        if (rule.startsAtMinute % 60 !== 0 || rule.endsAtMinute % 60 !== 0) {
-            throw new Error(`Cannot expand rule ${rule.id} to hour cells: not whole-hour aligned (${rule.startsAtMinute}-${rule.endsAtMinute})`);
-        }
-        const startHour = rule.startsAtMinute / 60;
-        const endHour = rule.endsAtMinute / 60;
-        for (let h = startHour; h < endHour; h++) {
-            const weekday = (rule.weekday + Math.floor(h / 24)) % 7;
-            const hourUtc = h % 24;
-            cells.push({ weekday, hourUtc });
-        }
-    }
-    return cells;
-}
-/**
- * Collapse adjacent same-weekday hour cells into the minimum number of
- * duration rules. Cells are deduped, sorted, and runs of consecutive hours
- * become one rule per run. Order across weekdays is preserved by ascending
- * weekday, then ascending hour.
- */
-function collapseHourCellsToRules(cells) {
-    const byDay = new Map();
-    for (const cell of cells) {
-        const set = byDay.get(cell.weekday) ?? new Set();
-        set.add(cell.hourUtc);
-        byDay.set(cell.weekday, set);
-    }
-    const rules = [];
-    const weekdays = [...byDay.keys()].sort((a, b) => a - b);
-    for (const weekday of weekdays) {
-        const hours = [...byDay.get(weekday)].sort((a, b) => a - b);
-        let runStart = hours[0];
-        let prev = hours[0];
-        for (let i = 1; i < hours.length; i++) {
-            const h = hours[i];
-            if (h === prev + 1) {
-                prev = h;
-                continue;
-            }
-            rules.push({ weekday, startsAtMinute: runStart * 60, endsAtMinute: (prev + 1) * 60 });
-            runStart = h;
-            prev = h;
-        }
-        rules.push({ weekday, startsAtMinute: runStart * 60, endsAtMinute: (prev + 1) * 60 });
-    }
-    return rules;
-}
-//# sourceMappingURL=recurring-rule-hour-shim.js.map
 ;// CONCATENATED MODULE: ../shared/dist/contracts/admin-testers.contract.js
 /**
  * Admin Testers contracts (#4272).
@@ -65491,11 +66763,23 @@ const ADMIN_JOBS_OVERVIEW_HOUR_OF_DAY_MODES = ['byOrg', 'byStatus'];
  */
 const ADMIN_JOBS_OVERVIEW_PIE_DIMENSIONS = ['terminalState', 'organization'];
 /**
- * Dimensions the percentage-over-time line chart can render. Both views
- * use values already present on {@link AdminJobsOverviewActivitySlice}
- * (`jobsByStatus` and `jobsByOrg`) — no extra backend field is needed.
+ * Dimensions the Outcomes-over-time line chart can render, each backed by a
+ * per-bucket map on {@link AdminJobsOverviewActivitySlice}:
+ *   - `terminalState` → `jobsByStatus` (completed / expired / cancelled / failed).
+ *   - `organization`  → `jobsByOrg` (top-N orgs + Other).
+ *   - `outcome`       → `jobsByOutcome` (per canonical terminal modifier —
+ *     late submission, dropped, admin terminated, platform issue, … —
+ *     excluding clean on-time completions).
  */
-const ADMIN_JOBS_OVERVIEW_SHARE_DIMENSIONS = ['terminalState', 'organization'];
+const ADMIN_JOBS_OVERVIEW_SHARE_DIMENSIONS = ['terminalState', 'organization', 'outcome'];
+/**
+ * Measures the Outcomes-over-time line chart can render. Both derive from the
+ * same per-bucket dimension map — no extra backend field:
+ *   - `share` → each period's category counts normalized to a 0–100% share
+ *     (periods with a zero total render as gaps).
+ *   - `count` → the raw per-period category counts (zero-filled, not gapped).
+ */
+const ADMIN_JOBS_OVERVIEW_SHARE_MEASURES = ['share', 'count'];
 /**
  * Sentinel keys reserved by the server for non-org buckets. Defined here so
  * the React page can render legend labels and color stably across pages.
@@ -65510,36 +66794,105 @@ const ADMIN_JOBS_OVERVIEW_OTHER_KEY = '__other__';
  */
 const ADMIN_JOBS_OVERVIEW_GRANULARITIES = ['daily', 'weekly', 'monthly'];
 //# sourceMappingURL=admin-jobs-overview.contract.js.map
+;// CONCATENATED MODULE: ../shared/dist/contracts/tester-job.contract.js
+/**
+ * Tester Job endpoint contracts.
+ *
+ * Defines request/response shapes for tester app job endpoints.
+ * These routes authenticate via Authorization: Bearer <testerToken> header.
+ * Used by: /tester/jobs/:jobId/*
+ */
+/**
+ * Discriminator for the retriable 409 returned by `POST /tester/jobs/:jobId/retranscribe`
+ * (see {@link RetranscribeFinalizingResponse}). Shared so the API emitter and the
+ * web client classifier agree on one string.
+ */
+const RECORDING_FINALIZING_CODE = 'recording_finalizing';
+/** Reprocess soft cap (#5352): warn-but-allow once a tester hits this many re-runs. */
+const ISSUE_REVIEW_RERUN_SOFT_CAP = 5;
+//# sourceMappingURL=tester-job.contract.js.map
+;// CONCATENATED MODULE: ../shared/dist/contracts/recurring-rule-hour-shim.js
+/**
+ * Hour-resolution shim over the duration-typed recurring schedule model.
+ *
+ * The DB stores recurring intent as `(weekday, startsAtMinute, endsAtMinute)`
+ * windows. Two surfaces still consume hour-resolution shapes:
+ *
+ *   1. The CSV wire format (one row per UTC hour) — fixed for back-compat
+ *      with the FM team's spreadsheet workflow.
+ *   2. The admin tester editor — still a 7×24 hour-cell grid until #3771
+ *      ships the 15-min UI.
+ *
+ * These helpers expand on read and collapse on write at the boundary so the
+ * rest of the stack only deals with durations. Sub-hour-aligned rules can't
+ * round-trip through hour-cells; the expand path throws so callers never
+ * silently drop minute boundaries.
+ */
+/**
+ * Expand each duration rule into one cell per whole UTC hour it covers.
+ * Throws on sub-hour-aligned rules — the grid/CSV wire format is hour-only
+ * and minute boundaries would otherwise vanish silently.
+ *
+ * Cross-UTC-midnight rules (`endsAtMinute > 24*60`, #4489) wrap into the next
+ * weekday: a `(weekday=2, startsAtMinute=1320, endsAtMinute=1560)` rule
+ * yields `[{Tue, 22}, {Tue, 23}, {Wed, 0}, {Wed, 1}]`.
+ */
+function expandRulesToHourCells(rules) {
+    const cells = [];
+    for (const rule of rules) {
+        if (rule.startsAtMinute % 60 !== 0 || rule.endsAtMinute % 60 !== 0) {
+            throw new Error(`Cannot expand rule ${rule.id} to hour cells: not whole-hour aligned (${rule.startsAtMinute}-${rule.endsAtMinute})`);
+        }
+        const startHour = rule.startsAtMinute / 60;
+        const endHour = rule.endsAtMinute / 60;
+        for (let h = startHour; h < endHour; h++) {
+            const weekday = (rule.weekday + Math.floor(h / 24)) % 7;
+            const hourUtc = h % 24;
+            cells.push({ weekday, hourUtc });
+        }
+    }
+    return cells;
+}
+/**
+ * Collapse adjacent same-weekday hour cells into the minimum number of
+ * duration rules. Cells are deduped, sorted, and runs of consecutive hours
+ * become one rule per run. Order across weekdays is preserved by ascending
+ * weekday, then ascending hour.
+ */
+function collapseHourCellsToRules(cells) {
+    const byDay = new Map();
+    for (const cell of cells) {
+        const set = byDay.get(cell.weekday) ?? new Set();
+        set.add(cell.hourUtc);
+        byDay.set(cell.weekday, set);
+    }
+    const rules = [];
+    const weekdays = [...byDay.keys()].sort((a, b) => a - b);
+    for (const weekday of weekdays) {
+        const hours = [...byDay.get(weekday)].sort((a, b) => a - b);
+        let runStart = hours[0];
+        let prev = hours[0];
+        for (let i = 1; i < hours.length; i++) {
+            const h = hours[i];
+            if (h === prev + 1) {
+                prev = h;
+                continue;
+            }
+            rules.push({ weekday, startsAtMinute: runStart * 60, endsAtMinute: (prev + 1) * 60 });
+            runStart = h;
+            prev = h;
+        }
+        rules.push({ weekday, startsAtMinute: runStart * 60, endsAtMinute: (prev + 1) * 60 });
+    }
+    return rules;
+}
+//# sourceMappingURL=recurring-rule-hour-shim.js.map
 ;// CONCATENATED MODULE: ../shared/dist/contracts/notifications.contract.js
 /** Type-guard narrowing to the two break-request kinds. */
 function isBreakRequestNotification(n) {
     return n.kind === 'break_request_received' || n.kind === 'break_request_status_changed';
 }
 //# sourceMappingURL=notifications.contract.js.map
-;// CONCATENATED MODULE: ../shared/dist/contracts/index.js
-/**
- * API Contract System
- *
- * Single source of truth for endpoint type safety across frontend and backend.
- *
- * Usage (backend):
- *   import { RouteSchema } from '@runhuman/shared';
- *   fastify.post<RouteSchema<'authSync', 'POST'>>(withApiPrefix(apiRoutes.authSync.pattern), handler);
- *
- * Usage (frontend):
- *   import { api } from '@/api/typed-client';
- *   const result = await api('authSync', 'POST', { body: data, authToken });
- */
-// Billing contract runtime values
-
-// Runtime value (not a type) — re-exported separately from the type block above.
-
-
-
-
-
-
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/test-session/test-session.types.js
 /**
  * Test session types for SDK + extension data ingestion.
@@ -65699,11 +67052,11 @@ const TIER_FEATURES = {
         label: 'Dedicated tester pool requirements',
         minTier: 'max',
     },
-    enhanced_video: {
-        // Internal key stays `enhanced_video` to match `apiRoutes.enhancedVideoRender` /
-        // `video_jobs.jobType='enhanced_video'`; the user-visible label tracks the
+    baked_demo_video: {
+        // Internal key stays `baked_demo_video` to match `apiRoutes.bakedDemoVideoRender` /
+        // `video_jobs.jobType='baked_demo_video'`; the user-visible label tracks the
         // #4159 rename ("enhanced video render" → "bake demo video").
-        key: 'enhanced_video',
+        key: 'baked_demo_video',
         label: 'Demo video baking',
         minTier: 'enterprise',
     },
@@ -65747,11 +67100,6 @@ function getTierFeatureChecklist(tier) {
     }));
 }
 //# sourceMappingURL=tier-features.js.map
-;// CONCATENATED MODULE: ../shared/dist/billing/index.js
-
-
-
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/flowchart/flowchart-validator.js
 /**
  * Validates flowchart data structure.
@@ -65900,6 +67248,33 @@ function isEmailOnCompletionPref(value) {
     return (value === 'inherit' || value === 'always' || value === 'never');
 }
 //# sourceMappingURL=email-on-completion.js.map
+;// CONCATENATED MODULE: ../shared/dist/notifications/tri-state-cascade.js
+/**
+ * Walks the tri-state cascade job → project → user. First non-`'inherit'`
+ * value wins. Channel- and event-agnostic: the email dispatcher uses it for
+ * the completion + failure email cascades, and the in-app inbox emitter uses
+ * it for the completion + failure inbox cascades. The caller supplies
+ * whichever pair of tiers it cares about (e.g. `email_on_completion` job/
+ * project, or `inapp_on_failure` job/project); the user-global fallback the
+ * `follow_category` result defers to is the caller's concern.
+ *
+ * Treats `undefined` as `'inherit'` — storage rows may pre-date a column or
+ * callers may legitimately omit the field at the boundary. See #3514, #4863.
+ */
+function resolveTriStateCascade(jobTier, projectTier) {
+    const job = jobTier === undefined ? 'inherit' : jobTier;
+    const project = projectTier === undefined ? 'inherit' : projectTier;
+    if (job === 'always')
+        return 'force_send';
+    if (job === 'never')
+        return 'force_suppress';
+    if (project === 'always')
+        return 'force_send';
+    if (project === 'never')
+        return 'force_suppress';
+    return 'follow_category';
+}
+//# sourceMappingURL=tri-state-cascade.js.map
 ;// CONCATENATED MODULE: ../shared/dist/notifications/kind-registry.js
 /**
  * The registry. Keyed by kind so consumers can do `KIND_REGISTRY[notif.kind]`
@@ -65911,7 +67286,7 @@ const KIND_REGISTRY = {
     break_request_received: {
         kind: 'break_request_received',
         audience: 'admin',
-        category: 'requests',
+        category: 'schedule',
         displayStrategy: 'live',
         expiry: { kind: 'none' },
         inAppPrefKey: null,
@@ -65919,8 +67294,163 @@ const KIND_REGISTRY = {
     break_request_status_changed: {
         kind: 'break_request_status_changed',
         audience: 'tester',
-        category: 'requests',
+        category: 'schedule',
         displayStrategy: 'live',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    // Time-off lifecycle pair — mirrors break requests exactly: same audience
+    // split (admin receives, tester hears the outcome), same `schedule`
+    // interactive bucket, `live` because the underlying override row mutates
+    // through the lifecycle, no expiry (workflow notifications aren't
+    // sliding-window candidates), always-on (no per-user toggle).
+    // Requester self-confirmation + colleague-activity kinds (#5094). Both
+    // families are informational records of an action that already happened, so
+    // they freeze their copy at emit (`snapshot`) rather than re-hydrating the
+    // mutating source row the lifecycle kinds track. `schedule` bucket (they sit
+    // alongside the request they describe), no expiry, always-on.
+    break_request_submitted: {
+        kind: 'break_request_submitted',
+        audience: 'tester',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    break_request_admin_activity: {
+        kind: 'break_request_admin_activity',
+        audience: 'admin',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    // Acting-admin self-confirmation on decide (#5094) — "You approved/declined
+    // X's request". Goes to the admin who decided; colleagues get the separate
+    // `*_admin_activity` row instead.
+    break_request_admin_decided: {
+        kind: 'break_request_admin_decided',
+        audience: 'admin',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    // Tester self-cancel → all floor managers (#5094): "X cancelled their break
+    // request". Snapshot — the cancel is terminal; the row records that it happened.
+    break_request_admin_cancelled: {
+        kind: 'break_request_admin_cancelled',
+        audience: 'admin',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    // Tester accept/decline of an admin suggestion → all floor managers (#5308):
+    // "X accepted / declined a break request". Mirrors `break_request_admin_cancelled`
+    // — another tester-initiated terminal action the negotiating admin (and their
+    // colleagues) need to see so they don't chase an already-resolved suggestion.
+    // Snapshot; the verb is frozen from the finalized status at emit.
+    break_request_admin_responded: {
+        kind: 'break_request_admin_responded',
+        audience: 'admin',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    // Floor manager removed an approved break from the schedule (#5365). Goes to
+    // the affected tester — distinct from the tester's own `*_status_changed`
+    // self-cancel copy, which would mislabel an admin action as "You cancelled".
+    // Snapshot: the row records a terminal action that already happened.
+    break_request_removed_by_admin: {
+        kind: 'break_request_removed_by_admin',
+        audience: 'tester',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    // Admin withdrew a suggestion they originated (#5462). Goes to the affected
+    // tester so they see the suggestion was withdrawn — snapshot, terminal.
+    break_request_suggestion_withdrawn: {
+        kind: 'break_request_suggestion_withdrawn',
+        audience: 'tester',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    // Admin edited an already-approved break window (#5463). Goes to the affected
+    // tester so they see the updated window — snapshot, terminal.
+    break_request_edited_by_admin: {
+        kind: 'break_request_edited_by_admin',
+        audience: 'tester',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    time_off_received: {
+        kind: 'time_off_received',
+        audience: 'admin',
+        category: 'schedule',
+        displayStrategy: 'live',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    time_off_status_changed: {
+        kind: 'time_off_status_changed',
+        audience: 'tester',
+        category: 'schedule',
+        displayStrategy: 'live',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    // Live (#5094): the requester's self-confirmation must track the request
+    // through to its outcome — the tester opens "You requested time off" and
+    // sees the current approved/declined/cancelled state, not a frozen pending.
+    // Hydrated from the override row exactly like `time_off_received`.
+    time_off_submitted: {
+        kind: 'time_off_submitted',
+        audience: 'tester',
+        category: 'schedule',
+        displayStrategy: 'live',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    time_off_admin_activity: {
+        kind: 'time_off_admin_activity',
+        audience: 'admin',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    time_off_admin_decided: {
+        kind: 'time_off_admin_decided',
+        audience: 'admin',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    time_off_admin_cancelled: {
+        kind: 'time_off_admin_cancelled',
+        audience: 'admin',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+    },
+    // Floor manager removed a tester's time-off block from the schedule (#5365).
+    // Goes to the affected tester. Snapshot because the underlying override row is
+    // hard-deleted on removal — there's no live source left to hydrate from.
+    time_off_removed_by_admin: {
+        kind: 'time_off_removed_by_admin',
+        audience: 'tester',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
         expiry: { kind: 'none' },
         inAppPrefKey: null,
     },
@@ -65935,15 +67465,19 @@ const KIND_REGISTRY = {
     schedule_change_request: {
         kind: 'schedule_change_request',
         audience: 'admin',
-        category: 'requests',
+        category: 'schedule',
         displayStrategy: 'live',
         expiry: { kind: 'none' },
         inAppPrefKey: null,
     },
+    // Org invitations and project-transfer requests aren't scheduling events, so
+    // they live in the informational `system` bucket rather than the `schedule`
+    // tab (which is gated to testers/floor managers). Both writers are still
+    // unimplemented — only their category placement is settled here.
     org_invitation: {
         kind: 'org_invitation',
         audience: 'tester',
-        category: 'requests',
+        category: 'system',
         displayStrategy: 'live',
         expiry: { kind: 'none' },
         inAppPrefKey: null,
@@ -65951,7 +67485,7 @@ const KIND_REGISTRY = {
     project_transfer_request: {
         kind: 'project_transfer_request',
         audience: 'admin',
-        category: 'requests',
+        category: 'system',
         displayStrategy: 'live',
         expiry: { kind: 'none' },
         inAppPrefKey: null,
@@ -65971,6 +67505,17 @@ const KIND_REGISTRY = {
         displayStrategy: 'snapshot',
         expiry: { kind: 'none' },
         inAppPrefKey: 'inapp_job_updates',
+    },
+    // Failure twin of `job_completed` (#4863). Snapshot strategy — the job is
+    // immutable post-terminal, so the dynamic failure copy is frozen at emit.
+    // Gated by its own `inapp_job_failures` toggle (independent of completion).
+    job_failed: {
+        kind: 'job_failed',
+        audience: 'tester',
+        category: 'system',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: 'inapp_job_failures',
     },
     low_balance_warning: {
         kind: 'low_balance_warning',
@@ -66002,10 +67547,41 @@ const KIND_REGISTRY = {
         expiry: { kind: 'sliding', topN: 3, ttlDays: 7 },
         inAppPrefKey: null,
     },
+    // Weekly digest (#5765): one snapshot row per FM per ISO week with the count
+    // of un-reconciled shifts. `snapshot` — the count is frozen at emit, there's
+    // no single source row to re-hydrate. Idempotent on (recipient, weekKey) so a
+    // retry within the week is a no-op.
+    shift_reconciliation_digest: {
+        kind: 'shift_reconciliation_digest',
+        audience: 'admin',
+        category: 'schedule',
+        displayStrategy: 'snapshot',
+        expiry: { kind: 'none' },
+        inAppPrefKey: null,
+        emitIdempotent: true,
+    },
 };
 /** All kinds in a given category. Driven off the registry to stay in sync. */
 function kindsForCategory(category) {
     return Object.keys(KIND_REGISTRY).filter((k) => KIND_REGISTRY[k].category === category);
+}
+/**
+ * Category for a kind, or `null` when the kind isn't in the registry — e.g. a
+ * row emitted by a newer client against the shared DB this build predates
+ * (#5129). The static `kind: NotificationKind` type can't model that, since the
+ * `notifications.kind` column is unconstrained `text`; this is the one place we
+ * cross from "trusted union" to "arbitrary string off the wire".
+ *
+ * An unrecognized kind belongs to no category: it surfaces only under the
+ * drawer's "All" tab and is excluded from per-category counts — exactly
+ * mirroring the server, which derives `byCategory` from {@link kindsForCategory}
+ * (known kinds only). Callers index `byCategory` with the result, so the `null`
+ * is what keeps an unknown kind from indexing a non-existent bucket and
+ * crashing the drawer.
+ */
+function categoryForKind(kind) {
+    const meta = KIND_REGISTRY[kind];
+    return meta === undefined ? null : meta.category;
 }
 //# sourceMappingURL=kind-registry.js.map
 ;// CONCATENATED MODULE: ../shared/dist/agreements/index.js
@@ -66051,9 +67627,47 @@ function formatSourceExtension(ext) {
     return ext.startsWith('.') ? ext : `.${ext}`;
 }
 //# sourceMappingURL=source-extensions.js.map
-;// CONCATENATED MODULE: ../shared/dist/code-context/index.js
-
-//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../shared/dist/code-context/capability-tags.js
+/**
+ * Capability tags describe a project's *shape* (#5583): which product surfaces
+ * it exposes and which frameworks it's built with. They drive the KB pipeline's
+ * registry-gated stage sequence — e.g. journeys only run for a project that has
+ * the `ui` surface.
+ *
+ * **Surfaces are a CLOSED set**: stage gating keys on them, so an unknown
+ * surface would silently break planning — keep them type-safe.
+ * **Frameworks are OPEN strings**: a project can declare any framework and a new
+ * one needs no code change. Code that branches on a framework narrows against
+ * {@link KnownFramework} and falls back to default behavior otherwise.
+ */
+/** The closed set of product surfaces a project can expose. Stage gating keys on these. */
+const SURFACE_TAGS = ['ui', 'http-api', 'cli', 'library'];
+/**
+ * Frameworks the pipeline has dedicated handling for (PR4 navigable-surface
+ * extractors). Detection may emit *any* framework string; this is only the
+ * recognized subset that code branches on — everything else is stored and
+ * surfaced, and falls through to the floor behavior.
+ */
+const KNOWN_FRAMEWORKS = [
+    'react',
+    'nextjs',
+    'astro',
+    'remix',
+    'expo',
+    'react-router',
+    'vue',
+];
+const SURFACE_TAG_SET = new Set(SURFACE_TAGS);
+/** Narrowing guard: is this tag one of the closed surface tags? */
+function isSurfaceTag(tag) {
+    return SURFACE_TAG_SET.has(tag);
+}
+const KNOWN_FRAMEWORK_SET = new Set(KNOWN_FRAMEWORKS);
+/** Narrowing guard: is this framework one the pipeline special-cases? */
+function isKnownFramework(tag) {
+    return KNOWN_FRAMEWORK_SET.has(tag);
+}
+//# sourceMappingURL=capability-tags.js.map
 ;// CONCATENATED MODULE: ../shared/dist/break-completion/segment-debit.js
 /**
  * Segment-debit rule (#3756 — AC (a), refined #3775).
@@ -66113,8 +67727,32 @@ function parseWindow(input) {
     };
 }
 //# sourceMappingURL=segment-debit.js.map
+;// CONCATENATED MODULE: ../shared/dist/baked-demo-video/index.js
+/**
+ * Producer-staged inputs for the baked-demo-video (burnt-in demo) render (#4854).
+ *
+ * Modern jobs persist their transcript to a SEPARATE object store the
+ * video-worker cannot reach (a dedicated S3 bucket in prod, Supabase Storage in
+ * dev/preview). Rather than hand the worker that store's credentials, the API
+ * hydrates the transcript at (re)bake time and stages a snapshot into the
+ * worker's recordings bucket under this key — written before the `video_jobs`
+ * row is enqueued so the worker always finds it by key. Producer (API) and
+ * consumer (worker) import this builder so the path can never drift.
+ */
+const ENHANCED_VIDEO_INPUT_PREFIX = 'baked-demo-video-inputs';
+function buildBakedDemoVideoTranscriptKey(jobId) {
+    if (jobId === '') {
+        throw new Error('buildBakedDemoVideoTranscriptKey requires a non-empty jobId');
+    }
+    return `${ENHANCED_VIDEO_INPUT_PREFIX}/${jobId}/transcript.json`;
+}
+//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ../shared/dist/index.js
 // Job types
+
+// Activity-log semantic action model (#5124)
+
+// Activity-log wire types — single source of truth for api + web (#5135)
 
 // Pagination types
 
@@ -66137,6 +67775,8 @@ function parseWindow(input) {
 // Feature flags
 
 // Session timing constants
+
+// Playground default timing (affordability-aware, #5224)
 
 // Organization types
 
@@ -66164,6 +67804,9 @@ function parseWindow(input) {
 
 // Notification preferences (tri-state cascade for email-on-completion)
 
+// Generic tri-state notification cascade resolver (job → project → user),
+// shared by the email dispatcher and the in-app inbox emitter. See #4863.
+
 // Notification kind registry (#4627) — single source of truth for per-kind
 // category / display strategy / expiry / in-app preference key.
 
@@ -66171,8 +67814,13 @@ function parseWindow(input) {
 
 // Code-context source-file allow-list (#3321 / #3489)
 
+// Capability tags (#5583) — project surfaces (closed set) + frameworks (open).
+
 // Break-completion segment-debit rule (#3756) — shared so the API debit
 // stamp and the tester-home early-return modal compute from one kernel.
+
+// Producer-staged baked-demo-video render inputs (#4854) — shared key builder so
+// the API (producer) and video-worker (consumer) resolve the same path.
 
 //# sourceMappingURL=index.js.map
 

@@ -153,3 +153,44 @@ export async function collectIssues(
 
   return issues;
 }
+
+/**
+ * Collect the issue numbers a PR closes ("Closes #123", "Fixes #456"), scraped
+ * from each PR body and deduplicated. Gated by `includeLinkedIssues` (#5823):
+ * when false, the PR is tested on its own and no linked issues are derived, so
+ * the server builds the test plan from the pull request alone.
+ */
+export async function collectPrLinkedIssueNumbers(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  prNumbers: number[],
+  includeLinkedIssues: boolean
+): Promise<number[]> {
+  if (!includeLinkedIssues) {
+    return [];
+  }
+
+  const issueNumbers: number[] = [];
+
+  for (const prNumber of prNumbers) {
+    try {
+      const { data: pr } = await octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number: prNumber,
+      });
+
+      const body = pr.body || '';
+      const issuePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+      let match;
+      while ((match = issuePattern.exec(body)) !== null) {
+        issueNumbers.push(parseInt(match[1], 10));
+      }
+    } catch (error) {
+      core.warning('Failed to fetch PR #' + prNumber + ': ' + error);
+    }
+  }
+
+  return [...new Set(issueNumbers)];
+}

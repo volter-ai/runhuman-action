@@ -16,6 +16,11 @@ export interface ActionInputs {
     description?: string;
     prNumbers: number[];
     issueNumbers: number[];
+    /**
+     * When true (default), issues referenced in the PR body (e.g. "Closes #123")
+     * are pulled into the test plan. Set false to test the pull request alone.
+     */
+    includeLinkedIssues: boolean;
     onSuccessAddLabels: string[];
     onSuccessRemoveLabels: string[];
     onFailureAddLabels: string[];

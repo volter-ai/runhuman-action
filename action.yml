@@ -21,6 +21,10 @@ inputs:
   issue-numbers:
     description: 'Issue numbers to test directly (JSON array or comma-separated)'
     required: false
+  include-linked-issues:
+    description: 'When true (default), issues referenced in a PR body (e.g. "Closes #123") are pulled into the test plan. Set false to test the pull request alone.'
+    required: false
+    default: 'true'
 
   # Success callbacks
   on-success-add-labels:
